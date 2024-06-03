@@ -1,0 +1,15 @@
+#app {
+    /*这里只需要设置高度100%就行，宽度不知道为啥自适应了*/
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    border-radius: .8rem;
+    box-shadow: 0 0 1px rgba(184, 184, 184, 0.01);
+    background: white;
+}
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+    background: transparent;
+}

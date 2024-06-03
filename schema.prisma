@@ -1,0 +1,37 @@
+datasource db {
+  // could be postgresql or mysql
+  provider = "sqlite"
+  url      = "file:dev.db"
+}
+
+generator db {
+  provider = "go run github.com/steebchen/prisma-client-go"
+}
+
+model Folder {
+  id Int @default(autoincrement()) @id
+  isFolder Boolean @default(true)
+  name     String @unique
+  details Host[]
+}
+
+model Host {
+  id Int @default(autoincrement()) @id
+  folder  Folder  @relation(fields: [id], references: [id])
+  fId Int
+  name String @unique
+  lable String
+  username String
+  port Int
+  password String
+  privateKey Bytes
+  keys  Keys  @relation(fields: [id], references: [id])
+}
+
+model Keys {
+  id Int @default(autoincrement()) @id
+  name String @unique
+  lable String
+  content Bytes
+  host Host[]
+}
