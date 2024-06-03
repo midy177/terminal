@@ -5,6 +5,8 @@ go 1.21
 toolchain go1.22.3
 
 require (
+	github.com/ActiveState/termtest/conpty v0.5.0
+	github.com/creack/pty v1.1.21
 	github.com/joho/godotenv v1.5.1
 	github.com/shopspring/decimal v1.4.0
 	github.com/steebchen/prisma-client-go v0.37.0
@@ -12,6 +14,7 @@ require (
 )
 
 require (
+	github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78 // indirect
 	github.com/bep/debounce v1.2.1 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
