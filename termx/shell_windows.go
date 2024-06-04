@@ -1,6 +1,6 @@
 //go:build windows
 
-package shellx
+package termx
 
 import (
 	"fmt"
@@ -8,13 +8,14 @@ import (
 )
 
 func getShells() {
+	home := startDir()
 	shells = append(shells, SystemShell{
 		ID:      "cmd",
 		Name:    "CMD",
 		Command: "cmd.exe",
 		Args:    nil,
 		Env:     nil,
-		Cwd:     nil,
+		Cwd:     home,
 		Icon:    "/assets/icons/cmd.svg",
 	})
 
@@ -26,7 +27,7 @@ func getShells() {
 		Env: []string{
 			"TERM=cygwin",
 		},
-		Cwd:  nil,
+		Cwd:  home,
 		Icon: "/assets/icons/powershell.svg",
 	})
 
@@ -61,14 +62,14 @@ func getShells() {
 
 		shell := SystemShell{
 			ID:      fmt.Sprintf("wsl-%s", distributionName),
-			Name:    fmt.Sprintf("WSL / %s", distributionName),
+			Name:    fmt.Sprintf("WSL(%s)", distributionName),
 			Command: "wsl.exe",
 			Args:    []string{"-d", distributionName},
 			Env: []string{
 				"TERM=xterm-256color",
 				"COLORTERM=truecolor",
 			},
-			Cwd:  nil,
+			Cwd:  home,
 			Icon: "/assets/icons/linux.svg",
 		}
 

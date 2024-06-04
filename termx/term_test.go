@@ -1,28 +1,23 @@
 package termx
 
 import (
-	"context"
-	"github.com/UserExistsError/conpty"
 	"io"
-	"log"
 	"os"
 	"testing"
 )
 
-func TestName(t *testing.T) {
-	commandLine := `wsl.exe`
-	cpty, err := conpty.Start(commandLine)
-	if err != nil {
-		log.Fatalf("Failed to spawn a pty:  %v", err)
+func TestTerm(t *testing.T) {
+	cShells := GetShells()
+	if len(cShells) == 0 {
+		t.Fatal("no shells found")
 	}
-	defer cpty.Close()
-
-	go io.Copy(os.Stdout, cpty)
-	go io.Copy(cpty, os.Stdin)
-
-	exitCode, err := cpty.Wait(context.Background())
+	cPty, err := NewPTY(&cShells[0])
 	if err != nil {
-		log.Fatalf("Error: %v", err)
+		t.Fatal(err)
 	}
-	log.Printf("ExitCode: %d", exitCode)
+	defer cPty.Close()
+
+	go io.Copy(os.Stdout, cPty)
+	go io.Copy(cPty, os.Stdin)
+	select {}
 }

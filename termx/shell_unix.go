@@ -1,6 +1,6 @@
 //go:build !windows
 
-package shellx
+package termx
 
 import (
 	"bufio"
@@ -44,6 +44,7 @@ func getShells() {
 	if term == "" {
 		term = "xterm-256color"
 	}
+	home := startDir()
 	if sbl {
 		shells = append(shells, SystemShell{
 			ID:      "login",
@@ -51,7 +52,7 @@ func getShells() {
 			Command: "login",
 			Args:    []string{"-f", "root"},
 			Env:     []string{"TERM=" + term},
-			Cwd:     nil,
+			Cwd:     home,
 			Icon:    "/assets/icons/linux.svg",
 		})
 	} else {
@@ -77,7 +78,7 @@ func getShells() {
 					Command: line,
 					Args:    nil,
 					Env:     []string{"TERM=" + term},
-					Cwd:     nil,
+					Cwd:     home,
 					Icon:    "/assets/icons/linux.svg",
 				})
 			}

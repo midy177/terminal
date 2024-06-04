@@ -1,6 +1,9 @@
-package shellx
+package termx
 
-import "sync"
+import (
+	"os"
+	"sync"
+)
 
 type SystemShell struct {
 	ID      string
@@ -8,7 +11,7 @@ type SystemShell struct {
 	Command string
 	Args    []string
 	Env     []string
-	Cwd     *string
+	Cwd     string
 	Icon    string
 }
 
@@ -20,4 +23,12 @@ func GetShells() []SystemShell {
 		getShells()
 	})
 	return shells
+}
+
+func startDir() string {
+	home, err := os.UserHomeDir()
+	if err == nil {
+		return home
+	}
+	return ""
 }
