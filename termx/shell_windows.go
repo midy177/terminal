@@ -56,7 +56,6 @@ func getShells() {
 		distributionName, _, err := subKey.GetStringValue("DistributionName")
 		subKey.Close()
 		if err != nil {
-			fmt.Println("Error getting DistributionName:", err)
 			continue
 		}
 

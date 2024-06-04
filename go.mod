@@ -5,16 +5,14 @@ go 1.21
 toolchain go1.22.3
 
 require (
-	github.com/ActiveState/termtest/conpty v0.5.0
 	github.com/UserExistsError/conpty v0.1.3
-	github.com/containerd/console v1.0.3
 	github.com/creack/pty v1.1.21
 	github.com/wailsapp/wails/v2 v2.8.2
+	golang.org/x/crypto v0.23.0
 	golang.org/x/sys v0.20.0
 )
 
 require (
-	github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78 // indirect
 	github.com/bep/debounce v1.2.1 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
@@ -38,9 +36,9 @@ require (
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/wailsapp/go-webview2 v1.0.10 // indirect
 	github.com/wailsapp/mimetype v1.4.1 // indirect
-	golang.org/x/crypto v0.23.0 // indirect
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 // indirect
 	golang.org/x/net v0.25.0 // indirect
+	golang.org/x/term v0.20.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
 )
 
