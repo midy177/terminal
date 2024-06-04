@@ -3,8 +3,8 @@
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-    border-radius: .8rem;
-    box-shadow: 0 0 1px rgba(184, 184, 184, 0.01);
+    border-radius: .5rem;
+    box-shadow: 0 0 20px rgba(184, 184, 184, 0.01);
     background: white;
 }
 body {

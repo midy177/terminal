@@ -42,12 +42,20 @@ func main() {
 			WebviewBrowserPath:                "",
 			Theme:                             windows.SystemDefault,
 			CustomTheme: &windows.ThemeSettings{
-				DarkModeTitleBar:   windows.RGB(20, 20, 20),
-				DarkModeTitleText:  windows.RGB(200, 200, 200),
-				DarkModeBorder:     windows.RGB(20, 0, 20),
+				// Theme to use when window is active
+				DarkModeTitleBar:   windows.RGB(255, 0, 0), // Red
+				DarkModeTitleText:  windows.RGB(0, 255, 0), // Green
+				DarkModeBorder:     windows.RGB(0, 0, 255), // Blue
 				LightModeTitleBar:  windows.RGB(200, 200, 200),
 				LightModeTitleText: windows.RGB(20, 20, 20),
 				LightModeBorder:    windows.RGB(200, 200, 200),
+				// Theme to use when window is inactive
+				DarkModeTitleBarInactive:   windows.RGB(128, 0, 0),
+				DarkModeTitleTextInactive:  windows.RGB(0, 128, 0),
+				DarkModeBorderInactive:     windows.RGB(0, 0, 128),
+				LightModeTitleBarInactive:  windows.RGB(100, 100, 100),
+				LightModeTitleTextInactive: windows.RGB(10, 10, 10),
+				LightModeBorderInactive:    windows.RGB(100, 100, 100),
 			},
 			// User messages that can be customised
 			//Messages *windows.Messages

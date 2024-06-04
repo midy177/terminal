@@ -6,11 +6,11 @@ toolchain go1.22.3
 
 require (
 	github.com/ActiveState/termtest/conpty v0.5.0
+	github.com/UserExistsError/conpty v0.1.3
+	github.com/containerd/console v1.0.3
 	github.com/creack/pty v1.1.21
-	github.com/joho/godotenv v1.5.1
-	github.com/shopspring/decimal v1.4.0
-	github.com/steebchen/prisma-client-go v0.37.0
 	github.com/wailsapp/wails/v2 v2.8.2
+	golang.org/x/sys v0.20.0
 )
 
 require (
@@ -32,6 +32,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/samber/lo v1.38.1 // indirect
+	github.com/stretchr/testify v1.9.0 // indirect
 	github.com/tkrajina/go-reflector v0.5.6 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
@@ -40,7 +41,6 @@ require (
 	golang.org/x/crypto v0.23.0 // indirect
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 // indirect
 	golang.org/x/net v0.25.0 // indirect
-	golang.org/x/sys v0.20.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
 )
 

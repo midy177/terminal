@@ -6,7 +6,6 @@
   "frontend:build": "npm run build",
   "frontend:dev:watcher": "npm run dev",
   "frontend:dev:serverUrl": "auto",
-  "background-color": "#FFF",
   "author": {
     "name": "",
     "email": ""
