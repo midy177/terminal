@@ -11,7 +11,7 @@ generator db {
 model Folder {
   id Int @default(autoincrement()) @id
   isFolder Boolean @default(true)
-  name     String @unique
+  lable     String @unique
   details Host[]
 }
 
@@ -19,8 +19,7 @@ model Host {
   id Int @default(autoincrement()) @id
   folder  Folder  @relation(fields: [id], references: [id])
   fId Int
-  name String @unique
-  lable String
+  lable String @unique
   username String
   port Int
   password String
@@ -30,8 +29,7 @@ model Host {
 
 model Keys {
   id Int @default(autoincrement()) @id
-  name String @unique
-  lable String
+  lable String @unique
   content Bytes
   host Host[]
 }
