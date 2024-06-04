@@ -9,15 +9,16 @@ import (
 	"os/exec"
 )
 
-func (t *Terminal) updatePTYSize() {
+func (t *Terminal) updatePTYSize(rows, cols int) {
 	if t.pty == nil { // SSH or other direct connection?
 		return
 	}
-	scale := float32(1.0)
+	//scale := float32(1.0)
 
 	_ = pty.Setsize(t.pty.(*os.File), &pty.Winsize{
-		Rows: uint16(t.config.Rows), Cols: uint16(t.config.Columns),
-		X: uint16(t.Size().Width * scale), Y: uint16(t.Size().Height * scale)})
+		Rows: uint16(rows), Cols: uint16(cols),
+		//X: uint16(t.Size().Width * scale), Y: uint16(t.Size().Height * scale),
+	})
 }
 
 func (t *Terminal) startPTY() (io.WriteCloser, io.Reader, io.Closer, error) {

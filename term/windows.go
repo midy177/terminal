@@ -12,11 +12,11 @@ import (
 	"github.com/ActiveState/termtest/conpty"
 )
 
-func (t *Terminal) updatePTYSize() {
+func (t *Terminal) updatePTYSize(rows, cols int) {
 	if t.pty == nil { // during load
 		return
 	}
-	_ = t.pty.(*conpty.ConPty).Resize(uint16(t.config.Columns), uint16(t.config.Rows))
+	_ = t.pty.(*conpty.ConPty).Resize(uint16(cols), uint16(rows))
 }
 
 func (t *Terminal) startPTY() (io.WriteCloser, io.Reader, io.Closer, error) {
