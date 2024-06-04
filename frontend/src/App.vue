@@ -148,7 +148,7 @@ input[type=search]::-webkit-search-cancel-button{
 
 .nav-collection {
   top: 50%;
-  right: 2px;
+  left: 2px;
   width: 32px;
   height: 24px;
   border-radius: 12px;

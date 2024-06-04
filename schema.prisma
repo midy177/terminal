@@ -17,14 +17,16 @@ model Folder {
 
 model Host {
   id Int @default(autoincrement()) @id
-  folder  Folder  @relation(fields: [id], references: [id])
+  folder  Folder  @relation(fields: [fId], references: [id])
   fId Int
   lable String @unique
   username String
+  host String @unique
   port Int
   password String
   privateKey Bytes
-  keys  Keys  @relation(fields: [id], references: [id])
+  keyId Int
+  keys  Keys  @relation(fields: [keyId], references: [id])
 }
 
 model Keys {

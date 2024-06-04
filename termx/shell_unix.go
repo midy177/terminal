@@ -45,12 +45,13 @@ func getShells() {
 		term = "xterm-256color"
 	}
 	home := startDir()
-	if sbl {
+	user := os.Getenv("USER")
+	if sbl && len(user) > 0 {
 		shells = append(shells, SystemShell{
 			ID:      "login",
 			Name:    "Linux(login)",
 			Command: "login",
-			Args:    []string{"-f", "root"},
+			Args:    []string{"-f", user},
 			Env:     []string{"TERM=" + term},
 			Cwd:     home,
 			Icon:    "/assets/icons/linux.svg",

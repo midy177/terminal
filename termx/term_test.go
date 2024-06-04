@@ -12,7 +12,7 @@ func TestTerm(t *testing.T) {
 	if len(cShells) == 0 {
 		t.Fatal("no shells found")
 	}
-	cPty, err := NewPTY(&cShells[1])
+	cPty, err := NewPTY(&cShells[0])
 	if err != nil {
 		t.Fatal(err)
 	}

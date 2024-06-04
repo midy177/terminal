@@ -32,17 +32,16 @@ func (t *unixPty) Close() error {
 }
 
 func NewPTY(s *SystemShell) (PtyX, error) {
-
 	env := os.Environ()
 	env = append(env, s.Env...)
 	c := exec.Command(s.Command, s.Args...)
 	c.Env = env
+
 	if s.Cwd != "" {
 		c.Dir = s.Cwd
 	}
 	// Start the command with a pty.
 	uPty, err := pty.Start(c)
-
 	return &unixPty{
 		pty: uPty,
 	}, err
