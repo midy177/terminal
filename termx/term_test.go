@@ -10,7 +10,7 @@ import (
 )
 
 func TestName(t *testing.T) {
-	commandLine := `c:\windows\system32\cmd.exe`
+	commandLine := `wsl.exe`
 	cpty, err := conpty.Start(commandLine)
 	if err != nil {
 		log.Fatalf("Failed to spawn a pty:  %v", err)
