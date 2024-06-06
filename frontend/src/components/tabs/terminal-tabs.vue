@@ -7,9 +7,9 @@
         :class="{ active: tab.key === modelValue }"
         :key="tab.key"
         :style="{ width: tabWidth + 'px' }"
-        :ref="(e) => setTabRef(e, tab)"
-        @contextmenu="(e) => handleContextMenu(e, tab, i)"
-        @click="(e) => handleNativeClick(e, tab, i)"
+        :ref="(e: Element | ComponentPublicInstance | null) => setTabRef(e, tab)"
+        @contextmenu="(e: Event) => handleContextMenu(e, tab, i)"
+        @click="(e: Event) => handleNativeClick(e, tab, i)"
       >
         <div class="tabs-background">
           <div class="tabs-background-divider"></div>
@@ -51,7 +51,7 @@
 <script lang="ts">
 import RenderTemp from './render-temp.vue';
 import Draggabilly from 'draggabilly';
-import './theme-dark.less';
+import './theme-dark.css';
 import {
   defineComponent,
   ref,
