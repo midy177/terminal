@@ -1,11 +1,11 @@
 <template>
-  <vue3-tabs-chrome ref="tabRef" style="--wails-draggable:drag" :tabs="tabs" v-model="tab">
+  <terminal-tabs ref="tabRef" style="--wails-draggable:drag" :tabs="tabs" v-model="tab">
     <template v-slot:after>
         <span slot="after" class="btn-add" @click="addTab">
           <i class="iconfont icon-add"></i>
       </span>
     </template>
-  </vue3-tabs-chrome>
+  </terminal-tabs>
   <div class="nav">
     <div class="nav-btns">
           <span class="nav-btn">
@@ -21,12 +21,21 @@
           </span>
     </div>
   </div>
+<!--  <terminal-tabs ref="tabRef" style="&#45;&#45;wails-draggable:drag" :tabs="tabs" v-model="tab">-->
+<!--    <template v-slot:after>-->
+<!--        <span slot="after" class="btn-add" @click="addTab">-->
+<!--          <i class="iconfont icon-add"></i>-->
+<!--      </span>-->
+<!--    </template>-->
+<!--  </terminal-tabs>-->
 </template>
 
 <script lang="ts" setup>
-import Vue3TabsChrome from 'vue3-tabs-chrome'
-import 'vue3-tabs-chrome/dist/vue3-tabs-chrome.css'
-import {onMounted, reactive, ref} from 'vue'
+import Vue3TabsChrome from 'vue3-tabs-chrome';
+import TerminalTabs from "./components/tabs/terminal-tabs.vue";
+// import 'vue3-tabs-chrome/dist/vue3-tabs-chrome.css';
+import {onMounted, reactive, ref} from 'vue';
+import Terminal from "./components/terminal/terminal.vue";
 const tab = ref('google')
 const tabRef = ref()
 const tabs = reactive([

@@ -46,11 +46,11 @@ function NewTerminal(){
 // Make the terminal fit all the window size
 async function fitTerminal() {
   fitAddon.fit();
-  void invoke<string>("async_resize_pty", {
-    tid: currentId,
-    rows: term.value.rows,
-    cols: term.value.cols,
-  });
+  // void invoke<string>("async_resize_pty", {
+  //   tid: currentId,
+  //   rows: term.value.rows,
+  //   cols: term.value.cols,
+  // });
 }
 
 // Write data from pty into the terminal

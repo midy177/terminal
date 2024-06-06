@@ -1,0 +1,14 @@
+import { App, Plugin } from 'vue'
+import TerminalTabs from './terminal-tabs.vue'
+import type { Tab } from './terminal-tabs.vue'
+import './theme-dark.less'
+
+const install = (app: App) => {
+  app.component('TerminalTabs', TerminalTabs)
+}
+
+TerminalTabs.install = install
+
+export { TerminalTabs, Tab }
+
+export default TerminalTabs as unknown as Plugin
