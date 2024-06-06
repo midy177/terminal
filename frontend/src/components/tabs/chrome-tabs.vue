@@ -52,7 +52,6 @@
 <script lang="ts">
 import RenderTemp from './render-temp.vue';
 import Draggabilly from 'draggabilly';
-import './theme-dark.css';
 import {
   defineComponent,
   ref,
@@ -584,7 +583,7 @@ export default defineComponent({
 
 <style scoped lang="less">
 .chrome-tabs {
-  @bg: #dee1e6;
+  @bg: #3b3f41;
   @gap: 7px;
   @divider: #a9adb0;
   @speed: 150ms;
@@ -592,6 +591,7 @@ export default defineComponent({
   padding-top: 10px;
   background-color: @bg;
   position: relative;
+  color: rgba(255, 255, 255, 0.76);
 
   .tabs-content {
     height: 34px;
@@ -627,12 +627,13 @@ export default defineComponent({
       }
 
       .tabs-background-content {
-        background-color: #f2f3f5;
+        background-color: #1A1B1E;
+        //background-color: #f2f3f5;
       }
 
       .tabs-background-before,
       .tabs-background-after {
-        fill: #f2f3f5;
+        fill: #1A1B1E;
       }
     }
 
@@ -644,7 +645,7 @@ export default defineComponent({
       z-index: 3;
 
       .tabs-background-content {
-        background-color: #f2f3f5;
+        background-color: #1A1B1E;
       }
 
       .tabs-background-divider {
@@ -653,7 +654,7 @@ export default defineComponent({
 
       .tabs-background-before,
       .tabs-background-after {
-        fill: #f2f3f5;
+        fill: #1A1B1E;
       }
     }
 
@@ -661,7 +662,7 @@ export default defineComponent({
       z-index: 2;
 
       .tabs-close {
-        background-color: #fff;
+        background-color: #1A1B1E;
       }
 
       .tabs-background-divider {
@@ -669,12 +670,12 @@ export default defineComponent({
       }
 
       .tabs-background-content {
-        background-color: #fff;
+        background-color: #1A1B1E;
       }
 
       .tabs-background-before,
       .tabs-background-after {
-        fill: #fff;
+        fill: #1A1B1E;
       }
     }
 
@@ -716,8 +717,9 @@ export default defineComponent({
     border-radius: 50%;
 
     &:hover {
-      stroke: #000;
-      background-color: #e8eaed;
+      //stroke: #000;
+      stroke: white;
+      background-color: #1A1B1E;
     }
   }
 

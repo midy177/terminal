@@ -7,6 +7,9 @@ dependencies:
   less:
     specifier: ^4.2.0
     version: 4.2.0
+  trzsz:
+    specifier: ^1.1.5
+    version: 1.1.5
   vue:
     specifier: ^3.2.37
     version: 3.2.37
@@ -19,6 +22,9 @@ dependencies:
   xterm-addon-fit:
     specifier: ^0.8.0
     version: 0.8.0(xterm@5.3.0)
+  xterm-theme:
+    specifier: ^1.1.0
+    version: 1.1.0
 
 devDependencies:
   '@babel/types':
@@ -722,6 +728,11 @@ packages:
     resolution: {integrity: sha512-/OaKK0xYrs3DmxRYqL/yDc+FxFUVYhDlXMhRmv3z915w2HF1tnN1omB354j8VUGO/hbRzyD6Y3sA7v7GS/ceog==}
     engines: {node: '>=4'}
 
+  /trzsz@1.1.5:
+    resolution: {integrity: sha512-yjL25MBVp7TPnUJZ3aqMAmsUo0fECm96BYllLac0CbsgYT/JpKIi9Fv7wJmBfBwYGn2xf7b/YRVrCmkhed3Nmw==}
+    hasBin: true
+    dev: false
+
   /tslib@2.6.2:
     resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
 
@@ -824,6 +835,10 @@ packages:
       xterm: ^5.0.0
     dependencies:
       xterm: 5.3.0
+    dev: false
+
+  /xterm-theme@1.1.0:
+    resolution: {integrity: sha512-n2GocBEbqcz4vEl4OYkU93hEVia8GWdnqchiz/0nQ/olRUyhulGf4wfha23x/D2m0imWaIavRZtt8c6kWZXdsA==}
     dev: false
 
   /xterm@5.3.0:

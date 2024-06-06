@@ -12,24 +12,11 @@
           </span>
     </template>
   </terminal-tabs>
-<!--  <div class="nav">-->
-<!--    <div class="nav-btns">-->
-<!--          <span class="nav-btn">-->
-<!--            <i class="iconfont icon-tree"></i>-->
-<!--          </span>-->
-<!--    </div>-->
-<!--    <div class="nav-location">-->
-<!--      <input type="search" ref="location" class="nav-location-input" @keydown.enter="handleSearch">-->
-<!--    </div>-->
-<!--    <div class="nav-btns">-->
-<!--          <span class="nav-btn" @click="handleMore">-->
-<!--            <i class="iconfont icon-more"></i>-->
-<!--          </span>-->
-<!--    </div>-->
-<!--  </div>-->
-  <template v-for="item in tabs">
-    <terminal :id="item.key" v-show="item.key === tab"></terminal>
-  </template>
+  <div class="terminal-layout" v-if="tabs.length>0">
+    <template v-for="item in tabs">
+      <terminal :id="item.key" v-show="item.key === tab"></terminal>
+    </template>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -39,12 +26,13 @@ import Terminal from "./components/terminal/terminal.vue";
 import {nanoid} from "nanoid";
 const tab = ref('google')
 const tabRef = ref()
+import './theme-dark.css';
 const tabs = <Array<Tab>>reactive([])
 
 function addTab() {
   let key = nanoid()
   let newTab = {
-    label: 'New Tab' + key,
+    label: key,
     key: key,
   }
   tabRef.value.addTab(newTab)
@@ -55,6 +43,15 @@ function handleSearch(){
 }
 function handleMore(){
 
+}
+function fitTerm(){
+
+}
+function addTerminalResize() {
+  window.addEventListener("resize", fitTerm);
+}
+function removeResizeListener() {
+  window.removeEventListener("resize", fitTerm);
 }
 onMounted(()=>{
   // loadTree()
@@ -84,75 +81,11 @@ input[type=search]::-webkit-search-cancel-button{
     background-color: rgba(0, 0, 0, .1);
   }
 }
-
-.nav {
-  padding: 8px;
-  background-color: #fff;
-  border-bottom: 1px solid #d5d7db;
-  display: flex;
-  align-items: center;
-  position: relative;
-}
-
-.nav-btns {
-  display: flex;
-}
-
-.nav-btn {
-  width: 28px;
-  height: 28px;
-  margin-left: 2px;
-  border-radius: 14px;
-  color: #666;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 300ms;
-  cursor: pointer;
-
-  &:first-of-type {
-    margin-left: 0;
-  }
-
-  &:hover {
-    background-color: rgba(0, 0, 0, .1);
-  }
-}
-
-.nav-location {
-  flex: 1;
-  height: 28px;
-  margin: 0 4px;
-  position: relative;
-}
-
-.nav-location-input {
-  width: 100%;
+.terminal-layout {
+  padding-right: .3rem;
+  padding-left: .3rem;
+  background-color: #1A1B1E;
   height: 100%;
-  border: none;
-  background-color: #eff1f2;
-  border-radius: 14px;
-  outline: none;
-  padding-left: 16px;
-  transition: background 300ms;
-
-  &:hover {
-    background-color: #e6e8e9;
-  }
-
-  &:focus {
-    box-shadow: 0 0 0 3px Highlight;
-    background-color: #fff;
-  }
-}
-
-.nav-collection {
-  top: 50%;
-  left: 2px;
-  width: 32px;
-  height: 24px;
-  border-radius: 12px;
-  position: absolute;
-  transform: translateY(-50%);
+  width: 100%;
 }
 </style>
