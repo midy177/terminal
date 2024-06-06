@@ -21,40 +21,34 @@
           </span>
     </div>
   </div>
+  <template v-for="item in tabs">
+    <terminal :id="item.key" v-show="item.key === tab"></terminal>
+  </template>
 </template>
 
 <script lang="ts" setup>
-import TerminalTabs from "./components/tabs/chrome-tabs.vue";
+import TerminalTabs, {Tab} from "./components/tabs/chrome-tabs.vue";
 import {onMounted, reactive, ref} from 'vue';
 import Terminal from "./components/terminal/terminal.vue";
+import {nanoid} from "nanoid";
 const tab = ref('google')
 const tabRef = ref()
-const tabs = reactive([
-  {
-    label: 'google',
-    key: 'google',
-  }
-])
-function addTab () {
-  let item = Date.now().toString()
+const tabs = <Array<Tab>>reactive([])
+
+function addTab() {
+  let key = nanoid()
   let newTab = {
-    label: 'New Tab' + item,
-    key: item
+    label: 'New Tab' + key,
+    key: key,
   }
   tabRef.value.addTab(newTab)
-  tab.value = item
+  tab.value = key
 }
-
 function handleSearch(){
 
 }
 function handleMore(){
 
-}
-const loadTree = () => {
-  if (tabRef.value.$el.getAttributeNames().includes('tabs-content')) {
-    tabRef.value.$el.setAttribute("data-tauri-drag-region", '')
-  }
 }
 onMounted(()=>{
   // loadTree()

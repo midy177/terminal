@@ -1,17 +1,15 @@
 <script setup lang="ts">
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
-// import "xterm/css/xterm.css";
-import { nanoid } from "nanoid";
-import {ComponentPublicInstance, onMounted, ref, VNodeRef} from "vue";
+import "./xterm.css";
+import {ComponentPublicInstance, onMounted, ref, VNodeRef} from 'vue';
 
 const props = defineProps({
   id: {
-    type: Number,
+    type: String,
     required: true
   }
 });
-const currentId = nanoid();
 const fitAddon = new FitAddon();
 const currentRef = ref<VNodeRef | null>(null);
 let term = ref();
@@ -89,15 +87,21 @@ onMounted(()=>{
   term.value.onData(writeToPty);
   addEventListener("resize", fitTerminal);
   fitTerminal();
-  window.requestAnimationFrame(readFromPty);
+  writeToTerminal(props.id);
+  // window.requestAnimationFrame(readFromPty);
 })
 
 </script>
 
 <template>
-  <div :ref="setItemRef"></div>
+  <div :ref="setItemRef" class="terminal"></div>
 </template>
 
 <style scoped lang="less">
-
+.terminal {
+  display: flex;
+  background-color: #1d1e21;
+  height: 100%;
+  width: 100%;
+}
 </style>

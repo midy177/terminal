@@ -1,5 +1,5 @@
 <template>
-  <div class="terminal-tabs">
+  <div class="chrome-tabs">
     <div class="tabs-content" :ref="setContentRef">
       <div
         class="tabs-item"
@@ -27,11 +27,11 @@
           </svg>
         </div>
         <div class="tabs-main" :title="tab.label">
-          <span class="tabs-favico" v-if="tab.favico">
-            <render-temp v-if="typeof tab.favico === 'function'" :render="tab.favico" :params="[tab, i]" />
-            <img v-else-if="tab.favico" :src="tab.favico" alt="" />
+          <span class="tabs-favico" v-if="tab.favicon">
+            <render-temp v-if="typeof tab.favicon === 'function'" :render="tab.favicon" :params="[tab, i]" />
+            <img v-else-if="tab.favicon" :src="tab.favicon" alt="" />
           </span>
-          <span class="tabs-label" :class="{ 'no-close': !showTabCloseIcon(tab), 'no-icon': !tab.favico }">
+          <span class="tabs-label" :class="{ 'no-close': !showTabCloseIcon(tab), 'no-icon': !tab.favicon }">
             <render-temp v-if="typeof renderLabel === 'function'" :render="renderLabel" :params="[tab, i]" />
             <template v-else>{{ tab.label }}</template>
           </span>
@@ -65,13 +65,13 @@ import {
   VNode
 } from 'vue'
 
-export type FavicoType = ((...args: unknown[]) => VNode) | ((...args: unknown[]) => string) | NodeRequire | string
+export type FaviconType = ((...args: unknown[]) => VNode) | ((...args: unknown[]) => string) | NodeRequire | string
 export interface Tab {
   /** 显示名称 */
   label: string
   /** 唯一 key */
   key: string
-  favico?: FavicoType
+  favicon?: FaviconType
   /**
    * 是否可关闭
    */
@@ -582,7 +582,7 @@ export default defineComponent({
 </script>
 
 <style scoped lang="less">
-.terminal-tabs {
+.chrome-tabs {
   @bg: #dee1e6;
   @gap: 7px;
   @divider: #a9adb0;
