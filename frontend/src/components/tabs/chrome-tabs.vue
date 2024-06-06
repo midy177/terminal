@@ -40,7 +40,7 @@
       <span
         class="tabs-after"
         :ref="setAfterRef"
-        :style="{ left: (tabWidth - gap * 2) * tabs.length + gap * 2 + 'px' }"
+        style="right: 14px"
       >
         <slot name="after"/>
       </span>
@@ -48,6 +48,7 @@
   </div>
 </template>
 
+<!--:style="{ left: (tabWidth - gap * 2) * tabs.length + gap * 2 + 'px' }"-->
 <script lang="ts">
 import RenderTemp from './render-temp.vue';
 import Draggabilly from 'draggabilly';

@@ -1,26 +1,32 @@
 <template>
   <terminal-tabs ref="tabRef" style="--wails-draggable:drag" :tabs="tabs" v-model="tab">
     <template v-slot:after>
-        <span slot="after" class="btn-add" @click="addTab">
+        <span class="btn-add" @click="addTab">
           <i class="iconfont icon-add"></i>
       </span>
-    </template>
-  </terminal-tabs>
-  <div class="nav">
-    <div class="nav-btns">
-          <span class="nav-btn">
+      <span class="btn-add">
             <i class="iconfont icon-tree"></i>
           </span>
-    </div>
-    <div class="nav-location">
-      <input type="search" ref="location" class="nav-location-input" @keydown.enter="handleSearch">
-    </div>
-    <div class="nav-btns">
-          <span class="nav-btn" @click="handleMore">
+      <span class="btn-add" @click="handleMore">
             <i class="iconfont icon-more"></i>
           </span>
-    </div>
-  </div>
+    </template>
+  </terminal-tabs>
+<!--  <div class="nav">-->
+<!--    <div class="nav-btns">-->
+<!--          <span class="nav-btn">-->
+<!--            <i class="iconfont icon-tree"></i>-->
+<!--          </span>-->
+<!--    </div>-->
+<!--    <div class="nav-location">-->
+<!--      <input type="search" ref="location" class="nav-location-input" @keydown.enter="handleSearch">-->
+<!--    </div>-->
+<!--    <div class="nav-btns">-->
+<!--          <span class="nav-btn" @click="handleMore">-->
+<!--            <i class="iconfont icon-more"></i>-->
+<!--          </span>-->
+<!--    </div>-->
+<!--  </div>-->
   <template v-for="item in tabs">
     <terminal :id="item.key" v-show="item.key === tab"></terminal>
   </template>
@@ -62,8 +68,8 @@ input[type=search]::-webkit-search-cancel-button{
 }
 
 .btn-add {
-  width: 20px;
-  border-radius: 50%;
+  width: 34px;
+  border-radius: 5px;
   padding: 0;
   //color: #333;
   cursor: pointer;
@@ -71,9 +77,9 @@ input[type=search]::-webkit-search-cancel-button{
   justify-content: center;
   align-items: center;
   transition: background 300ms;
-  height: 20px;
-  line-height: 20px;
-  margin-left: .5rem;
+  height: 34px;
+  line-height: 34px;
+  margin-left: .3rem;
   &:hover {
     background-color: rgba(0, 0, 0, .1);
   }
