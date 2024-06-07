@@ -46,6 +46,7 @@ func (a *App) GetLocalPtyList() []termx.SystemShell {
 	return termx.GetShells()
 }
 
+// CreateLocalPty 创建本地pty
 func (a *App) CreateLocalPty(t *termx.SystemShell) error {
 	if _, ok := a.ptyMap.Load(t.ID); ok {
 		return errors.New("already exists")
@@ -57,34 +58,73 @@ func (a *App) CreateLocalPty(t *termx.SystemShell) error {
 	a.ptyMap.Store(t.ID, tPty)
 	return a.eventEmitLoop(t.ID)
 }
+
+// CreateSshPty 创建ssh pty
+func (a *App) CreateSshPty(tid string, id, rows, cols int) error {
+	one, err := a.db.Hosts.Get(a.ctx, id)
+	if err != nil {
+		return err
+	}
+	var pKey []byte
+	if key, err := one.QueryKey().Only(a.ctx); err == nil && key != nil {
+		pKey = key.Content
+	}
+
+	term, err := termx.NewSshPTY(one.Username,
+		one.Password,
+		one.Address,
+		one.Port,
+		pKey,
+		rows,
+		cols,
+	)
+	if err != nil {
+		return err
+	}
+	a.ptyMap.Store(tid, term)
+	return a.eventEmitLoop(tid)
+}
+
+// ClosePty 关闭pty
 func (a *App) ClosePty(id string) error {
 	t, ok := a.ptyMap.LoadAndDelete(id)
-	if ok {
-		return errors.New("already exists")
+	if !ok {
+		return errors.New("pty already released")
 	}
 	return t.Close()
 }
 
+// ResizePty 重置终端大小
 func (a *App) ResizePty(id string, rows, cols int) error {
 	t, ok := a.ptyMap.LoadAndDelete(id)
-	if ok {
-		return errors.New("already exists")
+	if !ok {
+		return errors.New("pty already released")
 	}
 	return t.Resize(rows, cols)
 }
 
-func (a *App) CreateSshPty(id int) error {
-
-	return nil
+// WriteToPty 数据写入pty
+func (a *App) WriteToPty(id string, data []byte) error {
+	t, ok := a.ptyMap.Load(id)
+	if !ok {
+		return errors.New("pty already released")
+	}
+	_, err := t.Write(data)
+	return err
 }
 
+// 推送终端信息到前端
 func (a *App) eventEmitLoop(id string) error {
 	t, ok := a.ptyMap.Load(id)
-	if ok {
-		return errors.New("already exists")
+	if !ok {
+		return errors.New("pty already released")
 	}
-	go func(cPty termx.PtyX, ctx context.Context) {
-		defer cPty.Close()
+	clearFun := func() {
+		_ = t.Close()
+		a.ptyMap.Delete(id)
+	}
+	go func(cPty termx.PtyX, ctx context.Context, f func()) {
+		defer f()
 		var buf = make([]byte, 32*1024)
 		for {
 			read, err := cPty.Read(buf)
@@ -93,6 +133,6 @@ func (a *App) eventEmitLoop(id string) error {
 			}
 			runtime.EventsEmit(ctx, id, buf[:read])
 		}
-	}(t, a.ctx)
+	}(t, a.ctx, clearFun)
 	return nil
 }

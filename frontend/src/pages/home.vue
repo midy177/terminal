@@ -27,6 +27,7 @@
 import Vue3TabsChrome from 'vue3-tabs-chrome'
 import 'vue3-tabs-chrome/dist/vue3-tabs-chrome.css'
 import {onMounted, reactive, ref} from 'vue'
+import {GetLocalPtyList} from "../../wailsjs/go/main/App";
 const tab = ref('google')
 const tabRef = ref()
 const tabs = reactive([
@@ -51,13 +52,13 @@ function handleSearch(){
 function handleMore(){
 
 }
-const loadTree = () => {
-  if (tabRef.value.$el.getAttributeNames().includes('tabs-content')) {
-    tabRef.value.$el.setAttribute("data-tauri-drag-region", '')
-  }
-}
+
 onMounted(()=>{
-  // loadTree()
+  GetLocalPtyList().then(res=>{
+    console.log(res);
+  }).catch(e=>{
+    console.log(e);
+  })
 })
 
 </script>
