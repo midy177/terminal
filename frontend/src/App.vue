@@ -1,13 +1,14 @@
 <template>
   <terminal-tabs ref="tabRef" style="--wails-draggable:drag" :tabs="tabs" v-model="tab">
     <template v-slot:after>
-        <span class="btn-add" @click="addTab">
-          <i class="iconfont icon-add"></i>
-      </span>
-      <span class="btn-add">
+<!--        <span class="btn-add" @click="addTab">-->
+<!--          <i class="iconfont icon-add"></i>-->
+<!--      </span>-->
+      <dropdown class="header-btn-bar"></dropdown>
+      <span class="header-btn-bar">
             <i class="iconfont icon-tree"></i>
           </span>
-      <span class="btn-add" @click="handleMore">
+      <span class="header-btn-bar" @click="handleMore">
             <i class="iconfont icon-more"></i>
           </span>
     </template>
@@ -26,8 +27,9 @@ import Terminal from "./components/terminal/terminal.vue";
 import {nanoid} from "nanoid";
 const tab = ref('google')
 const tabRef = ref()
-import './theme-dark.css';
 import {GetLocalPtyList} from "../wailsjs/go/main/App";
+import {termx} from "./types/models";
+import Dropdown from "./components/dropdown/dropdown.vue";
 const tabs = <Array<Tab>>reactive([])
 
 function addTab() {
@@ -38,7 +40,7 @@ function addTab() {
   // }
   // tabRef.value.addTab(newTab)
   // tab.value = key
-  GetLocalPtyList().then(res=>{
+  GetLocalPtyList().then((res: Array<termx.SystemShell>)=>{
     console.log(res[1].Name)
     let key = nanoid()
     let newTab = {
@@ -77,7 +79,7 @@ input[type=search]::-webkit-search-cancel-button{
   -webkit-appearance: none;
 }
 
-.btn-add {
+.header-btn-bar {
   width: 34px;
   border-radius: 5px;
   padding: 0;

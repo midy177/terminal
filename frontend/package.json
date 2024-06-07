@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "ant-design-vue": "4.x",
     "draggabilly": "^3.0.0",
     "less": "^4.2.0",
     "trzsz": "^1.1.5",
