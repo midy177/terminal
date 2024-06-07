@@ -27,16 +27,29 @@ import {nanoid} from "nanoid";
 const tab = ref('google')
 const tabRef = ref()
 import './theme-dark.css';
+import {GetLocalPtyList} from "../wailsjs/go/main/App";
 const tabs = <Array<Tab>>reactive([])
 
 function addTab() {
-  let key = nanoid()
-  let newTab = {
-    label: key,
-    key: key,
-  }
-  tabRef.value.addTab(newTab)
-  tab.value = key
+  // let key = nanoid()
+  // let newTab = {
+  //   label: key,
+  //   key: key,
+  // }
+  // tabRef.value.addTab(newTab)
+  // tab.value = key
+  GetLocalPtyList().then(res=>{
+    console.log(res[1].Name)
+    let key = nanoid()
+    let newTab = {
+      label: res[1].Name,
+      key: key,
+    }
+    tabRef.value.addTab(newTab)
+    tab.value = key
+  }).catch(e=>{
+    console.log(e);
+  })
 }
 function handleSearch(){
 
@@ -54,7 +67,7 @@ function removeResizeListener() {
   window.removeEventListener("resize", fitTerm);
 }
 onMounted(()=>{
-  // loadTree()
+
 })
 
 </script>
