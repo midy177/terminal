@@ -10,7 +10,7 @@ import (
 func getShells() {
 	home := startDir()
 	shells = append(shells, SystemShell{
-		ID:      "cmd",
+		//ID:      "cmd",
 		Name:    "CMD",
 		Command: "cmd.exe",
 		Args:    nil,
@@ -20,7 +20,7 @@ func getShells() {
 	})
 
 	shells = append(shells, SystemShell{
-		ID:      "powershell",
+		//ID:      "powershell",
 		Name:    "PowerShell",
 		Command: "powershell.exe",
 		Args:    []string{"-NoLogo"},
@@ -60,7 +60,7 @@ func getShells() {
 		}
 
 		shell := SystemShell{
-			ID:      fmt.Sprintf("wsl-%s", distributionName),
+			//ID:      fmt.Sprintf("wsl-%s", distributionName),
 			Name:    fmt.Sprintf("WSL(%s)", distributionName),
 			Command: "wsl.exe",
 			Args:    []string{"-d", distributionName},

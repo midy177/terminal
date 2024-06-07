@@ -48,7 +48,7 @@ func getShells() {
 	user := os.Getenv("USER")
 	if sbl && len(user) > 0 {
 		shells = append(shells, SystemShell{
-			ID:      "login",
+			//ID:      "login",
 			Name:    "Linux(login)",
 			Command: "login",
 			Args:    []string{"-f", user},
@@ -74,7 +74,7 @@ func getShells() {
 			if len(parts) > 0 {
 				lastPart := parts[len(parts)-1]
 				shells = append(shells, SystemShell{
-					ID:      lastPart,
+					//ID:      lastPart,
 					Name:    "Linux(" + lastPart + ")",
 					Command: line,
 					Args:    nil,

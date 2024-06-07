@@ -6,7 +6,6 @@ import (
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/sync/errgroup"
 	"os"
-	"terminal/db"
 	"time"
 )
 
@@ -36,30 +35,30 @@ func (s *sshSession) Close() error {
 	return eg.Wait()
 }
 
-func NewSshPTY(h *db.HostModel, height, width int) (PtyX, error) {
+func NewSshPTY(username, password, address string, port uint, privateKey []byte, height, width int) (PtyX, error) {
 	termType := os.Getenv("TERM")
 	if termType == "" {
 		termType = "xterm-256color"
 	}
 	sshConfig := &ssh.ClientConfig{
-		User: h.Username,
+		User: username,
 		Auth: []ssh.AuthMethod{
-			ssh.Password(h.Password),
+			ssh.Password(password),
 		},
 		//Specify the host key verification callback function
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-		Timeout:         time.Second * 10,
+		Timeout:         time.Second * 15,
 	}
 	// special case and we got a key
-	signer, err := ssh.ParsePrivateKey(h.PrivateKey)
+	signer, err := ssh.ParsePrivateKey(privateKey)
 	if err != nil {
-		if len(h.Password) == 0 {
+		if len(password) == 0 {
 			return nil, fmt.Errorf("setting up SSH config,err: %s", err)
 		}
 	} else {
 		sshConfig.Auth = append(sshConfig.Auth, ssh.PublicKeys(signer))
 	}
-	sshClient, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", h.Host, h.Port), sshConfig)
+	sshClient, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", address, port), sshConfig)
 	if err != nil {
 		fmt.Printf("%s%s\n\r", "Unable to create SSH connection: ", err)
 		return nil, err
