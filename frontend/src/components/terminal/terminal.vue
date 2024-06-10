@@ -3,13 +3,20 @@ import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import "./xterm.css";
 import { TrzszFilter } from 'trzsz';
-import {ComponentPublicInstance, onMounted, reactive, ref, VNodeRef} from 'vue';
+import {ComponentPublicInstance, onMounted, onUnmounted, reactive, ref, VNodeRef} from 'vue';
+import {ClosePty, WriteToPty} from "../../../wailsjs/go/main/App";
+import { Tab } from "../tabs/chrome-tabs.vue";
+import {EventsOff, EventsOn} from "../../../wailsjs/runtime";
 
 const props = defineProps({
   id: {
     type: String,
     required: true
-  }
+  },
+  item: {
+    type: Object,
+    required: true
+  },
 });
 const fitAddon = new FitAddon();
 const state = reactive({
@@ -43,8 +50,12 @@ function NewTerminal(){
   });
   state.term.loadAddon(fitAddon);
   state.term.open(currentRef.value);
+  state.term.onTitleChange((title)=>{
+    console.log(title);
+    emit('update:title', title);
+  })
 }
-
+const emit = defineEmits(['update:title']);
 // Make the terminal fit all the window size
 async function fitTerminal() {
   fitAddon.fit();
@@ -62,19 +73,25 @@ function writeToTerminal(data: string | Uint8Array | ArrayBuffer | Blob) {
 // Write data from the terminal to the pty
 function writeToPty(data: string | Uint8Array | ArrayBuffer | Blob) {
   toUint8Array(data).then(res=>{
-    // Todo 从后端读取数据，通过调用func写入后端
+    // Todo 通过调用func写入后端
+    WriteToPty(props.id,Array.from(res)).then().catch(e=>{
+      console.log(e);
+    })
   })
 }
+
+function ptyStoutListener(){
+  EventsOn(props.id,(res: string)=>{
+    writeToTerminal(res);
+  })
+}
+
 function initShell() {
   NewTerminal();
   // Todo 请求pty或者ssh
+  ptyStoutListener()
 }
 
-
-async function readFromPty() {
-  // Todo 从后端读取数据，通过事件的方式
-  window.requestAnimationFrame(readFromPty);
-}
 function dragover(event: any) {
   event.preventDefault();
 }
@@ -127,10 +144,11 @@ onMounted(()=>{
   state.term.onData(writeToPty);
   addEventListener("resize", fitTerminal);
   fitTerminal();
-  writeToTerminal(new TextEncoder().encode(props.id));
-  // window.requestAnimationFrame(readFromPty);
 })
-
+onUnmounted(()=>{
+  ClosePty(props.id)
+  EventsOff(props.id)
+})
 </script>
 
 <template>
@@ -142,7 +160,7 @@ onMounted(()=>{
 
 <style scoped lang="less">
 .xterm-layout {
-  display: flex;
+  //display: flex;
   background-color: #1d1e21;
   height: 100%;
   width: 100%;

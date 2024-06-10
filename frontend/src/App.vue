@@ -1,21 +1,21 @@
 <template>
   <terminal-tabs ref="tabRef" style="--wails-draggable:drag" :tabs="tabs" v-model="tab">
     <template v-slot:after>
-<!--        <span class="btn-add" @click="addTab">-->
-<!--          <i class="iconfont icon-add"></i>-->
-<!--      </span>-->
-      <dropdown class="header-btn-bar"></dropdown>
       <span class="header-btn-bar">
-            <i class="iconfont icon-tree"></i>
-          </span>
+        <dropdown :at-click="addLocalTab"/>
+<!--          <i class="iconfont icon-add"></i>-->
+      </span>
+      <span class="header-btn-bar">
+        <hosts/>
+      </span>
       <span class="header-btn-bar" @click="handleMore">
-            <i class="iconfont icon-more"></i>
+            <i class="icon-more-operate"></i>
           </span>
     </template>
   </terminal-tabs>
   <div class="terminal-layout" v-if="tabs.length>0">
     <template v-for="item in tabs">
-      <terminal :id="item.key" v-show="item.key === tab"></terminal>
+      <terminal :id="item.key" :item="item" v-show="item.key === tab" v-model:title="item.label"></terminal>
     </template>
   </div>
 </template>
@@ -27,32 +27,26 @@ import Terminal from "./components/terminal/terminal.vue";
 import {nanoid} from "nanoid";
 const tab = ref('google')
 const tabRef = ref()
-import {GetLocalPtyList} from "../wailsjs/go/main/App";
 import {termx} from "./types/models";
-import Dropdown from "./components/dropdown/dropdown.vue";
+import Dropdown  from "./components/dropdown/dropdown.vue";
+import {CreateLocalPty} from "../wailsjs/go/main/App";
+import Hosts from "./components/hosts/hosts.vue";
 const tabs = <Array<Tab>>reactive([])
 
-function addTab() {
-  // let key = nanoid()
-  // let newTab = {
-  //   label: key,
-  //   key: key,
-  // }
-  // tabRef.value.addTab(newTab)
-  // tab.value = key
-  GetLocalPtyList().then((res: Array<termx.SystemShell>)=>{
-    console.log(res[1].Name)
-    let key = nanoid()
+function addLocalTab(data: termx.SystemShell) {
+  let key = nanoid()
+  data.ID = key
+  CreateLocalPty(data).then(res=>{
+    console.log(res)
     let newTab = {
-      label: res[1].Name,
+      label: data.Name,
       key: key,
     }
     tabRef.value.addTab(newTab)
     tab.value = key
-  }).catch(e=>{
-    console.log(e);
   })
 }
+
 function handleSearch(){
 
 }
@@ -83,7 +77,6 @@ input[type=search]::-webkit-search-cancel-button{
   width: 34px;
   border-radius: 5px;
   padding: 0;
-  //color: #333;
   cursor: pointer;
   display: flex;
   justify-content: center;
@@ -91,7 +84,6 @@ input[type=search]::-webkit-search-cancel-button{
   transition: background 300ms;
   height: 34px;
   line-height: 34px;
-  margin-left: .3rem;
   &:hover {
     background-color: rgba(0, 0, 0, .1);
   }
@@ -102,5 +94,6 @@ input[type=search]::-webkit-search-cancel-button{
   background-color: #1A1B1E;
   height: 100%;
   width: 100%;
+  flex: 1;
 }
 </style>

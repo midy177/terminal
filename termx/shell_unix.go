@@ -12,10 +12,14 @@ import (
 )
 
 func supportLogin() bool {
+	user := os.Getenv("USER")
+	if len(user) == 0 {
+		return false
+	}
 	bash := exec.Command(
 		"login",
 		"-f",
-		"root",
+		user,
 	)
 	tty, err := pty.Start(bash)
 	if err != nil {
@@ -31,10 +35,10 @@ func supportLogin() bool {
 	var buf = make([]byte, 1024)
 	read, err := tty.Read(buf)
 	if err != nil {
-		fmt.Println("not support use 'login -f root' to start pty,err: " + err.Error())
+		fmt.Println("not support use 'login -f " + user + "' to start pty,err: " + err.Error())
 		return false
 	}
-	fmt.Println("support use 'login -f root' to start pty,stdout: " + string(buf[:read]))
+	fmt.Println("support use 'login -f " + user + "' to start pty,stdout: " + string(buf[:read]))
 	return true
 }
 
@@ -49,7 +53,7 @@ func getShells() {
 	if sbl && len(user) > 0 {
 		shells = append(shells, SystemShell{
 			//ID:      "login",
-			Name:    "Linux(login)",
+			Name:    "Unix(login)",
 			Command: "login",
 			Args:    []string{"-f", user},
 			Env:     []string{"TERM=" + term},
@@ -70,12 +74,13 @@ func getShells() {
 			if strings.HasPrefix(line, "#") {
 				continue
 			}
+			fmt.Println(line)
 			parts := strings.Split(line, "/")
 			if len(parts) > 0 {
 				lastPart := parts[len(parts)-1]
 				shells = append(shells, SystemShell{
 					//ID:      lastPart,
-					Name:    "Linux(" + lastPart + ")",
+					Name:    "Unix(" + lastPart + ")",
 					Command: line,
 					Args:    nil,
 					Env:     []string{"TERM=" + term},

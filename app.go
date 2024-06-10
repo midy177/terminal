@@ -130,8 +130,9 @@ func (a *App) eventEmitLoop(id string) error {
 			if err != nil && err != io.EOF {
 				break
 			}
-			runtime.EventsEmit(ctx, id, buf[:read])
+			runtime.EventsEmit(ctx, id, string(buf[:read]))
 		}
+		runtime.EventsOff(ctx, id)
 	}(t, a.ctx, clearFun)
 	return nil
 }

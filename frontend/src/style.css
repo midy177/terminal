@@ -6,6 +6,11 @@
     border-radius: .5rem;
     box-shadow: 0 0 20px rgba(184, 184, 184, 0.01);
     background: #3b3f41;
+    display: flex;
+    flex-direction: column;
+    .devui-fixed-overlay {
+        border-radius: .5rem;
+    }
 }
 body {
     margin: 0;
