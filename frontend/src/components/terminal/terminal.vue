@@ -186,10 +186,12 @@ onMounted(()=>{
   addEventListener("resize", fitTerminal);
   fitTerminal();
 })
-onUnmounted(()=>{
-  removeEventListener("resize", fitTerminal);
-  ClosePty(props.id);
+onUnmounted( () => {
+  ClosePty(props.id).then().catch(e=>{
+    console.log(e)
+  });
   EventsOff(props.id);
+  removeEventListener("resize", fitTerminal);
 })
 </script>
 
