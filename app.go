@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
-	"io"
 	"log"
 	"terminal/ent"
 	"terminal/pkg/syncmapx"
@@ -132,7 +131,7 @@ func (a *App) eventEmitLoop(id string) error {
 		var buf = make([]byte, 32*1024)
 		for {
 			read, err := cPty.Read(buf)
-			if err != nil && err != io.EOF {
+			if err != nil {
 				log.Printf("error reading from pty: %v", err)
 				break
 			}
