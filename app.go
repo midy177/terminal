@@ -90,6 +90,12 @@ func (a *App) ClosePty(id string) error {
 	if !ok {
 		return errors.New("pty already released")
 	}
+	//defer func() {
+	//	err := recover()
+	//	if err != nil {
+	//		log.Printf("error closing pty: %v", err)
+	//	}
+	//}()
 	return t.Close()
 }
 
@@ -112,6 +118,11 @@ func (a *App) WriteToPty(id string, data []byte) error {
 	return err
 }
 
+// IsWindows 数据写入pty
+func (a *App) IsWindows() bool {
+	return false
+}
+
 // 推送终端信息到前端
 func (a *App) eventEmitLoop(id string) error {
 	t, ok := a.ptyMap.Load(id)
@@ -128,6 +139,7 @@ func (a *App) eventEmitLoop(id string) error {
 		for {
 			read, err := cPty.Read(buf)
 			if err != nil && err != io.EOF {
+				log.Printf("error reading from pty: %v", err)
 				break
 			}
 			runtime.EventsEmit(ctx, id, string(buf[:read]))

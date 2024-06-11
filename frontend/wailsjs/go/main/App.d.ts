@@ -10,6 +10,8 @@ export function CreateSshPty(arg1:string,arg2:number,arg3:number,arg4:number):Pr
 
 export function GetLocalPtyList():Promise<Array<termx.SystemShell>>;
 
+export function IsWindows():Promise<boolean>;
+
 export function ResizePty(arg1:string,arg2:number,arg3:number):Promise<void>;
 
 export function WriteToPty(arg1:string,arg2:Array<number>):Promise<void>;

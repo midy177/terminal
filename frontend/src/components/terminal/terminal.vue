@@ -51,7 +51,6 @@ function NewTerminal(){
   state.term.loadAddon(fitAddon);
   state.term.open(currentRef.value);
   state.term.onTitleChange((title)=>{
-    console.log(title);
     emit('update:title', title);
   })
 }

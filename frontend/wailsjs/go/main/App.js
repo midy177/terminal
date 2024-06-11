@@ -18,6 +18,10 @@ export function GetLocalPtyList() {
   return window['go']['main']['App']['GetLocalPtyList']();
 }
 
+export function IsWindows() {
+  return window['go']['main']['App']['IsWindows']();
+}
+
 export function ResizePty(arg1, arg2, arg3) {
   return window['go']['main']['App']['ResizePty'](arg1, arg2, arg3);
 }

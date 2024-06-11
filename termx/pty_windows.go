@@ -4,11 +4,14 @@ package termx
 
 import (
 	"github.com/UserExistsError/conpty"
+	"log"
 	"strings"
+	"sync/atomic"
 )
 
 type windowsPty struct {
-	pty *conpty.ConPty
+	pty    *conpty.ConPty
+	closed *atomic.Bool
 }
 
 func (t *windowsPty) Resize(rows, cols int) error {
@@ -24,7 +27,11 @@ func (t *windowsPty) Write(p []byte) (n int, err error) {
 }
 
 func (t *windowsPty) Close() error {
-	return t.pty.Close()
+	if t.closed.CompareAndSwap(false, true) {
+		log.Println("do swap")
+		return t.pty.Close()
+	}
+	return nil
 }
 
 func NewPTY(s *SystemShell) (PtyX, error) {
@@ -41,5 +48,5 @@ func NewPTY(s *SystemShell) (PtyX, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &windowsPty{pty: wPty}, nil
+	return &windowsPty{pty: wPty, closed: &atomic.Bool{}}, nil
 }

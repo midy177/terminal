@@ -9,7 +9,8 @@ import (
 )
 
 type unixPty struct {
-	pty *os.File
+	pty    *os.File
+	closed *atomic.Bool
 }
 
 func (t *unixPty) Resize(rows, cols int) error {
@@ -28,7 +29,10 @@ func (t *unixPty) Write(p []byte) (n int, err error) {
 }
 
 func (t *unixPty) Close() error {
-	return t.pty.Close()
+	if t.closed.CompareAndSwap(false, true) {
+		return t.pty.Close()
+	}
+	return nil
 }
 
 func NewPTY(s *SystemShell) (PtyX, error) {
@@ -43,6 +47,7 @@ func NewPTY(s *SystemShell) (PtyX, error) {
 	// Start the command with a pty.
 	uPty, err := pty.Start(c)
 	return &unixPty{
-		pty: uPty,
+		pty:    uPty,
+		closed: &atomic.Bool{},
 	}, err
 }
