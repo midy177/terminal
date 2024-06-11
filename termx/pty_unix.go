@@ -6,6 +6,7 @@ import (
 	"github.com/creack/pty"
 	"os"
 	"os/exec"
+	"sync/atomic"
 )
 
 type unixPty struct {
