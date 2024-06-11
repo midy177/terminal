@@ -15,7 +15,7 @@ type windowsPty struct {
 }
 
 func (t *windowsPty) Resize(rows, cols int) error {
-	return t.pty.Resize(rows, cols)
+	return t.pty.Resize(cols, rows)
 }
 
 func (t *windowsPty) Read(p []byte) (n int, err error) {

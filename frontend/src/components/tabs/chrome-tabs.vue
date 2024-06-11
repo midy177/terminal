@@ -27,7 +27,7 @@
           </svg>
         </div>
         <div class="tabs-main" :title="tab.label">
-          <span class="tabs-favico" v-if="tab.favicon">
+          <span class="tabs-favicon" v-if="tab.favicon">
             <render-temp v-if="typeof tab.favicon === 'function'" :render="tab.favicon" :params="[tab, i]" />
             <img v-else-if="tab.favicon" :src="tab.favicon" alt="" />
           </span>
@@ -40,7 +40,6 @@
       <span
         class="tabs-after"
         :ref="setAfterRef"
-        style="right: 14px"
       >
         <slot name="after"/>
       </span>
@@ -723,7 +722,7 @@ export default defineComponent({
     }
   }
 
-  .tabs-favico {
+  .tabs-favicon {
     height: 16px;
     margin-left: 3%;
     display: flex;
@@ -818,6 +817,7 @@ export default defineComponent({
   }
 
   .tabs-after {
+    right: .6rem;
     top: 50%;
     display: flex;
     position: absolute;

@@ -3,7 +3,6 @@
     <template v-slot:after>
       <span class="header-btn-bar">
         <dropdown :at-click="addLocalTab"/>
-<!--          <i class="iconfont icon-add"></i>-->
       </span>
       <span class="header-btn-bar">
         <hosts/>

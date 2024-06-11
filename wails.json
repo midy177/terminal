@@ -1,4 +1,11 @@
 {
+  "Info": {
+    "companyName": "Wly",
+    "productName": "Terminal Console",
+    "productVersion": "1.0.0",
+    "copyright": "Copyright(c) 2024",
+    "comments": "Built using Wails"
+  },
   "$schema": "https://wails.io/schemas/config.v2.json",
   "name": "terminal",
   "outputfilename": "terminal",

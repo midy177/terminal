@@ -90,18 +90,12 @@ func (a *App) ClosePty(id string) error {
 	if !ok {
 		return errors.New("pty already released")
 	}
-	//defer func() {
-	//	err := recover()
-	//	if err != nil {
-	//		log.Printf("error closing pty: %v", err)
-	//	}
-	//}()
 	return t.Close()
 }
 
 // ResizePty 重置终端大小
 func (a *App) ResizePty(id string, rows, cols int) error {
-	t, ok := a.ptyMap.LoadAndDelete(id)
+	t, ok := a.ptyMap.Load(id)
 	if !ok {
 		return errors.New("pty already released")
 	}

@@ -4,9 +4,10 @@ import { FitAddon } from "xterm-addon-fit";
 import "./xterm.css";
 import { TrzszFilter } from 'trzsz';
 import {ComponentPublicInstance, onMounted, onUnmounted, reactive, ref, VNodeRef} from 'vue';
-import {ClosePty, WriteToPty} from "../../../wailsjs/go/main/App";
+import {ClosePty, ResizePty, WriteToPty} from "../../../wailsjs/go/main/App";
 import { Tab } from "../tabs/chrome-tabs.vue";
 import {EventsOff, EventsOn} from "../../../wailsjs/runtime";
+import {Once} from "../../../util/util";
 
 const props = defineProps({
   id: {
@@ -59,6 +60,11 @@ const emit = defineEmits(['update:title']);
 async function fitTerminal() {
   fitAddon.fit();
   // Todo 从后端读取数据，通过调用func写入后端
+  ResizePty(props.id,state.term.rows,state.term.cols).then(res => {
+    console.log(res);
+  }).catch(e=>{
+    console.log(e);
+  })
 }
 
 // Write data from pty into the terminal
