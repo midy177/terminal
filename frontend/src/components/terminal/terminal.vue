@@ -7,7 +7,6 @@ import {ComponentPublicInstance, onMounted, onUnmounted, reactive, ref, VNodeRef
 import {ClosePty, ResizePty, WriteToPty} from "../../../wailsjs/go/main/App";
 import { Tab } from "../tabs/chrome-tabs.vue";
 import {EventsOff, EventsOn} from "../../../wailsjs/runtime";
-import {Once} from "../../../util/util";
 
 const props = defineProps({
   id: {
@@ -26,7 +25,7 @@ const state = reactive({
 });
 const currentRef = ref<VNodeRef | null>(null);
 // 赋值动态ref到变量
-function setItemRef(vn: Element | ComponentPublicInstance | null) {
+function setItemRef(vn: Element | ComponentPublicInstance | VNodeRef | undefined) {
   if (vn) {
     currentRef.value = vn
   }
@@ -61,7 +60,7 @@ async function fitTerminal() {
   fitAddon.fit();
   // Todo 从后端读取数据，通过调用func写入后端
   ResizePty(props.id,state.term.rows,state.term.cols).then(res => {
-    console.log(res);
+    if (res !== null && res !== undefined) console.log(res)
   }).catch(e=>{
     console.log(e);
   })

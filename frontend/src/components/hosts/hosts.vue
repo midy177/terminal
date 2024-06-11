@@ -115,9 +115,9 @@ onMounted(()=>{
           </Col>
           <Col flex="auto">
             <Breadcrumb>
-              <BreadcrumbItem to="{ path: '/' }">Homepage</BreadcrumbItem>
+              <BreadcrumbItem>Homepage</BreadcrumbItem>
               <BreadcrumbItem>
-                <a href="/">DevUI</a>
+                <span>DevUI</span>
               </BreadcrumbItem>
               <BreadcrumbItem>
                 <span>Breadcrumb</span>
@@ -150,6 +150,7 @@ onMounted(()=>{
         </template>
           <template #contextmenuPopup="args">
             <ul class="popup">
+              <li class="popup-item">打开</li>
               <li class="popup-item" @click="handleContextMenuEdit(args)">编辑</li>
               <li class="popup-item" style="color: #ed4014" @click="handleContextMenuDelete(args)">删除</li>
             </ul>

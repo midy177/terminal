@@ -13,8 +13,8 @@
     </template>
   </terminal-tabs>
   <div class="terminal-layout" v-if="tabs.length>0">
-    <template v-for="item in tabs">
-      <terminal :id="item.key" :item="item" v-show="item.key === tab" v-model:title="item.label"></terminal>
+    <template v-for="item in tabs" :key="item.key">
+      <terminal :id="item.key" :item="item" v-show="item.key === tab" v-model:title="item.label"/>
     </template>
   </div>
 </template>
@@ -36,24 +36,21 @@ function addLocalTab(data: termx.SystemShell) {
   let key = nanoid()
   data.id = key
   CreateLocalPty(data).then(res=>{
-    console.log(res)
     let newTab = {
       label: data.name,
       key: key,
     }
+    // tabs.push(newTab)
     tabRef.value.addTab(newTab)
     tab.value = key
   })
 }
 
 function handleSearch(){
-
 }
 function handleMore(){
-
 }
 function fitTerm(){
-
 }
 function addTerminalResize() {
   window.addEventListener("resize", fitTerm);

@@ -369,6 +369,7 @@ export default defineComponent({
         emit('update:modelValue', null)
       }
       tabs.splice(i, 1)
+      // emit('update:tabs',tabs)
       emit('remove', tab, i)
 
       nextTick(() => {
@@ -388,7 +389,6 @@ export default defineComponent({
       } else {
         tabs.push(...newTabs)
       }
-
       nextTick(() => {
         init()
         doLayout()
