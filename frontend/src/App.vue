@@ -27,19 +27,19 @@ import Terminal from "./components/terminal/terminal.vue";
 import {nanoid} from "nanoid";
 const tab = ref('google')
 const tabRef = ref()
-import {termx} from "./types/models";
 import Dropdown  from "./components/dropdown/dropdown.vue";
 import {CreateLocalPty} from "../wailsjs/go/main/App";
 import Hosts from "./components/hosts/hosts.vue";
+import {termx} from "../wailsjs/go/models";
 const tabs = <Array<Tab>>reactive([])
 
 function addLocalTab(data: termx.SystemShell) {
   let key = nanoid()
-  data.ID = key
+  data.id = key
   CreateLocalPty(data).then(res=>{
     console.log(res)
     let newTab = {
-      label: data.Name,
+      label: data.name,
       key: key,
     }
     tabRef.value.addTab(newTab)

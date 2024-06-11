@@ -6,13 +6,13 @@ import (
 )
 
 type SystemShell struct {
-	ID      string
-	Name    string
-	Command string
-	Args    []string
-	Env     []string
-	Cwd     string
-	Icon    string
+	ID      string   `json:"id"`
+	Name    string   `json:"name"`
+	Command string   `json:"command"`
+	Args    []string `json:"args"`
+	Env     []string `json:"env"`
+	Cwd     string   `json:"cwd"`
+	Icon    string   `json:"icon"`
 }
 
 var shells []SystemShell

@@ -2,8 +2,8 @@
 // import Dropdown from 'v-dropdown';
 import {onMounted, PropType, reactive} from "vue";
 import {GetLocalPtyList} from "../../../wailsjs/go/main/App";
-import {termx} from "../../types/models";
 import {Button, Dropdown, List, ListItem} from "vue-devui";
+import {termx} from "../../../wailsjs/go/models";
 const props = defineProps({
   atClick: {
     type: Function as PropType<(item: termx.SystemShell) => void>,
@@ -32,12 +32,12 @@ function dropClick(item: termx.SystemShell) {
   <Dropdown trigger="hover" :position="['bottom-end']">
     <i class="icon-op-add"></i>
     <template #menu>
-      <List style="width: 100px;padding-bottom: 0;">
+      <List style="min-width: 100px;padding-bottom: 0;">
         <ListItem
             v-for="(item,index) of state.items"
             :key="index"
             @click="dropClick(item)">
-          {{item.Name}}
+          {{item.name}}
         </ListItem>
       </List>
     </template>
