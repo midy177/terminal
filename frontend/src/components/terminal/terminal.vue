@@ -25,7 +25,7 @@ const state = reactive({
 });
 const currentRef = ref<VNodeRef | null>(null);
 // 赋值动态ref到变量
-function setItemRef(vn: Element | ComponentPublicInstance | VNodeRef | undefined) {
+function setItemRef(vn: Element | ComponentPublicInstance | VNodeRef | undefined | null) {
   if (vn) {
     currentRef.value = vn
   }
@@ -50,6 +50,23 @@ function NewTerminal(){
   });
   state.term.loadAddon(fitAddon);
   state.term.open(currentRef.value);
+  state.term.onKey(async (e) => {
+    if (e.key === '\x03') {
+      const copiedText = state.term.getSelection();
+      if (copiedText.length > 0) {
+        navigator.clipboard.writeText(copiedText).then(() => {
+          state.term.clearSelection();
+        });
+        e.domEvent.preventDefault();
+      }
+    } else if (e.key === '\x16') {
+      const clipText = await navigator.clipboard.readText();
+      if (clipText.length > 0) {
+        writeToPty(clipText.replace(/\r\n/g, "\n"));
+        e.domEvent.preventDefault();
+      }
+    }
+  })
   state.term.onTitleChange((title)=>{
     emit('update:title', title);
   })
@@ -126,6 +143,26 @@ async function toUint8Array(input: string | Uint8Array | ArrayBuffer | Blob): Pr
   }
 }
 
+function rightMouseDown(event: any) {
+  if (event.button === 2) {
+    handleSelectToClipboardOrClipboardToTerm();
+  }
+}
+
+function handleSelectToClipboardOrClipboardToTerm() {
+  if (state.term.hasSelection()) {
+    navigator.clipboard.writeText(state.term.getSelection()).then(()=>{
+      state.term.clearSelection();
+    });
+  } else {
+    navigator.clipboard.readText().then(clipText => {
+      if (clipText.length>0){
+        writeToPty(clipText.replace(/\r\n/g, "\n"));
+      }
+    })
+  }
+}
+
 defineExpose({
   fitTerminal,
   writeToTerminal,
@@ -150,8 +187,9 @@ onMounted(()=>{
   fitTerminal();
 })
 onUnmounted(()=>{
-  ClosePty(props.id)
-  EventsOff(props.id)
+  removeEventListener("resize", fitTerminal);
+  ClosePty(props.id);
+  EventsOff(props.id);
 })
 </script>
 
@@ -159,7 +197,9 @@ onUnmounted(()=>{
   <div :ref="setItemRef"
        @dragover="dragover"
        @drop="drop"
-       class="xterm-layout"/>
+       class="xterm-layout"
+       @contextmenu.prevent="rightMouseDown"
+  />
 </template>
 
 <style scoped lang="less">
