@@ -15,6 +15,7 @@ import {
 import {STableColumnsType, STableContextmenuPopupArg} from '@shene/table';
 import { STable,STableProvider } from '@shene/table';
 import {onMounted, reactive} from "vue";
+import Add_host from "./add_host.vue";
 const state = reactive({
   visible: false,
   tableData: <Array<DataType>>[],
@@ -94,8 +95,7 @@ onMounted(()=>{
 
 <template>
   <i class="icon-go-tree" @click="openModel"></i>
-<!--  <Icon class="iconfont icon-tree"></Icon>-->
-  <FixedOverlay v-model="state.visible" class="hosts-fixed-overlay">
+  <FixedOverlay v-model="state.visible" class="hosts-fixed-overlay" :close-on-click-overlay="false">
   <Modal
       v-model="state.visible"
       style="width: 80%;"
@@ -107,11 +107,12 @@ onMounted(()=>{
     <template #header>
         <Row type="flex" class="header-bar">
           <Col flex="2.5rem">
-            <Button
-                icon="add"
-                variant="solid"
-                title="Add"
-            />
+<!--            <Button-->
+<!--                icon="add"-->
+<!--                variant="solid"-->
+<!--                title="Add"-->
+<!--            />-->
+            <add_host/>
           </Col>
           <Col flex="auto">
             <Breadcrumb>

@@ -111,11 +111,6 @@ func (a *App) WriteToPty(id string, data []byte) error {
 	return err
 }
 
-// IsWindows 数据写入pty
-func (a *App) IsWindows() bool {
-	return false
-}
-
 // 推送终端信息到前端
 func (a *App) eventEmitLoop(id string) error {
 	t, ok := a.ptyMap.Load(id)
@@ -140,4 +135,71 @@ func (a *App) eventEmitLoop(id string) error {
 		runtime.EventsOff(ctx, id)
 	}(t, a.ctx, clearFun)
 	return nil
+}
+
+type HostEntry struct {
+	ID       int    `json:"id"`
+	Label    string `json:"label"`
+	Username string `json:"username"`
+	Port     uint   `json:"port"`
+	Password string `json:"password"`
+	FolderID int    `json:"folder_id"`
+	KeyID    int    `json:"key_id"`
+}
+
+// AddHost 添加host
+func (a *App) AddHost(h *HostEntry) error {
+	if h.Port == 0 {
+		h.Port = 22
+	}
+	add := a.db.Hosts.Create().
+		SetLabel(h.Label).
+		SetUsername(h.Username).
+		SetPort(h.Port).
+		SetFolderID(h.FolderID).
+		SetKeyID(h.KeyID)
+	if h.Password != "" {
+		add.SetNillablePassword(&h.Password)
+	}
+	return add.Exec(a.ctx)
+}
+
+// DelHost 添加host
+func (a *App) DelHost(id int) error {
+	return a.db.Hosts.DeleteOneID(id).Exec(a.ctx)
+}
+
+// UpdHost 添加host
+func (a *App) UpdHost(h *HostEntry) error {
+	upd := a.db.Hosts.UpdateOneID(h.ID).
+		SetLabel(h.Label).
+		SetUsername(h.Username).
+		SetPort(h.Port).
+		SetFolderID(h.FolderID).
+		SetKeyID(h.KeyID)
+	if h.Password != "" {
+		upd.SetNillablePassword(&h.Password)
+	}
+	return upd.Exec(a.ctx)
+}
+
+// GetHost 通过文件夹ID获取host列表
+func (a *App) GetHost(id int) ([]HostEntry, error) {
+	all, err := a.db.Folders.GetX(a.ctx, id).QueryHost().All(a.ctx)
+	if err != nil {
+		return nil, err
+	}
+	var entries = make([]HostEntry, 0, len(all))
+	for _, e := range all {
+		entries = append(entries, HostEntry{
+			ID:       e.ID,
+			Label:    e.Label,
+			Username: e.Username,
+			Port:     e.Port,
+			Password: e.Password,
+			FolderID: id,
+			KeyID:    e.QueryKey().OnlyIDX(a.ctx),
+		})
+	}
+	return entries, nil
 }
