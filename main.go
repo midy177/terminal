@@ -4,11 +4,14 @@ import (
 	"embed"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/wailsapp/wails/v2"
+	"github.com/wailsapp/wails/v2/pkg/menu"
+	"github.com/wailsapp/wails/v2/pkg/menu/keys"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"github.com/wailsapp/wails/v2/pkg/options/linux"
 	"github.com/wailsapp/wails/v2/pkg/options/mac"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 //go:embed all:frontend/dist
@@ -17,7 +20,17 @@ var assets embed.FS
 func main() {
 	// Create an instance of the app structure
 	app := NewApp()
-
+	AppMenu := menu.NewMenu()
+	AppMenu.AddText("隐藏", keys.CmdOrCtrl("h"), func(_ *menu.CallbackData) {
+		runtime.Hide(app.ctx)
+	})
+	AppMenu.AddText("显示", keys.CmdOrCtrl("s"), func(_ *menu.CallbackData) {
+		runtime.Show(app.ctx)
+	})
+	AppMenu.AddSeparator()
+	AppMenu.AddText("退出", keys.CmdOrCtrl("q"), func(_ *menu.CallbackData) {
+		runtime.Quit(app.ctx)
+	})
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "terminal",

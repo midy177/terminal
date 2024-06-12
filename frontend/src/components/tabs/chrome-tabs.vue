@@ -14,11 +14,11 @@
         <div class="tabs-background">
           <div class="tabs-background-divider"></div>
           <div class="tabs-background-content"></div>
-          <svg class="tabs-background-before" width="7" height="7">
-            <path d="M 0 7 A 7 7 0 0 0 7 0 L 7 7 Z"></path>
+          <svg class="tabs-background-before" width="8" height="8">
+            <path d="M 0 8 A 8 8 0 0 0 8 0 L 8 8 Z"></path>
           </svg>
-          <svg class="tabs-background-after" width="7" height="7">
-            <path d="M 0 0 A 7 7 0 0 0 7 7 L 0 7 Z"></path>
+          <svg class="tabs-background-after" width="8" height="8">
+            <path d="M 0 0 A 8 8 0 0 0 8 8 L 0 8 Z"></path>
           </svg>
         </div>
         <div class="tabs-close" @click.stop="handleDelete(tab, i)" v-show="showTabCloseIcon(tab)">
@@ -690,8 +690,8 @@ export default defineComponent({
     left: 0;
     right: 0;
     margin: 0 @gap * 2;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
+    border-top-left-radius: .5rem;
+    border-top-right-radius: .5rem;
     transition: @speed;
     display: flex;
     align-items: center;
@@ -790,25 +790,25 @@ export default defineComponent({
 
   .tabs-background-content {
     height: 100%;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
+    border-top-left-radius: .5rem;
+    border-top-right-radius: .5rem;
     transition: @speed;
   }
 
   .tabs-background-before,
   .tabs-background-after {
-    bottom: -1px;
+    bottom: 0;
     position: absolute;
     fill: transparent;
     transition: @speed;
   }
 
   .tabs-background-before {
-    left: -1px;
+    left: -3px;
   }
 
   .tabs-background-after {
-    right: -1px;
+    right: -3px;
   }
 
   .tabs-footer {
