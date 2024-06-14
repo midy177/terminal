@@ -24,7 +24,7 @@ import TerminalTabs, {Tab} from "./components/tabs/chrome-tabs.vue";
 import {onMounted, reactive, ref} from 'vue';
 import Terminal from "./components/terminal/terminal.vue";
 import {nanoid} from "nanoid";
-const tab = ref('google')
+const tab = ref('')
 const tabRef = ref()
 import Dropdown  from "./components/dropdown/dropdown.vue";
 import {CreateLocalPty} from "../wailsjs/go/main/App";
@@ -61,7 +61,6 @@ function removeResizeListener() {
 onMounted(()=>{
 
 })
-
 </script>
 
 <style lang="less">

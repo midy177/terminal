@@ -6,6 +6,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"log"
 	"terminal/ent"
+	"terminal/ent/folders"
 	"terminal/pkg/syncmapx"
 	"terminal/termx"
 )
@@ -139,6 +140,7 @@ func (a *App) eventEmitLoop(id string) error {
 
 type HostEntry struct {
 	ID       int    `json:"id"`
+	IsFolder bool   `json:"is_folder"`
 	Label    string `json:"label"`
 	Username string `json:"username"`
 	Port     uint   `json:"port"`
@@ -147,8 +149,8 @@ type HostEntry struct {
 	KeyID    int    `json:"key_id"`
 }
 
-// AddHost 添加host
-func (a *App) AddHost(h *HostEntry) error {
+// AddFoldOrHost 添加host
+func (a *App) AddFoldOrHost(h *HostEntry) error {
 	if h.Port == 0 {
 		h.Port = 22
 	}
@@ -164,8 +166,8 @@ func (a *App) AddHost(h *HostEntry) error {
 	return add.Exec(a.ctx)
 }
 
-// DelHost 添加host
-func (a *App) DelHost(id int) error {
+// DelFoldOrHost 添加DelFoldOrHost
+func (a *App) DelFoldOrHost(id int, isFold bool) error {
 	return a.db.Hosts.DeleteOneID(id).Exec(a.ctx)
 }
 
@@ -198,6 +200,45 @@ func (a *App) GetHost(id int) ([]HostEntry, error) {
 			Port:     e.Port,
 			Password: e.Password,
 			FolderID: id,
+			KeyID:    e.QueryKey().OnlyIDX(a.ctx),
+		})
+	}
+	return entries, nil
+}
+
+// GetFoldsAndHosts 通过文件夹ID获取文件夹列表和主机列表的集合
+func (a *App) GetFoldsAndHosts(parentId int) ([]HostEntry, error) {
+	allF, err := a.db.Folders.Query().
+		Where(folders.ParentID(parentId)).All(a.ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	f, err := a.db.Folders.Get(a.ctx, parentId)
+	if err != nil {
+		return nil, err
+	}
+	allH, err := f.QueryHost().All(a.ctx)
+	if err != nil {
+		return nil, err
+	}
+	var entries = make([]HostEntry, 0, len(allF)+len(allH))
+	for _, e := range allF {
+		entries = append(entries, HostEntry{
+			ID:       e.ID,
+			IsFolder: true,
+			Label:    e.Label,
+		})
+	}
+	for _, e := range allH {
+		entries = append(entries, HostEntry{
+			ID:       e.ID,
+			IsFolder: false,
+			Label:    e.Label,
+			Username: e.Username,
+			Port:     e.Port,
+			Password: e.Password,
+			FolderID: parentId,
 			KeyID:    e.QueryKey().OnlyIDX(a.ctx),
 		})
 	}

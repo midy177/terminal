@@ -2,6 +2,7 @@ export namespace main {
 	
 	export class HostEntry {
 	    id: number;
+	    is_folder: boolean;
 	    label: string;
 	    username: string;
 	    port: number;
@@ -16,6 +17,7 @@ export namespace main {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.id = source["id"];
+	        this.is_folder = source["is_folder"];
 	        this.label = source["label"];
 	        this.username = source["username"];
 	        this.port = source["port"];

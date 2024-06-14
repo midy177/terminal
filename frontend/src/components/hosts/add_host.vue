@@ -1,15 +1,10 @@
 <script setup lang="ts">
 import {Button, Modal, Form, FormItem, FormOperation, Input, FixedOverlay} from "vue-devui";
 import {reactive} from "vue";
+import {main} from "../../../wailsjs/go/models";
 const state = reactive({
   visible: false,
-  formModel: {
-    label: '',
-    username: '',
-    address: '',
-    port: 22,
-    password: '',
-  }
+  formModel: <main.HostEntry>{}
 })
 function openModel() {
   state.visible = true
@@ -37,7 +32,7 @@ function closeModel() {
   >
     <Form layout="vertical" :data="state.formModel">
       <FormItem field="name" label="Name">
-        <Input v-model="state.formModel.name" />
+        <Input v-model="state.formModel.label" />
       </FormItem>
       <FormOperation>
         <Button variant="solid">提交</Button>

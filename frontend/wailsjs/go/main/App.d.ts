@@ -3,7 +3,7 @@
 import {main} from '../models';
 import {termx} from '../models';
 
-export function AddHost(arg1:main.HostEntry):Promise<void>;
+export function AddFoldOrHost(arg1:main.HostEntry):Promise<void>;
 
 export function ClosePty(arg1:string):Promise<void>;
 
@@ -11,7 +11,9 @@ export function CreateLocalPty(arg1:termx.SystemShell):Promise<void>;
 
 export function CreateSshPty(arg1:string,arg2:number,arg3:number,arg4:number):Promise<void>;
 
-export function DelHost(arg1:number):Promise<void>;
+export function DelFoldOrHost(arg1:number,arg2:boolean):Promise<void>;
+
+export function GetFoldsAndHosts(arg1:number):Promise<Array<main.HostEntry>>;
 
 export function GetHost(arg1:number):Promise<Array<main.HostEntry>>;
 
