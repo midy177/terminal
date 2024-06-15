@@ -22,6 +22,10 @@ const (
 	FieldPort = "port"
 	// FieldPassword holds the string denoting the password field in the database.
 	FieldPassword = "password"
+	// FieldFolderID holds the string denoting the folder_id field in the database.
+	FieldFolderID = "folder_id"
+	// FieldKeyID holds the string denoting the key_id field in the database.
+	FieldKeyID = "key_id"
 	// EdgeFolder holds the string denoting the folder edge name in mutations.
 	EdgeFolder = "folder"
 	// EdgeKey holds the string denoting the key edge name in mutations.
@@ -34,14 +38,14 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "folders" package.
 	FolderInverseTable = "folders"
 	// FolderColumn is the table column denoting the folder relation/edge.
-	FolderColumn = "folders_host"
+	FolderColumn = "folder_id"
 	// KeyTable is the table that holds the key relation/edge.
 	KeyTable = "hosts"
 	// KeyInverseTable is the table name for the Keys entity.
 	// It exists in this package in order to avoid circular dependency with the "keys" package.
 	KeyInverseTable = "keys"
 	// KeyColumn is the table column denoting the key relation/edge.
-	KeyColumn = "keys_host"
+	KeyColumn = "key_id"
 )
 
 // Columns holds all SQL columns for hosts fields.
@@ -52,24 +56,14 @@ var Columns = []string{
 	FieldAddress,
 	FieldPort,
 	FieldPassword,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "hosts"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"folders_host",
-	"keys_host",
+	FieldFolderID,
+	FieldKeyID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -120,6 +114,16 @@ func ByPort(opts ...sql.OrderTermOption) OrderOption {
 // ByPassword orders the results by the password field.
 func ByPassword(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPassword, opts...).ToFunc()
+}
+
+// ByFolderID orders the results by the folder_id field.
+func ByFolderID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFolderID, opts...).ToFunc()
+}
+
+// ByKeyID orders the results by the key_id field.
+func ByKeyID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldKeyID, opts...).ToFunc()
 }
 
 // ByFolderField orders the results by folder field.

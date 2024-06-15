@@ -28,11 +28,13 @@ type Hosts struct {
 	Port uint `json:"port,omitempty"`
 	// 密码
 	Password string `json:"password,omitempty"`
+	// 所属目录ID,默认是-1
+	FolderID int `json:"folder_id,omitempty"`
+	// 绑定私钥ID,默认是-1,标识未绑定
+	KeyID int `json:"key_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the HostsQuery when eager-loading is set.
 	Edges        HostsEdges `json:"edges"`
-	folders_host *int
-	keys_host    *int
 	selectValues sql.SelectValues
 }
 
@@ -74,14 +76,10 @@ func (*Hosts) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case hosts.FieldID, hosts.FieldPort:
+		case hosts.FieldID, hosts.FieldPort, hosts.FieldFolderID, hosts.FieldKeyID:
 			values[i] = new(sql.NullInt64)
 		case hosts.FieldLabel, hosts.FieldUsername, hosts.FieldAddress, hosts.FieldPassword:
 			values[i] = new(sql.NullString)
-		case hosts.ForeignKeys[0]: // folders_host
-			values[i] = new(sql.NullInt64)
-		case hosts.ForeignKeys[1]: // keys_host
-			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -133,19 +131,17 @@ func (h *Hosts) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				h.Password = value.String
 			}
-		case hosts.ForeignKeys[0]:
+		case hosts.FieldFolderID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field folders_host", value)
+				return fmt.Errorf("unexpected type %T for field folder_id", values[i])
 			} else if value.Valid {
-				h.folders_host = new(int)
-				*h.folders_host = int(value.Int64)
+				h.FolderID = int(value.Int64)
 			}
-		case hosts.ForeignKeys[1]:
+		case hosts.FieldKeyID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field keys_host", value)
+				return fmt.Errorf("unexpected type %T for field key_id", values[i])
 			} else if value.Valid {
-				h.keys_host = new(int)
-				*h.keys_host = int(value.Int64)
+				h.KeyID = int(value.Int64)
 			}
 		default:
 			h.selectValues.Set(columns[i], values[i])
@@ -207,6 +203,12 @@ func (h *Hosts) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("password=")
 	builder.WriteString(h.Password)
+	builder.WriteString(", ")
+	builder.WriteString("folder_id=")
+	builder.WriteString(fmt.Sprintf("%v", h.FolderID))
+	builder.WriteString(", ")
+	builder.WriteString("key_id=")
+	builder.WriteString(fmt.Sprintf("%v", h.KeyID))
 	builder.WriteByte(')')
 	return builder.String()
 }

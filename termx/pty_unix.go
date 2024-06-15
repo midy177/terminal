@@ -3,7 +3,9 @@
 package termx
 
 import (
+	"errors"
 	"github.com/creack/pty"
+	"github.com/pkg/sftp"
 	"os"
 	"os/exec"
 	"sync/atomic"
@@ -12,6 +14,11 @@ import (
 type unixPty struct {
 	pty    *os.File
 	closed *atomic.Bool
+}
+
+func (t *unixPty) Sftp() (*sftp.Client, error) {
+	//TODO implement me
+	return nil, errors.New("sftp pty not supported")
 }
 
 func (t *unixPty) Resize(rows, cols int) error {

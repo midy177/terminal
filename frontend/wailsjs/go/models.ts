@@ -1,10 +1,12 @@
-export namespace main {
+export namespace logic {
+	
 	
 	export class HostEntry {
 	    id: number;
 	    is_folder: boolean;
 	    label: string;
 	    username: string;
+	    address: string;
 	    port: number;
 	    password: string;
 	    folder_id: number;
@@ -20,10 +22,27 @@ export namespace main {
 	        this.is_folder = source["is_folder"];
 	        this.label = source["label"];
 	        this.username = source["username"];
+	        this.address = source["address"];
 	        this.port = source["port"];
 	        this.password = source["password"];
 	        this.folder_id = source["folder_id"];
 	        this.key_id = source["key_id"];
+	    }
+	}
+	export class KeyEntry {
+	    id?: number;
+	    label?: string;
+	    content?: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new KeyEntry(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.label = source["label"];
+	        this.content = source["content"];
 	    }
 	}
 

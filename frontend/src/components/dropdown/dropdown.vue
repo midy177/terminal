@@ -1,9 +1,9 @@
 <script setup lang="ts">
 // import Dropdown from 'v-dropdown';
 import {onMounted, PropType, reactive} from "vue";
-import {GetLocalPtyList} from "../../../wailsjs/go/main/App";
+import {GetLocalPtyList} from "../../../wailsjs/go/logic/Logic";
 import {Button, Dropdown, List, ListItem} from "vue-devui";
-import {termx} from "../../../wailsjs/go/models";
+import {logic, termx} from "../../../wailsjs/go/models";
 const props = defineProps({
   atClick: {
     type: Function as PropType<(item: termx.SystemShell) => void>,

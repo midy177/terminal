@@ -37,8 +37,8 @@ var (
 		{Name: "address", Type: field.TypeString, Unique: true},
 		{Name: "port", Type: field.TypeUint, Default: 22},
 		{Name: "password", Type: field.TypeString, Nullable: true},
-		{Name: "folders_host", Type: field.TypeInt, Unique: true},
-		{Name: "keys_host", Type: field.TypeInt, Nullable: true},
+		{Name: "folder_id", Type: field.TypeInt, Unique: true, Nullable: true},
+		{Name: "key_id", Type: field.TypeInt, Nullable: true},
 	}
 	// HostsTable holds the schema information for the "hosts" table.
 	HostsTable = &schema.Table{
@@ -50,7 +50,7 @@ var (
 				Symbol:     "hosts_folders_host",
 				Columns:    []*schema.Column{HostsColumns[6]},
 				RefColumns: []*schema.Column{FoldersColumns[0]},
-				OnDelete:   schema.NoAction,
+				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "hosts_keys_host",

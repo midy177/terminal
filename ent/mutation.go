@@ -966,27 +966,113 @@ func (m *HostsMutation) ResetPassword() {
 	delete(m.clearedFields, hosts.FieldPassword)
 }
 
-// SetFolderID sets the "folder" edge to the Folders entity by id.
-func (m *HostsMutation) SetFolderID(id int) {
-	m.folder = &id
+// SetFolderID sets the "folder_id" field.
+func (m *HostsMutation) SetFolderID(i int) {
+	m.folder = &i
+}
+
+// FolderID returns the value of the "folder_id" field in the mutation.
+func (m *HostsMutation) FolderID() (r int, exists bool) {
+	v := m.folder
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFolderID returns the old "folder_id" field's value of the Hosts entity.
+// If the Hosts object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *HostsMutation) OldFolderID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFolderID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFolderID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFolderID: %w", err)
+	}
+	return oldValue.FolderID, nil
+}
+
+// ClearFolderID clears the value of the "folder_id" field.
+func (m *HostsMutation) ClearFolderID() {
+	m.folder = nil
+	m.clearedFields[hosts.FieldFolderID] = struct{}{}
+}
+
+// FolderIDCleared returns if the "folder_id" field was cleared in this mutation.
+func (m *HostsMutation) FolderIDCleared() bool {
+	_, ok := m.clearedFields[hosts.FieldFolderID]
+	return ok
+}
+
+// ResetFolderID resets all changes to the "folder_id" field.
+func (m *HostsMutation) ResetFolderID() {
+	m.folder = nil
+	delete(m.clearedFields, hosts.FieldFolderID)
+}
+
+// SetKeyID sets the "key_id" field.
+func (m *HostsMutation) SetKeyID(i int) {
+	m.key = &i
+}
+
+// KeyID returns the value of the "key_id" field in the mutation.
+func (m *HostsMutation) KeyID() (r int, exists bool) {
+	v := m.key
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldKeyID returns the old "key_id" field's value of the Hosts entity.
+// If the Hosts object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *HostsMutation) OldKeyID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldKeyID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldKeyID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldKeyID: %w", err)
+	}
+	return oldValue.KeyID, nil
+}
+
+// ClearKeyID clears the value of the "key_id" field.
+func (m *HostsMutation) ClearKeyID() {
+	m.key = nil
+	m.clearedFields[hosts.FieldKeyID] = struct{}{}
+}
+
+// KeyIDCleared returns if the "key_id" field was cleared in this mutation.
+func (m *HostsMutation) KeyIDCleared() bool {
+	_, ok := m.clearedFields[hosts.FieldKeyID]
+	return ok
+}
+
+// ResetKeyID resets all changes to the "key_id" field.
+func (m *HostsMutation) ResetKeyID() {
+	m.key = nil
+	delete(m.clearedFields, hosts.FieldKeyID)
 }
 
 // ClearFolder clears the "folder" edge to the Folders entity.
 func (m *HostsMutation) ClearFolder() {
 	m.clearedfolder = true
+	m.clearedFields[hosts.FieldFolderID] = struct{}{}
 }
 
 // FolderCleared reports if the "folder" edge to the Folders entity was cleared.
 func (m *HostsMutation) FolderCleared() bool {
-	return m.clearedfolder
-}
-
-// FolderID returns the "folder" edge ID in the mutation.
-func (m *HostsMutation) FolderID() (id int, exists bool) {
-	if m.folder != nil {
-		return *m.folder, true
-	}
-	return
+	return m.FolderIDCleared() || m.clearedfolder
 }
 
 // FolderIDs returns the "folder" edge IDs in the mutation.
@@ -1005,27 +1091,15 @@ func (m *HostsMutation) ResetFolder() {
 	m.clearedfolder = false
 }
 
-// SetKeyID sets the "key" edge to the Keys entity by id.
-func (m *HostsMutation) SetKeyID(id int) {
-	m.key = &id
-}
-
 // ClearKey clears the "key" edge to the Keys entity.
 func (m *HostsMutation) ClearKey() {
 	m.clearedkey = true
+	m.clearedFields[hosts.FieldKeyID] = struct{}{}
 }
 
 // KeyCleared reports if the "key" edge to the Keys entity was cleared.
 func (m *HostsMutation) KeyCleared() bool {
-	return m.clearedkey
-}
-
-// KeyID returns the "key" edge ID in the mutation.
-func (m *HostsMutation) KeyID() (id int, exists bool) {
-	if m.key != nil {
-		return *m.key, true
-	}
-	return
+	return m.KeyIDCleared() || m.clearedkey
 }
 
 // KeyIDs returns the "key" edge IDs in the mutation.
@@ -1078,7 +1152,7 @@ func (m *HostsMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *HostsMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 7)
 	if m.label != nil {
 		fields = append(fields, hosts.FieldLabel)
 	}
@@ -1093,6 +1167,12 @@ func (m *HostsMutation) Fields() []string {
 	}
 	if m.password != nil {
 		fields = append(fields, hosts.FieldPassword)
+	}
+	if m.folder != nil {
+		fields = append(fields, hosts.FieldFolderID)
+	}
+	if m.key != nil {
+		fields = append(fields, hosts.FieldKeyID)
 	}
 	return fields
 }
@@ -1112,6 +1192,10 @@ func (m *HostsMutation) Field(name string) (ent.Value, bool) {
 		return m.Port()
 	case hosts.FieldPassword:
 		return m.Password()
+	case hosts.FieldFolderID:
+		return m.FolderID()
+	case hosts.FieldKeyID:
+		return m.KeyID()
 	}
 	return nil, false
 }
@@ -1131,6 +1215,10 @@ func (m *HostsMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldPort(ctx)
 	case hosts.FieldPassword:
 		return m.OldPassword(ctx)
+	case hosts.FieldFolderID:
+		return m.OldFolderID(ctx)
+	case hosts.FieldKeyID:
+		return m.OldKeyID(ctx)
 	}
 	return nil, fmt.Errorf("unknown Hosts field %s", name)
 }
@@ -1174,6 +1262,20 @@ func (m *HostsMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetPassword(v)
+		return nil
+	case hosts.FieldFolderID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFolderID(v)
+		return nil
+	case hosts.FieldKeyID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetKeyID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Hosts field %s", name)
@@ -1223,6 +1325,12 @@ func (m *HostsMutation) ClearedFields() []string {
 	if m.FieldCleared(hosts.FieldPassword) {
 		fields = append(fields, hosts.FieldPassword)
 	}
+	if m.FieldCleared(hosts.FieldFolderID) {
+		fields = append(fields, hosts.FieldFolderID)
+	}
+	if m.FieldCleared(hosts.FieldKeyID) {
+		fields = append(fields, hosts.FieldKeyID)
+	}
 	return fields
 }
 
@@ -1239,6 +1347,12 @@ func (m *HostsMutation) ClearField(name string) error {
 	switch name {
 	case hosts.FieldPassword:
 		m.ClearPassword()
+		return nil
+	case hosts.FieldFolderID:
+		m.ClearFolderID()
+		return nil
+	case hosts.FieldKeyID:
+		m.ClearKeyID()
 		return nil
 	}
 	return fmt.Errorf("unknown Hosts nullable field %s", name)
@@ -1262,6 +1376,12 @@ func (m *HostsMutation) ResetField(name string) error {
 		return nil
 	case hosts.FieldPassword:
 		m.ResetPassword()
+		return nil
+	case hosts.FieldFolderID:
+		m.ResetFolderID()
+		return nil
+	case hosts.FieldKeyID:
+		m.ResetKeyID()
 		return nil
 	}
 	return fmt.Errorf("unknown Hosts field %s", name)

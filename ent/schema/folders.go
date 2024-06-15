@@ -21,8 +21,8 @@ func (Folders) Fields() []ent.Field {
 			Unique().
 			Comment("标记"),
 		field.Int("parent_id").
-			Comment("上级ID").
-			Optional(),
+			Optional().
+			Comment("上级ID,默认是-1,表示是根目录下"),
 	}
 }
 

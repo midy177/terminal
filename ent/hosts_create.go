@@ -67,29 +67,37 @@ func (hc *HostsCreate) SetNillablePassword(s *string) *HostsCreate {
 	return hc
 }
 
-// SetFolderID sets the "folder" edge to the Folders entity by ID.
-func (hc *HostsCreate) SetFolderID(id int) *HostsCreate {
-	hc.mutation.SetFolderID(id)
+// SetFolderID sets the "folder_id" field.
+func (hc *HostsCreate) SetFolderID(i int) *HostsCreate {
+	hc.mutation.SetFolderID(i)
+	return hc
+}
+
+// SetNillableFolderID sets the "folder_id" field if the given value is not nil.
+func (hc *HostsCreate) SetNillableFolderID(i *int) *HostsCreate {
+	if i != nil {
+		hc.SetFolderID(*i)
+	}
+	return hc
+}
+
+// SetKeyID sets the "key_id" field.
+func (hc *HostsCreate) SetKeyID(i int) *HostsCreate {
+	hc.mutation.SetKeyID(i)
+	return hc
+}
+
+// SetNillableKeyID sets the "key_id" field if the given value is not nil.
+func (hc *HostsCreate) SetNillableKeyID(i *int) *HostsCreate {
+	if i != nil {
+		hc.SetKeyID(*i)
+	}
 	return hc
 }
 
 // SetFolder sets the "folder" edge to the Folders entity.
 func (hc *HostsCreate) SetFolder(f *Folders) *HostsCreate {
 	return hc.SetFolderID(f.ID)
-}
-
-// SetKeyID sets the "key" edge to the Keys entity by ID.
-func (hc *HostsCreate) SetKeyID(id int) *HostsCreate {
-	hc.mutation.SetKeyID(id)
-	return hc
-}
-
-// SetNillableKeyID sets the "key" edge to the Keys entity by ID if the given value is not nil.
-func (hc *HostsCreate) SetNillableKeyID(id *int) *HostsCreate {
-	if id != nil {
-		hc = hc.SetKeyID(*id)
-	}
-	return hc
 }
 
 // SetKey sets the "key" edge to the Keys entity.
@@ -172,9 +180,6 @@ func (hc *HostsCreate) check() error {
 			return &ValidationError{Name: "port", err: fmt.Errorf(`ent: validator failed for field "Hosts.port": %w`, err)}
 		}
 	}
-	if _, ok := hc.mutation.FolderID(); !ok {
-		return &ValidationError{Name: "folder", err: errors.New(`ent: missing required edge "Hosts.folder"`)}
-	}
 	return nil
 }
 
@@ -235,7 +240,7 @@ func (hc *HostsCreate) createSpec() (*Hosts, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.folders_host = &nodes[0]
+		_node.FolderID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := hc.mutation.KeyIDs(); len(nodes) > 0 {
@@ -252,7 +257,7 @@ func (hc *HostsCreate) createSpec() (*Hosts, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.keys_host = &nodes[0]
+		_node.KeyID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

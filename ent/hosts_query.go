@@ -25,7 +25,6 @@ type HostsQuery struct {
 	predicates []predicate.Hosts
 	withFolder *FoldersQuery
 	withKey    *KeysQuery
-	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -405,19 +404,12 @@ func (hq *HostsQuery) prepareQuery(ctx context.Context) error {
 func (hq *HostsQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Hosts, error) {
 	var (
 		nodes       = []*Hosts{}
-		withFKs     = hq.withFKs
 		_spec       = hq.querySpec()
 		loadedTypes = [2]bool{
 			hq.withFolder != nil,
 			hq.withKey != nil,
 		}
 	)
-	if hq.withFolder != nil || hq.withKey != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, hosts.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Hosts).scanValues(nil, columns)
 	}
@@ -455,10 +447,7 @@ func (hq *HostsQuery) loadFolder(ctx context.Context, query *FoldersQuery, nodes
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*Hosts)
 	for i := range nodes {
-		if nodes[i].folders_host == nil {
-			continue
-		}
-		fk := *nodes[i].folders_host
+		fk := nodes[i].FolderID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -475,7 +464,7 @@ func (hq *HostsQuery) loadFolder(ctx context.Context, query *FoldersQuery, nodes
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "folders_host" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "folder_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -487,10 +476,7 @@ func (hq *HostsQuery) loadKey(ctx context.Context, query *KeysQuery, nodes []*Ho
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*Hosts)
 	for i := range nodes {
-		if nodes[i].keys_host == nil {
-			continue
-		}
-		fk := *nodes[i].keys_host
+		fk := nodes[i].KeyID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -507,7 +493,7 @@ func (hq *HostsQuery) loadKey(ctx context.Context, query *KeysQuery, nodes []*Ho
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "keys_host" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "key_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -540,6 +526,12 @@ func (hq *HostsQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != hosts.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if hq.withFolder != nil {
+			_spec.Node.AddColumnOnce(hosts.FieldFolderID)
+		}
+		if hq.withKey != nil {
+			_spec.Node.AddColumnOnce(hosts.FieldKeyID)
 		}
 	}
 	if ps := hq.predicates; len(ps) > 0 {

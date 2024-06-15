@@ -27,9 +27,9 @@ import {nanoid} from "nanoid";
 const tab = ref('')
 const tabRef = ref()
 import Dropdown  from "./components/dropdown/dropdown.vue";
-import {CreateLocalPty} from "../wailsjs/go/main/App";
+import {CreateLocalPty} from "../wailsjs/go/logic/Logic";
 import Hosts from "./components/hosts/hosts.vue";
-import {termx} from "../wailsjs/go/models";
+import {logic, termx} from "../wailsjs/go/models";
 const tabs = <Array<Tab>>reactive([])
 
 function addLocalTab(data: termx.SystemShell) {

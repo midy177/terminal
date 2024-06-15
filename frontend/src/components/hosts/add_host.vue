@@ -1,17 +1,92 @@
 <script setup lang="ts">
-import {Button, Modal, Form, FormItem, FormOperation, Input, FixedOverlay} from "vue-devui";
-import {reactive} from "vue";
-import {main} from "../../../wailsjs/go/models";
-const state = reactive({
-  visible: false,
-  formModel: <main.HostEntry>{}
+import {
+  Button, Modal, Form, FormItem,
+  FormOperation, Input, FixedOverlay,
+  Switch, InputNumber, Select, Option,
+  Popover, Row, Col, NotificationService
+} from "vue-devui";
+import {onMounted, reactive} from "vue";
+import {logic} from "../../../wailsjs/go/models";
+import {AddFoldOrHost, DelFoldOrHost, GetKeyList} from "../../../wailsjs/go/logic/Logic";
+import Add_key from "../keys/add_key.vue";
+const props= defineProps({
+  folder_id: {
+    type: Number,
+    require: true,
+  }
 })
+
+const initState = () => ({
+  visible: false,
+  formModel: <logic.HostEntry>{
+    label: '',
+    username: '',
+    address: '',
+    port: 22,
+    password: '',
+    folder_id: 0,
+    key_id: 0,
+  },
+  useKey: false,
+  keyList: <Array<logic.KeyEntry>>[]
+})
+
+const state = reactive(initState())
+
+const rules = {
+  label: [{ required: true, min: 3, max: 6, message: '用户名需不小于3个字符，不大于6个字符', trigger: 'blur' }],
+  username: [{ required: true, message: '用户信息不能为空', trigger: 'blur' }],
+  address: [{ required: true, message: '用户信息不能为空', trigger: 'blur' }],
+  port: [{ required: true, message: '端口必须填写', trigger: 'blur' }],
+  password: [{ required: false, message: '必须填写密码', trigger: 'blur' }],
+  key_id: [{ required: true, message: '请选择', trigger: 'blur' }],
+};
+
 function openModel() {
   state.visible = true
 }
 function closeModel() {
-  state.visible = false
+  // reset reactive
+  Object.assign(state, initState());
+  state.visible = false;
 }
+
+function addHost(){
+  AddFoldOrHost(state.formModel).then(()=>{
+    NotificationService.open({
+      type: 'success',
+      title: '添加主机或目录成功',
+      duration: 1000,
+    })
+    closeModel()
+  }).catch(e=>{
+    NotificationService.open({
+      type: 'error',
+      title: '添加主机或目录失败',
+      content: e,
+      duration: 3000,
+    })
+  })
+}
+onMounted(()=>{
+  if (props.folder_id) {
+    state.formModel.folder_id = props.folder_id
+  } else {
+    closeModel()
+  }
+  GetKeyList(false).then((res: Array<logic.KeyEntry>)=>{
+    if (res.length>0) {
+      state.keyList = res;
+    }
+  }).catch(e=>{
+    NotificationService.open({
+      type: 'error',
+      title: '获取主机列表失败',
+      content: e,
+      duration: 1000,
+    })
+  })
+})
 </script>
 
 <template>
@@ -25,18 +100,88 @@ function closeModel() {
   <Modal
       v-model="state.visible"
       style="min-width: 60%;"
+      title="添加主机"
       :show-close="false"
       :draggable="false"
       :show-overlay="false"
       :close-on-click-overlay="false"
   >
-    <Form layout="vertical" :data="state.formModel">
-      <FormItem field="name" label="Name">
-        <Input v-model="state.formModel.label" />
+    <Form
+        layout="horizontal"
+        :data="state.formModel"
+        label-size="sm"
+        label-align="center"
+        :rules="rules"
+        :pop-position="['top-start','bottom-start']"
+    >
+      <FormItem field="label" label="标签">
+        <Input v-model="state.formModel.label" placeholder="请设置标签名"/>
       </FormItem>
+      <FormItem field="is_folder" label="目录?">
+        <Switch v-model="state.formModel.is_folder">
+          <template #checkedContent>是</template>
+          <template #uncheckedContent>否</template>
+        </Switch>
+      </FormItem>
+      <template v-if="!state.formModel.is_folder">
+      <FormItem field="username" label="用户">
+        <Input v-model="state.formModel.username" placeholder="请输入用户名"/>
+      </FormItem>
+        <FormItem field="address" label="地址">
+          <Input v-model="state.formModel.address" placeholder="请输入用户名"/>
+        </FormItem>
+      <FormItem field="port" label="端口">
+        <InputNumber v-model="state.formModel.port" :min="0" :max="65535"/>
+      </FormItem>
+      <FormItem v-if="state.useKey" field="key_id">
+        <template #label>
+          <Popover content="是否使用私钥?" trigger="hover" style="background-color: #7693f5; color: #fff">
+            <Switch v-model="state.useKey">
+              <template #checkedContent>是</template>
+              <template #uncheckedContent>否</template>
+            </Switch>
+          </Popover>
+        </template>
+        <Row :gutter="8" style="width: 100%;">
+          <Col :span="19" style="flex: 1;">
+            <Select
+                v-model="state.formModel.key_id"
+                placeholder="请选择私钥"
+            >
+              <Option
+                  v-for="(item, index) in state.keyList"
+                  :key="index"
+                  :value="item.id"
+                  :name="item.label"
+              />
+            </Select>
+          </Col>
+          <Col :span="5">
+            <add_key/>
+          </Col>
+        </Row>
+      </FormItem>
+      <FormItem v-else field="password">
+        <template #label>
+          <Popover content="是否使用私钥?" trigger="hover" style="background-color: #7693f5; color: #fff">
+            <Switch v-model="state.useKey">
+              <template #checkedContent>是</template>
+              <template #uncheckedContent>否</template>
+            </Switch>
+          </Popover>
+        </template>
+        <Input v-model="state.formModel.password" show-password placeholder="请输入ssh密码"/>
+      </FormItem>
+      </template>
       <FormOperation>
-        <Button variant="solid">提交</Button>
-        <Button @click="closeModel">取消</Button>
+        <Row justify="end" style="width: 100%;">
+          <Col :span="4">
+            <Button @click="closeModel">取消</Button>
+          </Col>
+          <Col :span="4">
+            <Button variant="solid" @click="addHost">提交</Button>
+          </Col>
+        </Row>
       </FormOperation>
     </Form>
   </Modal>

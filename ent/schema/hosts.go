@@ -42,6 +42,12 @@ func (Hosts) Fields() []ent.Field {
 		field.String("password").
 			Optional().
 			Comment("密码"),
+		field.Int("folder_id").
+			Optional().
+			Comment("所属目录ID,默认是-1"),
+		field.Int("key_id").
+			Optional().
+			Comment("绑定私钥ID,默认是-1,标识未绑定"),
 	}
 }
 
@@ -51,13 +57,11 @@ func (Hosts) Edges() []ent.Edge {
 		edge.From("folder", Folders.Type).
 			Ref("host").
 			Unique().
-			// We add the "Required" method to the builder
-			// to make this edge required on entity creation.
-			// i.e. host cannot be created without its owner.
-			Required(),
+			Field("folder_id"),
 		edge.From("key", Keys.Type).
 			Ref("host").
-			Unique(),
+			Unique().
+			Field("key_id"),
 	}
 }
 func (Hosts) Annotations() []schema.Annotation {

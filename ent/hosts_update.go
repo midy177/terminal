@@ -112,29 +112,49 @@ func (hu *HostsUpdate) ClearPassword() *HostsUpdate {
 	return hu
 }
 
-// SetFolderID sets the "folder" edge to the Folders entity by ID.
-func (hu *HostsUpdate) SetFolderID(id int) *HostsUpdate {
-	hu.mutation.SetFolderID(id)
+// SetFolderID sets the "folder_id" field.
+func (hu *HostsUpdate) SetFolderID(i int) *HostsUpdate {
+	hu.mutation.SetFolderID(i)
+	return hu
+}
+
+// SetNillableFolderID sets the "folder_id" field if the given value is not nil.
+func (hu *HostsUpdate) SetNillableFolderID(i *int) *HostsUpdate {
+	if i != nil {
+		hu.SetFolderID(*i)
+	}
+	return hu
+}
+
+// ClearFolderID clears the value of the "folder_id" field.
+func (hu *HostsUpdate) ClearFolderID() *HostsUpdate {
+	hu.mutation.ClearFolderID()
+	return hu
+}
+
+// SetKeyID sets the "key_id" field.
+func (hu *HostsUpdate) SetKeyID(i int) *HostsUpdate {
+	hu.mutation.SetKeyID(i)
+	return hu
+}
+
+// SetNillableKeyID sets the "key_id" field if the given value is not nil.
+func (hu *HostsUpdate) SetNillableKeyID(i *int) *HostsUpdate {
+	if i != nil {
+		hu.SetKeyID(*i)
+	}
+	return hu
+}
+
+// ClearKeyID clears the value of the "key_id" field.
+func (hu *HostsUpdate) ClearKeyID() *HostsUpdate {
+	hu.mutation.ClearKeyID()
 	return hu
 }
 
 // SetFolder sets the "folder" edge to the Folders entity.
 func (hu *HostsUpdate) SetFolder(f *Folders) *HostsUpdate {
 	return hu.SetFolderID(f.ID)
-}
-
-// SetKeyID sets the "key" edge to the Keys entity by ID.
-func (hu *HostsUpdate) SetKeyID(id int) *HostsUpdate {
-	hu.mutation.SetKeyID(id)
-	return hu
-}
-
-// SetNillableKeyID sets the "key" edge to the Keys entity by ID if the given value is not nil.
-func (hu *HostsUpdate) SetNillableKeyID(id *int) *HostsUpdate {
-	if id != nil {
-		hu = hu.SetKeyID(*id)
-	}
-	return hu
 }
 
 // SetKey sets the "key" edge to the Keys entity.
@@ -207,9 +227,6 @@ func (hu *HostsUpdate) check() error {
 		if err := hosts.PortValidator(v); err != nil {
 			return &ValidationError{Name: "port", err: fmt.Errorf(`ent: validator failed for field "Hosts.port": %w`, err)}
 		}
-	}
-	if _, ok := hu.mutation.FolderID(); hu.mutation.FolderCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "Hosts.folder"`)
 	}
 	return nil
 }
@@ -408,29 +425,49 @@ func (huo *HostsUpdateOne) ClearPassword() *HostsUpdateOne {
 	return huo
 }
 
-// SetFolderID sets the "folder" edge to the Folders entity by ID.
-func (huo *HostsUpdateOne) SetFolderID(id int) *HostsUpdateOne {
-	huo.mutation.SetFolderID(id)
+// SetFolderID sets the "folder_id" field.
+func (huo *HostsUpdateOne) SetFolderID(i int) *HostsUpdateOne {
+	huo.mutation.SetFolderID(i)
+	return huo
+}
+
+// SetNillableFolderID sets the "folder_id" field if the given value is not nil.
+func (huo *HostsUpdateOne) SetNillableFolderID(i *int) *HostsUpdateOne {
+	if i != nil {
+		huo.SetFolderID(*i)
+	}
+	return huo
+}
+
+// ClearFolderID clears the value of the "folder_id" field.
+func (huo *HostsUpdateOne) ClearFolderID() *HostsUpdateOne {
+	huo.mutation.ClearFolderID()
+	return huo
+}
+
+// SetKeyID sets the "key_id" field.
+func (huo *HostsUpdateOne) SetKeyID(i int) *HostsUpdateOne {
+	huo.mutation.SetKeyID(i)
+	return huo
+}
+
+// SetNillableKeyID sets the "key_id" field if the given value is not nil.
+func (huo *HostsUpdateOne) SetNillableKeyID(i *int) *HostsUpdateOne {
+	if i != nil {
+		huo.SetKeyID(*i)
+	}
+	return huo
+}
+
+// ClearKeyID clears the value of the "key_id" field.
+func (huo *HostsUpdateOne) ClearKeyID() *HostsUpdateOne {
+	huo.mutation.ClearKeyID()
 	return huo
 }
 
 // SetFolder sets the "folder" edge to the Folders entity.
 func (huo *HostsUpdateOne) SetFolder(f *Folders) *HostsUpdateOne {
 	return huo.SetFolderID(f.ID)
-}
-
-// SetKeyID sets the "key" edge to the Keys entity by ID.
-func (huo *HostsUpdateOne) SetKeyID(id int) *HostsUpdateOne {
-	huo.mutation.SetKeyID(id)
-	return huo
-}
-
-// SetNillableKeyID sets the "key" edge to the Keys entity by ID if the given value is not nil.
-func (huo *HostsUpdateOne) SetNillableKeyID(id *int) *HostsUpdateOne {
-	if id != nil {
-		huo = huo.SetKeyID(*id)
-	}
-	return huo
 }
 
 // SetKey sets the "key" edge to the Keys entity.
@@ -516,9 +553,6 @@ func (huo *HostsUpdateOne) check() error {
 		if err := hosts.PortValidator(v); err != nil {
 			return &ValidationError{Name: "port", err: fmt.Errorf(`ent: validator failed for field "Hosts.port": %w`, err)}
 		}
-	}
-	if _, ok := huo.mutation.FolderID(); huo.mutation.FolderCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "Hosts.folder"`)
 	}
 	return nil
 }

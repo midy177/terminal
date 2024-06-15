@@ -4,9 +4,10 @@ import { FitAddon } from "xterm-addon-fit";
 import "./xterm.css";
 import { TrzszFilter } from 'trzsz';
 import {ComponentPublicInstance, onMounted, onUnmounted, reactive, ref, VNodeRef} from 'vue';
-import {ClosePty, ResizePty, WriteToPty} from "../../../wailsjs/go/main/App";
+import {ClosePty, ResizePty, WriteToPty} from "../../../wailsjs/go/logic/Logic";
 import { Tab } from "../tabs/chrome-tabs.vue";
 import {EventsOff, EventsOn} from "../../../wailsjs/runtime";
+import {logic} from "../../../wailsjs/go/models";
 
 const props = defineProps({
   id: {

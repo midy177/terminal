@@ -10,20 +10,24 @@ import {
   Col,
   Input,
   Icon,
-  Message
+  Message, NotificationService
 } from "vue-devui";
 import {STableColumnsType, STableContextmenuPopupArg} from '@shene/table';
 import { STable,STableProvider } from '@shene/table';
 import {onMounted, reactive} from "vue";
 import Add_host from "./add_host.vue";
-import {main} from "../../../wailsjs/go/models";
-import {GetFoldsAndHosts} from "../../../wailsjs/go/main/App";
-const state = reactive({
+import {logic} from "../../../wailsjs/go/models";
+import {DelFoldOrHost, GetFoldsAndHosts} from "../../../wailsjs/go/logic/Logic";
+
+const initState = () => ({
   visible: false,
-  tableData: <Array<main.HostEntry>>[],
+  tableData: <Array<logic.HostEntry>>[],
+  currentDirId: 0,
 })
 
-const columns: STableColumnsType<main.HostEntry> = [
+const state = reactive(initState())
+
+const columns: STableColumnsType<logic.HostEntry> = [
   {
     title: '名称',
     dataIndex: 'label',
@@ -51,10 +55,13 @@ const columns: STableColumnsType<main.HostEntry> = [
 ]
 
 function closeModel(){
+  // reset reactive
+  Object.assign(state, initState());
   state.visible = false
 }
 function openModel() {
   state.visible = true
+  GetList(state.currentDirId)
 }
 function handleContextMenuEdit(args: STableContextmenuPopupArg) {
   Message({
@@ -69,16 +76,39 @@ function handleContextMenuDelete(args: STableContextmenuPopupArg) {
   })
 }
 
+function delHost(id:number,isFold: boolean) {
+  DelFoldOrHost(id,isFold).then(()=>{
+    NotificationService.open({
+      type: 'success',
+      title: '删除主机或目录成功',
+      duration: 1000,
+    })
+  }).catch(e => {
+    NotificationService.open({
+      type: 'error',
+      title: '删除主机或目录失败',
+      content: e,
+      duration: 1000,
+    })
+  })
+}
+
 function GetList(id:number) {
-  GetFoldsAndHosts(id).then((res:main.HostEntry[])=>{
-    console.log(res)
+  GetFoldsAndHosts(id).then((res:logic.HostEntry[])=>{
+    if (res.length>0) {
+      state.tableData = res
+    }
   }).catch(e=>{
-    console.log(e)
+    NotificationService.open({
+      type: 'error',
+      title: '获取主机和目录列表失败',
+      content: e,
+      duration: 3000,
+    })
   })
 }
 
 onMounted(()=>{
-  GetList(0)
 })
 </script>
 
@@ -96,7 +126,7 @@ onMounted(()=>{
     <template #header>
         <Row type="flex" class="header-bar">
           <Col flex="2.5rem">
-            <add_host/>
+            <add_host :folder_id="state.currentDirId"/>
           </Col>
           <Col flex="auto">
             <Breadcrumb>
@@ -170,6 +200,7 @@ onMounted(()=>{
 }
 .popup {
   border-radius: .3rem;
+  height: 4rem;
 }
 .popup-item {
   cursor: pointer;

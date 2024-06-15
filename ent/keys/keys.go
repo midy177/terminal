@@ -26,7 +26,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "hosts" package.
 	HostInverseTable = "hosts"
 	// HostColumn is the table column denoting the host relation/edge.
-	HostColumn = "keys_host"
+	HostColumn = "key_id"
 )
 
 // Columns holds all SQL columns for keys fields.

@@ -38,7 +38,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "hosts" package.
 	HostInverseTable = "hosts"
 	// HostColumn is the table column denoting the host relation/edge.
-	HostColumn = "folders_host"
+	HostColumn = "folder_id"
 )
 
 // Columns holds all SQL columns for folders fields.

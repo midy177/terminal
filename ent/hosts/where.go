@@ -74,6 +74,16 @@ func Password(v string) predicate.Hosts {
 	return predicate.Hosts(sql.FieldEQ(FieldPassword, v))
 }
 
+// FolderID applies equality check predicate on the "folder_id" field. It's identical to FolderIDEQ.
+func FolderID(v int) predicate.Hosts {
+	return predicate.Hosts(sql.FieldEQ(FieldFolderID, v))
+}
+
+// KeyID applies equality check predicate on the "key_id" field. It's identical to KeyIDEQ.
+func KeyID(v int) predicate.Hosts {
+	return predicate.Hosts(sql.FieldEQ(FieldKeyID, v))
+}
+
 // LabelEQ applies the EQ predicate on the "label" field.
 func LabelEQ(v string) predicate.Hosts {
 	return predicate.Hosts(sql.FieldEQ(FieldLabel, v))
@@ -382,6 +392,66 @@ func PasswordEqualFold(v string) predicate.Hosts {
 // PasswordContainsFold applies the ContainsFold predicate on the "password" field.
 func PasswordContainsFold(v string) predicate.Hosts {
 	return predicate.Hosts(sql.FieldContainsFold(FieldPassword, v))
+}
+
+// FolderIDEQ applies the EQ predicate on the "folder_id" field.
+func FolderIDEQ(v int) predicate.Hosts {
+	return predicate.Hosts(sql.FieldEQ(FieldFolderID, v))
+}
+
+// FolderIDNEQ applies the NEQ predicate on the "folder_id" field.
+func FolderIDNEQ(v int) predicate.Hosts {
+	return predicate.Hosts(sql.FieldNEQ(FieldFolderID, v))
+}
+
+// FolderIDIn applies the In predicate on the "folder_id" field.
+func FolderIDIn(vs ...int) predicate.Hosts {
+	return predicate.Hosts(sql.FieldIn(FieldFolderID, vs...))
+}
+
+// FolderIDNotIn applies the NotIn predicate on the "folder_id" field.
+func FolderIDNotIn(vs ...int) predicate.Hosts {
+	return predicate.Hosts(sql.FieldNotIn(FieldFolderID, vs...))
+}
+
+// FolderIDIsNil applies the IsNil predicate on the "folder_id" field.
+func FolderIDIsNil() predicate.Hosts {
+	return predicate.Hosts(sql.FieldIsNull(FieldFolderID))
+}
+
+// FolderIDNotNil applies the NotNil predicate on the "folder_id" field.
+func FolderIDNotNil() predicate.Hosts {
+	return predicate.Hosts(sql.FieldNotNull(FieldFolderID))
+}
+
+// KeyIDEQ applies the EQ predicate on the "key_id" field.
+func KeyIDEQ(v int) predicate.Hosts {
+	return predicate.Hosts(sql.FieldEQ(FieldKeyID, v))
+}
+
+// KeyIDNEQ applies the NEQ predicate on the "key_id" field.
+func KeyIDNEQ(v int) predicate.Hosts {
+	return predicate.Hosts(sql.FieldNEQ(FieldKeyID, v))
+}
+
+// KeyIDIn applies the In predicate on the "key_id" field.
+func KeyIDIn(vs ...int) predicate.Hosts {
+	return predicate.Hosts(sql.FieldIn(FieldKeyID, vs...))
+}
+
+// KeyIDNotIn applies the NotIn predicate on the "key_id" field.
+func KeyIDNotIn(vs ...int) predicate.Hosts {
+	return predicate.Hosts(sql.FieldNotIn(FieldKeyID, vs...))
+}
+
+// KeyIDIsNil applies the IsNil predicate on the "key_id" field.
+func KeyIDIsNil() predicate.Hosts {
+	return predicate.Hosts(sql.FieldIsNull(FieldKeyID))
+}
+
+// KeyIDNotNil applies the NotNil predicate on the "key_id" field.
+func KeyIDNotNil() predicate.Hosts {
+	return predicate.Hosts(sql.FieldNotNull(FieldKeyID))
 }
 
 // HasFolder applies the HasEdge predicate on the "folder" edge.

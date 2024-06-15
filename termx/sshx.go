@@ -3,6 +3,7 @@ package termx
 import (
 	"bytes"
 	"fmt"
+	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/sync/errgroup"
 	"os"
@@ -14,6 +15,19 @@ type sshSession struct {
 	session *ssh.Session
 	iBuf    *bytes.Buffer
 	oBuf    *bytes.Buffer
+	sftp    *sftp.Client
+}
+
+// Sftp create sftp client
+func (s *sshSession) Sftp() (*sftp.Client, error) {
+	if s.sftp != nil {
+		return s.sftp, nil
+	}
+	var err error
+	if s.sftp, err = sftp.NewClient(s.client); err != nil {
+		return nil, err
+	}
+	return s.sftp, nil
 }
 
 func (s *sshSession) Resize(rows, cols int) error {

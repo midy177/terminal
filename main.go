@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"embed"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/wailsapp/wails/v2"
@@ -12,6 +13,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options/mac"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"terminal/logic"
 )
 
 //go:embed all:frontend/dist
@@ -19,17 +21,17 @@ var assets embed.FS
 
 func main() {
 	// Create an instance of the app structure
-	app := NewApp()
+	app := logic.NewApp()
 	AppMenu := menu.NewMenu()
 	AppMenu.AddText("隐藏", keys.CmdOrCtrl("h"), func(_ *menu.CallbackData) {
-		runtime.Hide(app.ctx)
+		runtime.Hide(app.Ctx)
 	})
 	AppMenu.AddText("显示", keys.CmdOrCtrl("s"), func(_ *menu.CallbackData) {
-		runtime.Show(app.ctx)
+		runtime.Show(app.Ctx)
 	})
 	AppMenu.AddSeparator()
 	AppMenu.AddText("退出", keys.CmdOrCtrl("q"), func(_ *menu.CallbackData) {
-		runtime.Quit(app.ctx)
+		runtime.Quit(app.Ctx)
 	})
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -41,7 +43,9 @@ func main() {
 		},
 		Frameless:        true,
 		BackgroundColour: &options.RGBA{R: 0, G: 0, B: 0, A: 0},
-		OnStartup:        app.startup,
+		OnStartup: func(ctx context.Context) {
+			app.Ctx = ctx
+		},
 		Bind: []interface{}{
 			app,
 		},

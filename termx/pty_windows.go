@@ -3,7 +3,6 @@
 package termx
 
 import (
-	"github.com/UserExistsError/conpty"
 	"log"
 	"strings"
 	"sync/atomic"
@@ -12,6 +11,11 @@ import (
 type windowsPty struct {
 	pty    *conpty.ConPty
 	closed *atomic.Bool
+}
+
+func (t *windowsPty) Sftp() (*sftp.Client, error) {
+	//TODO implement me
+	return nil, errors.New("sftp pty not supported")
 }
 
 func (t *windowsPty) Resize(rows, cols int) error {
