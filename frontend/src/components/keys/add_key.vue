@@ -29,6 +29,7 @@ function openModel() {
   state.visible = true
 }
 function closeModel() {
+  if (props.onSuccess) props.onSuccess()
   // reset reactive
   Object.assign(state, initState());
   state.visible = false;
@@ -50,10 +51,6 @@ function submitData() {
     })
   })
 }
-onUnmounted(()=>{
-  // reset reactive
-  Object.assign(state, initState());
-})
 </script>
 
 <template>
@@ -87,10 +84,10 @@ onUnmounted(()=>{
         </FormItem>
         <FormOperation>
           <Row justify="end" style="width: 100%;">
-            <Col :span="4">
+            <Col :span="6">
               <Button @click="closeModel">取消</Button>
             </Col>
-            <Col :span="4">
+            <Col :span="6">
               <Button variant="solid" @click="submitData">提交</Button>
             </Col>
           </Row>

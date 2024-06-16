@@ -7,33 +7,22 @@ import {
 } from "vue-devui";
 import {onMounted, reactive} from "vue";
 import {logic} from "../../../wailsjs/go/models";
-import {AddFoldOrHost, DelFoldOrHost, DelKey, GetFolds, GetKeyList} from "../../../wailsjs/go/logic/Logic";
+import {DelKey, GetFolds, GetKeyList, UpdFoldOrHost} from "../../../wailsjs/go/logic/Logic";
 import Add_key from "../keys/add_key.vue";
 const props= defineProps({
-  folder_id: {
-    type: Number,
+  data: {
+    type: logic.HostEntry,
     require: true,
   },
-  callback: {
-    type: Function,
-    require: true,
-  }
 })
 
 const initState = () => ({
   visible: false,
-  formModel: <logic.HostEntry>{
-    label: '',
-    username: '',
-    address: '',
-    port: 22,
-    password: '',
-    folder_id: 0,
-    key_id: 0,
-  },
+  formModel: <logic.HostEntry>{},
   useKey: false,
   keyList: <Array<logic.KeyEntry>>[],
-  foldList: <Array<logic.HostEntry>>[]
+  foldList: <Array<logic.HostEntry>>[],
+  title: '修改目录'
 })
 
 const state = reactive(initState())
@@ -48,12 +37,15 @@ const rules = {
 };
 
 function openModel() {
-  if (props.folder_id) {
-    state.formModel.folder_id = props.folder_id
+  if (props.data) {
+    state.formModel = props.data
   } else {
     closeModel()
   }
-  getKeys()
+  if (!props.data?.is_folder) {
+    state.title = '修改主机'
+    getKeys()
+  }
   GetFolds().then(res=>{
     state.foldList = res
   }).catch(e=>{
@@ -65,20 +57,6 @@ function openModel() {
     })
   })
   state.visible = true
-}
-function getKeys() {
-  GetKeyList(false).then((res: Array<logic.KeyEntry>)=>{
-    if (res.length>0) {
-      state.keyList = res;
-    }
-  }).catch(e=>{
-    NotificationService.open({
-      type: 'error',
-      title: '获取主机列表失败',
-      content: e,
-      duration: 1000,
-    })
-  })
 }
 
 function delKey(id:number) {
@@ -97,23 +75,39 @@ function delKey(id:number) {
     })
   })
 }
+
 function closeModel() {
   // reset reactive
   Object.assign(state, initState());
   state.visible = false;
 }
+function getKeys() {
+  GetKeyList(false).then((res: Array<logic.KeyEntry>)=>{
+    if (res.length>0) {
+      state.keyList = res;
+    }
+  }).catch(e=>{
+    NotificationService.open({
+      type: 'error',
+      title: '获取主机列表失败',
+      content: e,
+      duration: 1000,
+    })
+  })
+}
+function setData(data: logic.HostEntry) {
+  state.formModel = data;
+  if (state.formModel.key_id>0) state.useKey =true
+}
 
 function addHost(){
-  AddFoldOrHost(state.formModel).then(()=>{
+  UpdFoldOrHost(state.formModel).then(()=>{
     NotificationService.open({
       type: 'success',
       title: '添加主机或目录成功',
       duration: 1000,
     })
     closeModel()
-    if (props.callback) {
-      props.callback()
-    }
   }).catch(e=>{
     NotificationService.open({
       type: 'error',
@@ -123,21 +117,18 @@ function addHost(){
     })
   })
 }
-
+defineExpose({
+  setData,
+  openModel,
+})
 </script>
 
 <template>
-  <Button
-      icon="add"
-      variant="solid"
-      title="Add"
-      @click="openModel"
-  />
   <FixedOverlay v-model="state.visible" class="hosts-fixed-overlay" :close-on-click-overlay="false">
   <Modal
       v-model="state.visible"
       style="min-width: 60%;"
-      title="添加主机"
+      :title="state.title"
       :show-close="false"
       :draggable="false"
       :show-overlay="false"
@@ -167,12 +158,6 @@ function addHost(){
       <FormItem field="label" label="标签">
         <Input v-model="state.formModel.label" placeholder="请设置标签名"/>
       </FormItem>
-      <FormItem field="is_folder" label="目录?">
-        <Switch v-model="state.formModel.is_folder">
-          <template #checkedContent>是</template>
-          <template #uncheckedContent>否</template>
-        </Switch>
-      </FormItem>
       <template v-if="!state.formModel.is_folder">
       <FormItem field="username" label="用户">
         <Input v-model="state.formModel.username" placeholder="请输入用户名"/>
@@ -198,7 +183,6 @@ function addHost(){
                 v-model="state.formModel.key_id"
                 placeholder="请选择私钥"
             >
-
               <Option
                   v-for="(item, index) in state.keyList"
                   :key="index"

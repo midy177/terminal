@@ -63,15 +63,15 @@ func NewSshPTY(username, password, address string, port uint, privateKey []byte,
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 		Timeout:         time.Second * 15,
 	}
-	// special case and we got a key
-	signer, err := ssh.ParsePrivateKey(privateKey)
-	if err != nil {
-		if len(password) == 0 {
-			return nil, fmt.Errorf("setting up SSH config,err: %s", err)
+	if privateKey != nil {
+		// special case and we got a key
+		signer, err := ssh.ParsePrivateKey(privateKey)
+		if err != nil {
+			return nil, err
 		}
-	} else {
 		sshConfig.Auth = append(sshConfig.Auth, ssh.PublicKeys(signer))
 	}
+
 	sshClient, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", address, port), sshConfig)
 	if err != nil {
 		fmt.Printf("%s%s\n\r", "Unable to create SSH connection: ", err)

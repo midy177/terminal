@@ -42,6 +42,19 @@ func supportLogin() bool {
 	return true
 }
 
+func getShortHostname() string {
+	cmd := exec.Command("hostname", "-s")
+	output, err := cmd.Output()
+	if err != nil {
+		fmt.Println("Error run(hostname -s):", err)
+		return ""
+	}
+	// 将输出转换为字符串并去除可能存在的空白字符
+	hostname := strings.TrimSpace(string(output))
+	fmt.Println("Short hostname:", hostname)
+	return hostname
+}
+
 func getShells() {
 	sbl := supportLogin()
 	term := os.Getenv("xterm")
@@ -50,10 +63,15 @@ func getShells() {
 	}
 	home := startDir()
 	user := os.Getenv("USER")
+	hostname := getShortHostname()
+	title := user
+	if hostname != "" {
+		title += "@" + hostname
+	}
 	if sbl && len(user) > 0 {
 		shells = append(shells, SystemShell{
 			//ID:      "login",
-			Name:    "Unix(login)",
+			Name:    title,
 			Command: "login",
 			Args:    []string{"-f", user},
 			Env:     []string{"TERM=" + term},

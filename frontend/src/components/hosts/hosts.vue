@@ -8,21 +8,38 @@ import {
   BreadcrumbItem,
   Row,
   Col,
-  Input,
+  Popover,
   Icon,
-  Message, NotificationService
+  Message, NotificationService,Tag
 } from "vue-devui";
 import {STableColumnsType, STableContextmenuPopupArg} from '@shene/table';
 import { STable,STableProvider } from '@shene/table';
-import {onMounted, reactive} from "vue";
+import {onMounted, PropType, reactive, ref} from "vue";
 import Add_host from "./add_host.vue";
 import {logic} from "../../../wailsjs/go/models";
-import {DelFoldOrHost, GetFoldsAndHosts} from "../../../wailsjs/go/logic/Logic";
-
+import {DelFoldOrHost, GetFoldsAndHosts} from '../../../wailsjs/go/logic/Logic';
+import filter from './filter.vue';
+import Update_host from "./update_host.vue";
+const modifyHostRef = ref();
+const props = defineProps({
+  openSshTerminal: {
+    type: Function as PropType<(id:number,label:string) => void>,
+    required: true
+  }
+})
+interface breadcrumbItem {
+  id: number,
+  name: string,
+}
 const initState = () => ({
   visible: false,
   tableData: <Array<logic.HostEntry>>[],
   currentDirId: 0,
+  showTable: true,
+  breadcrumbSource: <Array<breadcrumbItem>>[{
+    id: 0,
+    name: '根'
+  }]
 })
 
 const state = reactive(initState())
@@ -32,25 +49,63 @@ const columns: STableColumnsType<logic.HostEntry> = [
     title: '名称',
     dataIndex: 'label',
     key: 'label',
-    width: 120
-  },
-  {
-    title: '主机',
-    dataIndex: 'address',
-    key: 'address',
-    width: 120
-  },
-  {
-    title: '端口',
-    dataIndex: 'port',
-    key: 'port',
-    width: 80
+    width: 120,
+    resizable: true,
+    filter: {
+      component: filter,
+      props: {
+        placeholder: '输入搜索内容',
+        style: {
+          width: '160px'
+        }
+      },
+      onFilter: (value, record) => record.label.includes(value)
+    }
   },
   {
     title: '用户名',
     key: 'username',
     dataIndex: 'username',
-    width: 120
+    width: 120,
+    resizable: true,
+    filter: {
+      component: filter,
+      props: {
+        placeholder: '输入搜索内容',
+        style: {
+          width: '160px'
+        }
+      },
+      onFilter: (value, record) => record.username.includes(value)
+    }
+  },
+  {
+    title: '主机',
+    dataIndex: 'address',
+    key: 'address',
+    width: 120,
+    resizable: true,
+    filter: {
+      component: filter,
+      props: {
+        placeholder: '输入搜索内容',
+        style: {
+          width: '160px'
+        }
+      },
+      onFilter: (value, record) => record.address.includes(value)
+    }
+  },
+  {
+    title: '端口',
+    dataIndex: 'port',
+    key: 'port',
+    width: 60,
+  },
+  {
+    title: '操作',
+    key: 'action',
+    width: 90
   }
 ]
 
@@ -60,44 +115,58 @@ function closeModel(){
   state.visible = false
 }
 function openModel() {
+  getList(state.currentDirId)
   state.visible = true
-  GetList(state.currentDirId)
 }
-function handleContextMenuEdit(args: STableContextmenuPopupArg) {
-  Message({
-    message: 'Click edit of line ' + args.index,
-    type: 'success'
+
+function reRender() {
+  state.tableData = []
+  getList(state.currentDirId)
+}
+
+function jumperFolder(index:number) {
+  if (state.breadcrumbSource[index].id === state.currentDirId) return;
+  state.breadcrumbSource.splice(index + 1);
+  state.currentDirId = state.breadcrumbSource[index].id
+  getList(state.currentDirId)
+}
+function handleOpenFolder(id: number,label: string){
+  state.breadcrumbSource.push({
+    id: id,
+    name: label
   })
+  state.currentDirId = id
+  getList(state.currentDirId)
 }
-function handleContextMenuDelete(args: STableContextmenuPopupArg) {
-  Message({
-    message: 'Click delete of line ' + args.index,
-    type: 'success'
+function handleConnect(record: logic.HostEntry) {
+  if (props.openSshTerminal) props.openSshTerminal(record.id,record.label)
+  closeModel()
+}
+function handleEdit(args: logic.HostEntry) {
+  if (modifyHostRef.value) {
+    modifyHostRef.value.openModel()
+    modifyHostRef.value.setData(args)
+  }
+}
+function handleDelete(args: logic.HostEntry) {
+  DelFoldOrHost(args.id,args.is_folder).then(()=>{
+    Message({
+      message: '成功删除',
+      type: 'success'
+    })
+    reRender()
+  }).catch(e=>{
+    Message({
+      message: e,
+      type: 'error'
+    })
   })
 }
 
-function delHost(id:number,isFold: boolean) {
-  DelFoldOrHost(id,isFold).then(()=>{
-    NotificationService.open({
-      type: 'success',
-      title: '删除主机或目录成功',
-      duration: 1000,
-    })
-  }).catch(e => {
-    NotificationService.open({
-      type: 'error',
-      title: '删除主机或目录失败',
-      content: e,
-      duration: 1000,
-    })
-  })
-}
-
-function GetList(id:number) {
+function getList(id:number) {
+  state.showTable = false
   GetFoldsAndHosts(id).then((res:logic.HostEntry[])=>{
-    if (res.length>0) {
-      state.tableData = res
-    }
+    state.tableData = res
   }).catch(e=>{
     NotificationService.open({
       type: 'error',
@@ -105,11 +174,10 @@ function GetList(id:number) {
       content: e,
       duration: 3000,
     })
+  }).finally(()=>{
+    state.showTable = true
   })
 }
-
-onMounted(()=>{
-})
 </script>
 
 <template>
@@ -126,25 +194,22 @@ onMounted(()=>{
     <template #header>
         <Row type="flex" class="header-bar">
           <Col flex="2.5rem">
-            <add_host :folder_id="state.currentDirId"/>
+            <add_host :folder_id="state.currentDirId" :callback="reRender"/>
           </Col>
           <Col flex="auto">
             <Breadcrumb>
-              <BreadcrumbItem>Homepage</BreadcrumbItem>
-              <BreadcrumbItem>
-                <span>DevUI</span>
-              </BreadcrumbItem>
-              <BreadcrumbItem>
-                <span>Breadcrumb</span>
+              <BreadcrumbItem
+                  v-for="(item,index) in state.breadcrumbSource"
+                  :key="index"
+              >
+                <Button
+                    variant="text"
+                    @click="jumperFolder(index)"
+                >
+                  {{ item.name }}
+                </Button>
               </BreadcrumbItem>
           </Breadcrumb>
-          </Col>
-          <Col flex="6rem">
-            <Input placeholder="请输入">
-              <template #suffix>
-                <Icon name="search" style="font-size: inherit;"></Icon>
-              </template>
-            </Input>
           </Col>
         </Row>
     </template>
@@ -157,21 +222,75 @@ onMounted(()=>{
             :data-source="state.tableData"
             :pagination="true"
             :max-height="300"
+            :height="300"
+            v-if="state.showTable"
         >
-        <template #bodyCell="{ text, column, record }">
-          <template v-if="column.key === 'name'">
-            <a>{{ text }}</a>
-          </template>
-        </template>
-          <template #contextmenuPopup="args">
-            <ul class="popup">
-              <li class="popup-item">打开</li>
-              <li class="popup-item" @click="handleContextMenuEdit(args)">编辑</li>
-              <li class="popup-item" style="color: #ed4014" @click="handleContextMenuDelete(args)">删除</li>
-            </ul>
+          <template #bodyCell="{ text, column, record }">
+            <template v-if="column.key === 'label'">
+                <Icon v-if="record.is_folder" name="icon-open-folder-2" color="#3DCCA6" operable>
+                  <template #suffix>
+                    <span style="color: #f2f3f5;">{{ text }}</span>
+                  </template>
+                </Icon>
+                <Icon v-else name="icon-console">
+                  <template #suffix>
+                    <span style="color: #f2f3f5;">{{ text }}</span>
+                  </template>
+                </Icon>
+            </template>
+            <template v-else-if="column.key === 'port'">
+                {{record.is_folder ? '': text}}
+            </template>
+            <template v-else-if="column.key === 'action'">
+              <Button
+                  v-if="record.is_folder"
+                  icon="icon-open-folder"
+                  variant="text"
+                  title="Connect"
+                  @click="handleOpenFolder(record.id,record.label)"
+              />
+              <Button
+                  v-else
+                  icon="icon-connect"
+                  variant="text"
+                  title="Connect"
+                  @click="handleConnect(record)"
+              />
+              <Button
+                  icon="icon-setting"
+                  variant="text"
+                  title="Delete"
+                  @click="handleEdit(record)"
+              />
+              <Popover trigger="hover">
+                <Button
+                    icon="delete"
+                    variant="text"
+                    title="Delete"
+                />
+                <template #content>
+                  <Button
+                      variant="solid"
+                      color="danger"
+                      title="Delete"
+                      @click="handleDelete(record)"
+                  >确认</Button>
+                </template>
+              </Popover>
+            </template>
           </template>
       </STable>
+        <STable
+            style="--s-bg-color-component: transport;"
+            :columns="columns"
+            :scroll="{ y: 300 }"
+            :pagination="true"
+            :max-height="300"
+            :height="300"
+            v-else
+        />
       </STableProvider>
+      <update_host ref="modifyHostRef"/>
     </template>
     <template #footer>
       <ModalFooter style="text-align: right; padding-right: .4rem;bottom: 0;">
@@ -199,16 +318,14 @@ onMounted(()=>{
   background-color: transparent;
 }
 .popup {
-  border-radius: .3rem;
-  height: 4rem;
+  width: 120px;
 }
 .popup-item {
   cursor: pointer;
-  padding: .3rem 1rem .3rem .4rem;
-  background-color: #3b3f41;
+  padding: 8px 8px 8px 20px;
 }
 .popup-item:hover {
-  background-color: #90f64c;
+  background-color: #fafafa;
 }
 .popup-item.disabled {
   color: #00000040;

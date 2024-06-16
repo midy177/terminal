@@ -5,11 +5,11 @@
         <dropdown :at-click="addLocalTab"/>
       </span>
       <span class="header-btn-bar">
-        <hosts/>
+        <hosts :open-ssh-terminal="handleOpenSshTerminal"/>
       </span>
-      <span class="header-btn-bar" @click="handleMore">
-            <i class="icon-more-operate"></i>
-          </span>
+      <span class="header-btn-bar">
+        <more/>
+      </span>
     </template>
   </terminal-tabs>
   <div class="terminal-layout" v-if="tabs.length>0">
@@ -21,15 +21,17 @@
 
 <script lang="ts" setup>
 import TerminalTabs, {Tab} from "./components/tabs/chrome-tabs.vue";
-import {onMounted, reactive, ref} from 'vue';
+import {reactive, ref} from 'vue';
 import Terminal from "./components/terminal/terminal.vue";
 import {nanoid} from "nanoid";
 const tab = ref('')
 const tabRef = ref()
 import Dropdown  from "./components/dropdown/dropdown.vue";
-import {CreateLocalPty} from "../wailsjs/go/logic/Logic";
+import {CreateLocalPty, CreateSshPty} from "../wailsjs/go/logic/Logic";
 import Hosts from "./components/hosts/hosts.vue";
 import {logic, termx} from "../wailsjs/go/models";
+import {NotificationService} from "vue-devui";
+import More from "./components/more/more.vue";
 const tabs = <Array<Tab>>reactive([])
 
 function addLocalTab(data: termx.SystemShell) {
@@ -46,21 +48,25 @@ function addLocalTab(data: termx.SystemShell) {
   })
 }
 
-function handleSearch(){
-}
-function handleMore(){
-}
-function fitTerm(){
-}
-function addTerminalResize() {
-  window.addEventListener("resize", fitTerm);
-}
-function removeResizeListener() {
-  window.removeEventListener("resize", fitTerm);
-}
-onMounted(()=>{
+function handleOpenSshTerminal(id:number,label:string){
+  let tid = nanoid()
+  CreateSshPty(tid,id,70,40).then(()=>{
+    let newTab = {
+      label: label,
+      key: tid,
+    }
+    tabRef.value.addTab(newTab)
+    tab.value = tid
+  }).catch(e=>{
+    NotificationService.open({
+      type: 'error',
+      title: '创建ssh连接失败',
+      content: e,
+      duration: 3000,
+    })
+  })
 
-})
+}
 </script>
 
 <style lang="less">

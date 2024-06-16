@@ -23,11 +23,13 @@ type HostEntry struct {
 // AddFoldOrHost 添加host
 func (l *Logic) AddFoldOrHost(h *HostEntry) error {
 	if h.IsFolder {
-		return l.db.Folders.
+		add := l.db.Folders.
 			Create().
-			SetLabel(h.Label).
-			SetParentID(h.FolderID).
-			Exec(l.Ctx)
+			SetLabel(h.Label)
+		if h.FolderID > 0 {
+			add.SetParentID(h.FolderID)
+		}
+		return add.Exec(l.Ctx)
 	} else {
 		if h.Port == 0 {
 			h.Port = 22
@@ -36,12 +38,14 @@ func (l *Logic) AddFoldOrHost(h *HostEntry) error {
 			SetLabel(h.Label).
 			SetUsername(h.Username).
 			SetAddress(h.Address).
-			SetPort(h.Port).
-			SetFolderID(h.FolderID)
+			SetPort(h.Port)
+		if h.FolderID != 0 {
+			add.SetFolderID(h.FolderID)
+		}
 		if h.Password != "" {
 			add.SetNillablePassword(&h.Password)
 		}
-		if h.KeyID != -1 {
+		if h.KeyID != 0 {
 			add.SetKeyID(h.KeyID)
 		}
 		return add.Exec(l.Ctx)
@@ -84,8 +88,29 @@ func (l *Logic) UpdFoldOrHost(h *HostEntry) error {
 	}
 }
 
-// GetHost 通过文件夹ID获取host列表
-func (l *Logic) GetHost(id int) ([]HostEntry, error) {
+// GetFolds 通过文件夹ID获取host列表
+func (l *Logic) GetFolds() ([]HostEntry, error) {
+	all, err := l.db.Folders.Query().All(l.Ctx)
+	if err != nil {
+		return nil, err
+	}
+	var entries = make([]HostEntry, 0, len(all)+1)
+	entries = append(entries, HostEntry{
+		ID:    0,
+		Label: "根",
+	})
+	for _, e := range all {
+		entries = append(entries, HostEntry{
+			ID:       e.ID,
+			Label:    e.Label,
+			FolderID: e.ParentID,
+		})
+	}
+	return entries, nil
+}
+
+// GetHosts 通过文件夹ID获取host列表
+func (l *Logic) GetHosts(id int) ([]HostEntry, error) {
 	all, err := l.db.Folders.GetX(l.Ctx, id).QueryHost().All(l.Ctx)
 	if err != nil {
 		return nil, err
@@ -142,10 +167,11 @@ func (l *Logic) GetFoldsAndHosts(parentId int) ([]HostEntry, error) {
 			IsFolder: false,
 			Label:    e.Label,
 			Username: e.Username,
+			Address:  e.Address,
 			Port:     e.Port,
 			Password: e.Password,
 			FolderID: parentId,
-			KeyID:    e.QueryKey().OnlyIDX(l.Ctx),
+			KeyID:    e.KeyID,
 		})
 	}
 	return entries, nil
