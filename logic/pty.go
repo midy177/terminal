@@ -3,7 +3,6 @@ package logic
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"log"
 	"terminal/termx"
@@ -35,7 +34,6 @@ func (l *Logic) CreateSshPty(tid string, id, rows, cols int) error {
 	}
 	var pKey []byte
 	if one.KeyID > 0 {
-		fmt.Println(one.KeyID)
 		key, err := one.QueryKey().Only(l.Ctx)
 		if err == nil {
 			return err

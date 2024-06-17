@@ -41,7 +41,7 @@ const state = reactive({
 function addLocalTab(data: termx.SystemShell) {
   state.loading = LoadingService.open({
     message: '打开本地终端中...',
-  })?.loadingInstance
+  })
   let key = nanoid()
   data.id = key
   CreateLocalPty(data).then(()=>{
@@ -93,7 +93,7 @@ function handleOpenSshTerminal(id:number,label:string){
 
 function closeLoading() {
   setTimeout(()=>{
-    if (state.loading) state.loading?.close()
+    state.loading?.loadingInstance?.close()
   },500)
 }
 </script>
