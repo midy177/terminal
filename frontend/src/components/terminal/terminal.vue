@@ -2,13 +2,12 @@
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import "./xterm.css";
-import { TrzszFilter } from 'trzsz';
+// import { TrzszFilter } from 'trzsz';
 import {ComponentPublicInstance, onMounted, onUnmounted, reactive, ref, VNodeRef} from 'vue';
 import {ClosePty, ResizePty, WriteToPty} from "../../../wailsjs/go/logic/Logic";
 import { Tab } from "../tabs/chrome-tabs.vue";
 import {EventsOff, EventsOn} from "../../../wailsjs/runtime";
 import {logic} from "../../../wailsjs/go/models";
-import {NotificationService} from "vue-devui";
 
 const props = defineProps({
   id: {
@@ -22,7 +21,7 @@ const props = defineProps({
 });
 const fitAddon = new FitAddon();
 const state = reactive({
-  trzszFilter: null as unknown as TrzszFilter,
+  // trzszFilter: null as unknown as TrzszFilter,
   term: null as unknown as Terminal,
 });
 const currentRef = ref<VNodeRef | null>(null);
@@ -78,13 +77,10 @@ const emit = defineEmits(['update:title']);
 async function fitTerminal() {
   fitAddon.fit();
   // Todo 从后端读取数据，通过调用func写入后端
-  ResizePty(props.id,state.term.rows,state.term.cols).then().catch(e=>{
-    NotificationService.open({
-      type: 'error',
-      title: '重置窗口大小失败',
-      content: e,
-      duration: 3000,
-    })
+  ResizePty(props.id,state.term.rows,state.term.cols).then(res => {
+    if (res !== null && res !== undefined) console.log(res)
+  }).catch(e=>{
+    console.log(e);
   })
 }
 
@@ -93,14 +89,7 @@ function writeToTerminal(data: string | Uint8Array | ArrayBuffer | Blob) {
   toUint8Array(data).then(res=>{
     // Todo 从后端读取数据，通过调用写入xterm
     state.term.write(res);
-  }).catch(e=> {
-    NotificationService.open({
-      type: 'error',
-      title: '写入前端终端失败',
-      content: e,
-      duration: 3000,
-    })
-  })
+  }).catch(e=>console.log(e))
 }
 
 // Write data from the terminal to the pty
@@ -108,20 +97,14 @@ function writeToPty(data: string | Uint8Array | ArrayBuffer | Blob) {
   toUint8Array(data).then(res=>{
     // Todo 通过调用func写入后端
     WriteToPty(props.id,Array.from(res)).then().catch(e=>{
-      NotificationService.open({
-        type: 'error',
-        title: '写入后端失败',
-        content: e,
-        duration: 3000,
-      })
+      console.log(e);
     })
   })
 }
-// 监听pty返回的消息，并写入前端
+
 function ptyStoutListener(){
   EventsOn(props.id,(res: string)=>{
-    state.trzszFilter.processServerOutput(res);
-    // writeToTerminal(res);
+    writeToTerminal(res);
   })
 }
 
@@ -129,30 +112,6 @@ function initShell() {
   NewTerminal();
   // Todo 请求pty或者ssh
   ptyStoutListener()
-}
-
-function dragover(event: any) {
-  event.preventDefault();
-}
-
-function drop(event: any){
-  event.preventDefault();
-  state.trzszFilter.uploadFiles(event.dataTransfer.items)
-      .then(() => {
-        NotificationService.open({
-          type: 'success',
-          title: 'Trzsz拖拽上传文件成功',
-          duration: 3000,
-        })
-      })
-      .catch((e) => {
-        NotificationService.open({
-          type: 'error',
-          title: 'Trzsz拖拽上传文件失败',
-          content: e,
-          duration: 3000,
-        })
-      });
 }
 
 async function toUint8Array(input: string | Uint8Array | ArrayBuffer | Blob): Promise<Uint8Array> {
@@ -194,22 +153,15 @@ function handleSelectToClipboardOrClipboardToTerm() {
   }
 }
 
+defineExpose({
+  fitTerminal,
+  writeToTerminal,
+})
+
 onMounted(()=>{
-  state.trzszFilter = new TrzszFilter({
-    writeToTerminal: (data: string | Uint8Array | ArrayBuffer | Blob) => {
-      toUint8Array(data).then(res=>{
-        writeToTerminal(res);
-      }).catch(e=>console.log(e))
-    },
-    sendToServer: (data: string | Uint8Array | ArrayBuffer | Blob) => {
-      toUint8Array(data).then(res=>{
-        writeToPty(res);
-      }).catch(e=>console.log(e))
-    },
-  });
-  state.term.onData(state.trzszFilter.processTerminalInput);
-  state.term.onBinary(state.trzszFilter.processTerminalInput);
   initShell();
+  state.term.onData(writeToPty);
+  state.term.onBinary(writeToPty);
   addEventListener("resize", fitTerminal);
   fitTerminal();
 })
@@ -224,8 +176,6 @@ onUnmounted( () => {
 
 <template>
   <div :ref="setItemRef"
-       @dragover="dragover"
-       @drop="drop"
        class="xterm-layout"
        @contextmenu.prevent="rightMouseDown"
   />
