@@ -45,12 +45,21 @@ function addLocalTab(data: termx.SystemShell) {
   let key = nanoid()
   data.id = key
   CreateLocalPty(data).then(()=>{
+    closeLoading()
     let newTab = {
       label: data.name,
       key: key,
     }
     tabRef.value.addTab(newTab)
     state.tab = key
+  }).catch(e=>{
+    closeLoading()
+    NotificationService.open({
+      type: 'error',
+      title: '创建本地终端失败',
+      content: e,
+      duration: 5000,
+    })
   }).finally(()=>{
     closeLoading()
   })
@@ -62,6 +71,7 @@ function handleOpenSshTerminal(id:number,label:string){
   })
   let tid = nanoid()
   CreateSshPty(tid,id,70,40).then(()=>{
+    closeLoading()
     let newTab = {
       label: label,
       key: tid,
@@ -69,6 +79,7 @@ function handleOpenSshTerminal(id:number,label:string){
     tabRef.value.addTab(newTab)
     state.tab = tid
   }).catch(e=>{
+    closeLoading()
     NotificationService.open({
       type: 'error',
       title: '创建ssh连接失败',
