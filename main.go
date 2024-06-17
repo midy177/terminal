@@ -4,15 +4,12 @@ import (
 	"context"
 	"embed"
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/wailsapp/wails/v2"
-	"github.com/wailsapp/wails/v2/pkg/menu"
-	"github.com/wailsapp/wails/v2/pkg/menu/keys"
+	"github.com/wailsapp/wails/v2/pkg/application"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"github.com/wailsapp/wails/v2/pkg/options/linux"
 	"github.com/wailsapp/wails/v2/pkg/options/mac"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"terminal/logic"
 )
 
@@ -21,20 +18,8 @@ var assets embed.FS
 
 func main() {
 	// Create an instance of the app structure
-	app := logic.NewApp()
-	AppMenu := menu.NewMenu()
-	AppMenu.AddText("隐藏", keys.CmdOrCtrl("h"), func(_ *menu.CallbackData) {
-		runtime.Hide(app.Ctx)
-	})
-	AppMenu.AddText("显示", keys.CmdOrCtrl("s"), func(_ *menu.CallbackData) {
-		runtime.Show(app.Ctx)
-	})
-	AppMenu.AddSeparator()
-	AppMenu.AddText("退出", keys.CmdOrCtrl("q"), func(_ *menu.CallbackData) {
-		runtime.Quit(app.Ctx)
-	})
-	// Create application with options
-	err := wails.Run(&options.App{
+	logicApp := logic.NewApp()
+	app := application.NewWithOptions(&options.App{
 		Title:     "terminal",
 		Width:     800,
 		Height:    600,
@@ -46,10 +31,10 @@ func main() {
 		Frameless:        true,
 		BackgroundColour: &options.RGBA{R: 0, G: 0, B: 0, A: 0},
 		OnStartup: func(ctx context.Context) {
-			app.Ctx = ctx
+			logicApp.Ctx = ctx
 		},
 		Bind: []interface{}{
-			app,
+			logicApp,
 		},
 		Windows: &windows.Options{
 			WebviewIsTransparent:              true,
@@ -109,6 +94,19 @@ func main() {
 			ProgramName:         "terminal-console",
 		},
 	})
+	//appMenu := menu.NewMenu()
+	//appMenu.AddText("隐藏", keys.CmdOrCtrl("h"), func(_ *menu.CallbackData) {
+	//	runtime.Hide(logicApp.Ctx)
+	//})
+	//appMenu.AddText("显示", keys.CmdOrCtrl("s"), func(_ *menu.CallbackData) {
+	//	runtime.Show(logicApp.Ctx)
+	//})
+	//appMenu.AddSeparator()
+	//appMenu.AddText("退出", keys.CmdOrCtrl("q"), func(_ *menu.CallbackData) {
+	//	runtime.Quit(logicApp.Ctx)
+	//})
+	//app.SetApplicationMenu(appMenu)
+	err := app.Run()
 	if err != nil {
 		println("Error:", err.Error())
 	}

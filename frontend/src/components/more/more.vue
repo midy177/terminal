@@ -64,7 +64,7 @@ function toggleFull(){
         </ListItem>
         <ListItem :key="3">
           <Button icon="icon-exit" variant="text" @click="toggleFull">
-            {{ state.isFull ? '取消全屏': '全屏' }}
+            {{ state.isFull ? '全屏':'取消全屏' }}
           </Button>
         </ListItem>
         <ListItem :key="4">
