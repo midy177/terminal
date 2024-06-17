@@ -5,7 +5,6 @@ import (
 	"github.com/pkg/sftp"
 	"github.com/trzsz/trzsz-go/trzsz"
 	"golang.org/x/crypto/ssh"
-	"golang.org/x/sync/errgroup"
 	"io"
 	"os"
 	"time"
@@ -19,6 +18,7 @@ type sshSession struct {
 	stderr      io.Reader
 	sftp        *sftp.Client
 	trzszFilter *trzsz.TrzszFilter
+	clear       func()
 }
 
 // Sftp create sftp client
@@ -54,10 +54,8 @@ func (s *sshSession) Write(p []byte) (n int, err error) {
 }
 
 func (s *sshSession) Close() error {
-	eg := errgroup.Group{}
-	eg.Go(s.session.Close)
-	eg.Go(s.client.Close)
-	return eg.Wait()
+	s.clear()
+	return nil
 }
 
 func NewSshPTY(username, password, address string, port uint, privateKey []byte, height, width int) (PtyX, error) {
@@ -135,5 +133,18 @@ func NewSshPTY(username, password, address string, port uint, privateKey []byte,
 		stdout:      stdoutPipe,
 		stderr:      eb,
 		trzszFilter: trzszFilter,
+		clear: func() {
+			defer func() {
+				if r := recover(); r != nil {
+					return
+				}
+			}()
+			_ = sshClient.Close()
+			_ = session.Close()
+			_ = clientIn.Close()
+			_ = stdinPipe.Close()
+			_ = stdoutPipe.Close()
+			_ = clientOut.Close()
+		},
 	}, nil
 }
