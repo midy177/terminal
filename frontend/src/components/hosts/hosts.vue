@@ -181,7 +181,12 @@ function getList(id:number) {
 </script>
 
 <template>
-  <i class="icon-go-tree" @click="openModel"></i>
+  <Button
+      icon="icon-go-tree"
+      variant="text"
+      title="Tree"
+      @click="openModel"
+  />
   <FixedOverlay v-model="state.visible" class="hosts-fixed-overlay" :close-on-click-overlay="false">
   <Modal
       v-model="state.visible"

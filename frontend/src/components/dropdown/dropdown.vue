@@ -30,7 +30,11 @@ function dropClick(item: termx.SystemShell) {
 
 <template>
   <Dropdown trigger="hover" :position="['bottom-end']">
-    <i class="icon-op-add"></i>
+    <Button
+        icon="icon-op-add"
+        variant="text"
+        title="AddTab"
+    />
     <template #menu>
       <List style="min-width: 100px;padding-bottom: 0;">
         <ListItem

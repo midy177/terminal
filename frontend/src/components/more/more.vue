@@ -48,7 +48,11 @@ function toggleFull(){
 
 <template>
   <Dropdown style="min-width: 60px;" :position="['bottom-end']">
-    <i class="icon-more-operate"></i>
+    <Button
+        icon="icon-more-operate"
+        variant="text"
+        title="More"
+    />
     <template #menu>
       <List style="min-width: 60px;padding-bottom: 0;">
         <ListItem :key="0">
