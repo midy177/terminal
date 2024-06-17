@@ -21,10 +21,9 @@
 
 <script lang="ts" setup>
 import TerminalTabs, {Tab} from "./components/tabs/chrome-tabs.vue";
-import {type ComponentInternalInstance, reactive, ref, type VNode} from 'vue';
+import { reactive, ref } from 'vue';
 import Terminal from "./components/terminal/terminal.vue";
 import {nanoid} from "nanoid";
-// const tab = ref('')
 const tabRef = ref()
 import Dropdown  from "./components/dropdown/dropdown.vue";
 import {CreateLocalPty, CreateSshPty} from "../wailsjs/go/logic/Logic";
@@ -32,9 +31,6 @@ import Hosts from "./components/hosts/hosts.vue";
 import {logic, termx} from "../wailsjs/go/models";
 import {NotificationService,LoadingService} from "vue-devui";
 import More from "./components/more/more.vue";
-
-// const tabs = <Array<Tab>>reactive([])
-
 
 const state = reactive({
   tabs: <Array<Tab>>[],
@@ -48,7 +44,7 @@ function addLocalTab(data: termx.SystemShell) {
   })?.loadingInstance
   let key = nanoid()
   data.id = key
-  CreateLocalPty(data).then(res=>{
+  CreateLocalPty(data).then(()=>{
     let newTab = {
       label: data.name,
       key: key,
