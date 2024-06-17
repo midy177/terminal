@@ -44,10 +44,10 @@ func (Hosts) Fields() []ent.Field {
 			Comment("密码"),
 		field.Int("folder_id").
 			Optional().
-			Comment("所属目录ID,默认是-1"),
+			Comment("所属目录ID,默认是nil"),
 		field.Int("key_id").
 			Optional().
-			Comment("绑定私钥ID,默认是-1,标识未绑定"),
+			Comment("绑定私钥ID,默认是nil,标识未绑定"),
 	}
 }
 

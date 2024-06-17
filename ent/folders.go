@@ -19,7 +19,7 @@ type Folders struct {
 	ID int `json:"id,omitempty"`
 	// 标记
 	Label string `json:"label,omitempty"`
-	// 上级ID,默认是-1,表示是根目录下
+	// 上级ID,默认是nil,表示是根目录下
 	ParentID int `json:"parent_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the FoldersQuery when eager-loading is set.

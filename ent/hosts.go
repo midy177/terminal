@@ -28,9 +28,9 @@ type Hosts struct {
 	Port uint `json:"port,omitempty"`
 	// 密码
 	Password string `json:"password,omitempty"`
-	// 所属目录ID,默认是-1
+	// 所属目录ID,默认是nil
 	FolderID int `json:"folder_id,omitempty"`
-	// 绑定私钥ID,默认是-1,标识未绑定
+	// 绑定私钥ID,默认是nil,标识未绑定
 	KeyID int `json:"key_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the HostsQuery when eager-loading is set.
