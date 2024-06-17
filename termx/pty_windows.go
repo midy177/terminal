@@ -3,6 +3,9 @@
 package termx
 
 import (
+	"errors"
+	"github.com/UserExistsError/conpty"
+	"github.com/pkg/sftp"
 	"log"
 	"strings"
 	"sync/atomic"

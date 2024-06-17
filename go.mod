@@ -6,6 +6,7 @@ toolchain go1.22.3
 
 require (
 	entgo.io/ent v0.13.1
+	github.com/UserExistsError/conpty v0.1.3
 	github.com/creack/pty v1.1.21
 	github.com/inhies/go-bytesize v0.0.0-20220417184213-4913239db9cf
 	github.com/mattn/go-sqlite3 v1.14.16
