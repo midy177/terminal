@@ -3,6 +3,7 @@ package termx
 import (
 	"fmt"
 	"github.com/pkg/sftp"
+	"github.com/trzsz/trzsz-go/trzsz"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/sync/errgroup"
 	"io"
@@ -11,12 +12,13 @@ import (
 )
 
 type sshSession struct {
-	client  *ssh.Client
-	session *ssh.Session
-	stdin   io.WriteCloser
-	stdout  io.Reader
-	stderr  io.Reader
-	sftp    *sftp.Client
+	client      *ssh.Client
+	session     *ssh.Session
+	stdin       io.WriteCloser
+	stdout      io.Reader
+	stderr      io.Reader
+	sftp        *sftp.Client
+	trzszFilter *trzsz.TrzszFilter
 }
 
 // Sftp create sftp client
@@ -32,6 +34,7 @@ func (s *sshSession) Sftp() (*sftp.Client, error) {
 }
 
 func (s *sshSession) Resize(rows, cols int) error {
+	s.trzszFilter.SetTerminalColumns(int32(cols))
 	return s.session.WindowChange(rows, cols)
 }
 
@@ -102,11 +105,11 @@ func NewSshPTY(username, password, address string, port uint, privateKey []byte,
 		return nil, err
 	}
 
-	ib, err := session.StdinPipe()
+	serverIn, err := session.StdinPipe()
 	if err != nil {
 		return nil, err
 	}
-	ob, err := session.StdoutPipe()
+	serverOut, err := session.StdoutPipe()
 	if err != nil {
 		return nil, err
 	}
@@ -114,6 +117,11 @@ func NewSshPTY(username, password, address string, port uint, privateKey []byte,
 	if err != nil {
 		return nil, err
 	}
+	clientIn, stdinPipe := io.Pipe() // You can treat stdinPipe as session.StdinPipe()
+	stdoutPipe, clientOut := io.Pipe()
+	// 设置trzsz
+	trzszFilter := trzsz.NewTrzszFilter(clientIn, clientOut, serverIn, serverOut,
+		trzsz.TrzszOptions{TerminalColumns: int32(width)})
 	// 启动一个 shell 会话
 	err = session.Shell()
 	if err != nil {
@@ -121,10 +129,11 @@ func NewSshPTY(username, password, address string, port uint, privateKey []byte,
 		return nil, err
 	}
 	return &sshSession{
-		client:  sshClient,
-		session: session,
-		stdin:   ib,
-		stdout:  ob,
-		stderr:  eb,
+		client:      sshClient,
+		session:     session,
+		stdin:       stdinPipe,
+		stdout:      stdoutPipe,
+		stderr:      eb,
+		trzszFilter: trzszFilter,
 	}, nil
 }

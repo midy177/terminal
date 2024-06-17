@@ -2,12 +2,9 @@
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import "./xterm.css";
-// import { TrzszFilter } from 'trzsz';
 import {ComponentPublicInstance, onMounted, onUnmounted, reactive, ref, VNodeRef} from 'vue';
 import {ClosePty, ResizePty, WriteToPty} from "../../../wailsjs/go/logic/Logic";
-import { Tab } from "../tabs/chrome-tabs.vue";
 import {EventsOff, EventsOn} from "../../../wailsjs/runtime";
-import {logic} from "../../../wailsjs/go/models";
 
 const props = defineProps({
   id: {
@@ -21,7 +18,6 @@ const props = defineProps({
 });
 const fitAddon = new FitAddon();
 const state = reactive({
-  // trzszFilter: null as unknown as TrzszFilter,
   term: null as unknown as Terminal,
 });
 const currentRef = ref<VNodeRef | null>(null);
@@ -183,7 +179,6 @@ onUnmounted( () => {
 
 <style scoped lang="less">
 .xterm-layout {
-  //display: flex;
   background-color: #1d1e21;
   height: 100%;
   width: 100%;
