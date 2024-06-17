@@ -37,7 +37,7 @@ const initState = () => ({
 })
 const state = reactive(initState())
 
-const columns: STableColumnsType<logic.HostEntry> = [
+const columns: STableColumnsType<logic.FileInfo> = [
   {
     title: '名称',
     dataIndex: 'name',
@@ -145,6 +145,7 @@ function handleUploadFold(){
   }
 }
 function handleFoldList(dst: string) {
+  state.showTable = false
   if (props.tid) {
     SftpDir(props.tid,dst).then((res:Array<logic.FileInfo>)=>{
       state.tableData = res
@@ -155,6 +156,8 @@ function handleFoldList(dst: string) {
         content: e,
         duration: 3000,
       })
+    }).finally(() => {
+      state.showTable = true
     })
   }
 }
@@ -247,29 +250,26 @@ defineExpose({
               v-if="state.showTable"
           >
             <template #bodyCell="{ text, column, record }">
-              <template v-if="column.key === 'label'">
-                <Icon v-if="record.is_folder" name="icon-open-folder-2" color="#3DCCA6" operable>
+              <template v-if="column.key === 'name'">
+                <Icon v-if="record.is_dir" name="icon-open-folder-2" color="#3DCCA6" operable @dblclick="handleFoldList(record.full_path)">
                   <template #suffix>
                     <span style="color: #f2f3f5;">{{ text }}</span>
                   </template>
                 </Icon>
-                <Icon v-else name="icon-console">
+                <Icon v-else name="icon-file">
                   <template #suffix>
                     <span style="color: #f2f3f5;">{{ text }}</span>
                   </template>
                 </Icon>
-              </template>
-              <template v-else-if="column.key === 'port'">
-                {{record.is_folder ? '': text}}
               </template>
               <template v-else-if="column.key === 'action'">
-                <Button
-                    v-if="record.is_dir"
-                    icon="icon-open-folder"
-                    variant="text"
-                    title="Connect"
-                    @click="handleFoldList(record.full_path)"
-                />
+<!--                <Button-->
+<!--                    v-if="record.is_dir"-->
+<!--                    icon="icon-open-folder"-->
+<!--                    variant="text"-->
+<!--                    title="Connect"-->
+<!--                    @click="handleFoldList(record.full_path)"-->
+<!--                />-->
                 <Button
                     icon="icon-download"
                     variant="text"
