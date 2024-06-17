@@ -7,6 +7,7 @@ import (
 	"golang.org/x/crypto/ssh"
 	"io"
 	"os"
+	"sync/atomic"
 	"time"
 )
 
@@ -18,6 +19,7 @@ type sshSession struct {
 	stderr      io.Reader
 	sftp        *sftp.Client
 	trzszFilter *trzsz.TrzszFilter
+	closed      *atomic.Bool
 	clear       func()
 }
 
@@ -39,6 +41,9 @@ func (s *sshSession) Resize(rows, cols int) error {
 }
 
 func (s *sshSession) Read(p []byte) (n int, err error) {
+	if s.closed.Load() {
+		return 0, io.EOF
+	}
 	or, err := s.stdout.Read(p)
 	if err != nil {
 		return 0, err
@@ -50,10 +55,16 @@ func (s *sshSession) Read(p []byte) (n int, err error) {
 }
 
 func (s *sshSession) Write(p []byte) (n int, err error) {
+	if s.closed.Load() {
+		return 0, io.EOF
+	}
 	return s.stdin.Write(p)
 }
 
 func (s *sshSession) Close() error {
+	if s.closed.CompareAndSwap(false, true) {
+		s.clear()
+	}
 	s.clear()
 	return nil
 }

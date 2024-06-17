@@ -1,5 +1,5 @@
 <template>
-  <terminal-tabs ref="tabRef" style="--wails-draggable:drag" :tabs="state.tabs" v-model="state.tab">
+  <terminal-tabs ref="tabRef" style="--wails-draggable:drag" :tabs="state.tabs" v-model="state.tab" :on-close="closePty">
     <template v-slot:after>
       <span class="header-btn-bar">
         <dropdown :at-click="addLocalTab"/>
@@ -28,10 +28,10 @@ import {nanoid} from "nanoid";
 const tabRef = ref();
 const fileBrowserRef = ref();
 import Dropdown  from "./components/dropdown/dropdown.vue";
-import {CreateLocalPty, CreateSshPty} from "../wailsjs/go/logic/Logic";
+import {ClosePty, CreateLocalPty, CreateSshPty} from "../wailsjs/go/logic/Logic";
 import Hosts from "./components/hosts/hosts.vue";
 import {logic, termx} from "../wailsjs/go/models";
-import {NotificationService,LoadingService} from "vue-devui";
+import {NotificationService, LoadingService, Message} from "vue-devui";
 import More from "./components/more/more.vue";
 import FileBrowser from "./components/terminal/file_browser.vue";
 
@@ -97,7 +97,13 @@ if (fileBrowserRef.value) {
 function closeLoading() {
   setTimeout(()=>{
     state.loading?.loadingInstance?.close()
+    state.loading = null
   },10)
+}
+function closePty(tab: Tab,key: string,i: number){
+  ClosePty(key).then().catch(e=>{
+    console.log(e)
+  });
 }
 </script>
 

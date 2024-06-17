@@ -4,9 +4,8 @@ package termx
 
 import (
 	"errors"
-	"github.com/UserExistsError/conpty"
 	"github.com/pkg/sftp"
-	"log"
+	"io"
 	"strings"
 	"sync/atomic"
 )
@@ -26,16 +25,21 @@ func (t *windowsPty) Resize(rows, cols int) error {
 }
 
 func (t *windowsPty) Read(p []byte) (n int, err error) {
+	if t.closed.Load() {
+		return 0, io.EOF
+	}
 	return t.pty.Read(p)
 }
 
 func (t *windowsPty) Write(p []byte) (n int, err error) {
+	if t.closed.Load() {
+		return 0, io.EOF
+	}
 	return t.pty.Write(p)
 }
 
 func (t *windowsPty) Close() error {
 	if t.closed.CompareAndSwap(false, true) {
-		log.Println("do swap")
 		return t.pty.Close()
 	}
 	return nil
@@ -55,5 +59,8 @@ func NewPTY(s *SystemShell) (PtyX, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &windowsPty{pty: wPty, closed: &atomic.Bool{}}, nil
+	return &windowsPty{
+		pty:    wPty,
+		closed: &atomic.Bool{},
+	}, nil
 }

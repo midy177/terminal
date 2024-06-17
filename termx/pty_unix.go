@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/creack/pty"
 	"github.com/pkg/sftp"
+	"io"
 	"os"
 	"os/exec"
 	"sync/atomic"
@@ -29,10 +30,16 @@ func (t *unixPty) Resize(rows, cols int) error {
 }
 
 func (t *unixPty) Read(p []byte) (n int, err error) {
+	if t.closed.Load() {
+		return 0, io.EOF
+	}
 	return t.pty.Read(p)
 }
 
 func (t *unixPty) Write(p []byte) (n int, err error) {
+	if t.closed.Load() {
+		return 0, io.EOF
+	}
 	return t.pty.Write(p)
 }
 

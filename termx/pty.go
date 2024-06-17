@@ -1,6 +1,8 @@
 package termx
 
-import "github.com/pkg/sftp"
+import (
+	"github.com/pkg/sftp"
+)
 
 type PtyX interface {
 	Resize(rows, cols int) error

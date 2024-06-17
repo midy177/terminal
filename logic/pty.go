@@ -100,10 +100,12 @@ func (l *Logic) eventEmitLoop(id string) error {
 		for {
 			read, err := cPty.Read(buf)
 			if err != nil {
-				log.Printf("error reading from pty: %v", err)
+				log.Printf("error reading from pty: %v\n", err)
 				break
 			}
-			runtime.EventsEmit(ctx, id, string(buf[:read]))
+			if read > 0 {
+				runtime.EventsEmit(ctx, id, string(buf[:read]))
+			}
 		}
 		runtime.EventsOff(ctx, id)
 	}(t, l.Ctx, clearFun)
