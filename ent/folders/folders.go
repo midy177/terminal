@@ -102,10 +102,17 @@ func ByChildren(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
-// ByHostField orders the results by host field.
-func ByHostField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByHostCount orders the results by host count.
+func ByHostCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newHostStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborsCount(s, newHostStep(), opts...)
+	}
+}
+
+// ByHost orders the results by host terms.
+func ByHost(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newHostStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 func newParentStep() *sqlgraph.Step {
@@ -126,6 +133,6 @@ func newHostStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(HostInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, false, HostTable, HostColumn),
+		sqlgraph.Edge(sqlgraph.O2M, false, HostTable, HostColumn),
 	)
 }

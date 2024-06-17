@@ -60,23 +60,19 @@ func (fc *FoldersCreate) AddChildren(f ...*Folders) *FoldersCreate {
 	return fc.AddChildIDs(ids...)
 }
 
-// SetHostID sets the "host" edge to the Hosts entity by ID.
-func (fc *FoldersCreate) SetHostID(id int) *FoldersCreate {
-	fc.mutation.SetHostID(id)
+// AddHostIDs adds the "host" edge to the Hosts entity by IDs.
+func (fc *FoldersCreate) AddHostIDs(ids ...int) *FoldersCreate {
+	fc.mutation.AddHostIDs(ids...)
 	return fc
 }
 
-// SetNillableHostID sets the "host" edge to the Hosts entity by ID if the given value is not nil.
-func (fc *FoldersCreate) SetNillableHostID(id *int) *FoldersCreate {
-	if id != nil {
-		fc = fc.SetHostID(*id)
+// AddHost adds the "host" edges to the Hosts entity.
+func (fc *FoldersCreate) AddHost(h ...*Hosts) *FoldersCreate {
+	ids := make([]int, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
 	}
-	return fc
-}
-
-// SetHost sets the "host" edge to the Hosts entity.
-func (fc *FoldersCreate) SetHost(h *Hosts) *FoldersCreate {
-	return fc.SetHostID(h.ID)
+	return fc.AddHostIDs(ids...)
 }
 
 // Mutation returns the FoldersMutation object of the builder.
@@ -186,7 +182,7 @@ func (fc *FoldersCreate) createSpec() (*Folders, *sqlgraph.CreateSpec) {
 	}
 	if nodes := fc.mutation.HostIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   folders.HostTable,
 			Columns: []string{folders.HostColumn},

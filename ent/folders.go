@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strings"
 	"terminal/ent/folders"
-	"terminal/ent/hosts"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -34,7 +33,7 @@ type FoldersEdges struct {
 	// Children holds the value of the children edge.
 	Children []*Folders `json:"children,omitempty"`
 	// Host holds the value of the host edge.
-	Host *Hosts `json:"host,omitempty"`
+	Host []*Hosts `json:"host,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [3]bool
@@ -61,12 +60,10 @@ func (e FoldersEdges) ChildrenOrErr() ([]*Folders, error) {
 }
 
 // HostOrErr returns the Host value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e FoldersEdges) HostOrErr() (*Hosts, error) {
-	if e.Host != nil {
+// was not loaded in eager-loading.
+func (e FoldersEdges) HostOrErr() ([]*Hosts, error) {
+	if e.loadedTypes[2] {
 		return e.Host, nil
-	} else if e.loadedTypes[2] {
-		return nil, &NotFoundError{label: hosts.Label}
 	}
 	return nil, &NotLoadedError{edge: "host"}
 }

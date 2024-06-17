@@ -149,11 +149,6 @@ function handleSelectToClipboardOrClipboardToTerm() {
   }
 }
 
-defineExpose({
-  fitTerminal,
-  writeToTerminal,
-})
-
 onMounted(()=>{
   initShell();
   state.term.onData(writeToPty);

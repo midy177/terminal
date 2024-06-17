@@ -366,7 +366,7 @@ func (c *FoldersClient) QueryHost(f *Folders) *HostsQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(folders.Table, folders.FieldID, id),
 			sqlgraph.To(hosts.Table, hosts.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, folders.HostTable, folders.HostColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, folders.HostTable, folders.HostColumn),
 		)
 		fromV = sqlgraph.Neighbors(f.driver.Dialect(), step)
 		return fromV, nil
@@ -515,7 +515,7 @@ func (c *HostsClient) QueryFolder(h *Hosts) *FoldersQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(hosts.Table, hosts.FieldID, id),
 			sqlgraph.To(folders.Table, folders.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, hosts.FolderTable, hosts.FolderColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, hosts.FolderTable, hosts.FolderColumn),
 		)
 		fromV = sqlgraph.Neighbors(h.driver.Dialect(), step)
 		return fromV, nil

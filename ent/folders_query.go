@@ -120,7 +120,7 @@ func (fq *FoldersQuery) QueryHost() *HostsQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(folders.Table, folders.FieldID, selector),
 			sqlgraph.To(hosts.Table, hosts.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, folders.HostTable, folders.HostColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, folders.HostTable, folders.HostColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(fq.driver.Dialect(), step)
 		return fromU, nil
@@ -478,8 +478,9 @@ func (fq *FoldersQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Fold
 		}
 	}
 	if query := fq.withHost; query != nil {
-		if err := fq.loadHost(ctx, query, nodes, nil,
-			func(n *Folders, e *Hosts) { n.Edges.Host = e }); err != nil {
+		if err := fq.loadHost(ctx, query, nodes,
+			func(n *Folders) { n.Edges.Host = []*Hosts{} },
+			func(n *Folders, e *Hosts) { n.Edges.Host = append(n.Edges.Host, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -551,6 +552,9 @@ func (fq *FoldersQuery) loadHost(ctx context.Context, query *HostsQuery, nodes [
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
 	}
 	if len(query.ctx.Fields) > 0 {
 		query.ctx.AppendFieldOnce(hosts.FieldFolderID)

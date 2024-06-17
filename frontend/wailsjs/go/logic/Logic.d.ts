@@ -17,10 +17,6 @@ export function DelFoldOrHost(arg1:number,arg2:boolean):Promise<void>;
 
 export function DelKey(arg1:number):Promise<void>;
 
-export function Dir(arg1:string,arg2:string):Promise<Array<logic.FileInfo>>;
-
-export function Download(arg1:string,arg2:string):Promise<void>;
-
 export function GetFolds():Promise<Array<logic.HostEntry>>;
 
 export function GetFoldsAndHosts(arg1:number):Promise<Array<logic.HostEntry>>;
@@ -33,12 +29,20 @@ export function GetLocalPtyList():Promise<Array<termx.SystemShell>>;
 
 export function ResizePty(arg1:string,arg2:number,arg3:number):Promise<void>;
 
+export function SftpDelete(arg1:string,arg2:string):Promise<void>;
+
+export function SftpDir(arg1:string,arg2:string):Promise<Array<logic.FileInfo>>;
+
+export function SftpDownload(arg1:string,arg2:string):Promise<void>;
+
+export function SftpHomeDir(arg1:string):Promise<string>;
+
+export function SftpUploadDirectory(arg1:string,arg2:string):Promise<void>;
+
+export function SftpUploadMultipleFiles(arg1:string,arg2:string):Promise<void>;
+
 export function UpdFoldOrHost(arg1:logic.HostEntry):Promise<void>;
 
 export function UpdKey(arg1:logic.KeyEntry):Promise<void>;
-
-export function UploadDirectory(arg1:string,arg2:string):Promise<void>;
-
-export function UploadMultipleFiles(arg1:string,arg2:string):Promise<void>;
 
 export function WriteToPty(arg1:string,arg2:Array<number>):Promise<void>;

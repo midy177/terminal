@@ -459,7 +459,7 @@ func HasFolder() predicate.Hosts {
 	return predicate.Hosts(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, FolderTable, FolderColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, FolderTable, FolderColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})

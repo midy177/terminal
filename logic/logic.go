@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"terminal/ent"
-	"terminal/ent/folders"
 	"terminal/pkg/syncmapx"
 	"terminal/termx"
 )
@@ -29,20 +28,6 @@ func NewApp() *Logic {
 	if err := client.Schema.Create(context.Background()); err != nil {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
-	//initFold(client)
 	l.db = client
 	return l
-}
-
-func initFold(client *ent.Client) {
-	count, err := client.Folders.Query().Where(folders.LabelEQ("root")).Count(context.Background())
-	if err != nil {
-		return
-	}
-	if count == 0 {
-		err := client.Folders.Create().SetLabel("root").Exec(context.Background())
-		if err != nil {
-			log.Fatalf("failed creating folders resources: %v\n", err)
-		}
-	}
 }

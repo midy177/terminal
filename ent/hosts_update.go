@@ -266,7 +266,7 @@ func (hu *HostsUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if hu.mutation.FolderCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   hosts.FolderTable,
 			Columns: []string{hosts.FolderColumn},
@@ -279,7 +279,7 @@ func (hu *HostsUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if nodes := hu.mutation.FolderIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   hosts.FolderTable,
 			Columns: []string{hosts.FolderColumn},
@@ -609,7 +609,7 @@ func (huo *HostsUpdateOne) sqlSave(ctx context.Context) (_node *Hosts, err error
 	}
 	if huo.mutation.FolderCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   hosts.FolderTable,
 			Columns: []string{hosts.FolderColumn},
@@ -622,7 +622,7 @@ func (huo *HostsUpdateOne) sqlSave(ctx context.Context) (_node *Hosts, err error
 	}
 	if nodes := huo.mutation.FolderIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   hosts.FolderTable,
 			Columns: []string{hosts.FolderColumn},

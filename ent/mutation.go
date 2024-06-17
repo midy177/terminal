@@ -43,7 +43,8 @@ type FoldersMutation struct {
 	children        map[int]struct{}
 	removedchildren map[int]struct{}
 	clearedchildren bool
-	host            *int
+	host            map[int]struct{}
+	removedhost     map[int]struct{}
 	clearedhost     bool
 	done            bool
 	oldValue        func(context.Context) (*Folders, error)
@@ -314,9 +315,14 @@ func (m *FoldersMutation) ResetChildren() {
 	m.removedchildren = nil
 }
 
-// SetHostID sets the "host" edge to the Hosts entity by id.
-func (m *FoldersMutation) SetHostID(id int) {
-	m.host = &id
+// AddHostIDs adds the "host" edge to the Hosts entity by ids.
+func (m *FoldersMutation) AddHostIDs(ids ...int) {
+	if m.host == nil {
+		m.host = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.host[ids[i]] = struct{}{}
+	}
 }
 
 // ClearHost clears the "host" edge to the Hosts entity.
@@ -329,20 +335,29 @@ func (m *FoldersMutation) HostCleared() bool {
 	return m.clearedhost
 }
 
-// HostID returns the "host" edge ID in the mutation.
-func (m *FoldersMutation) HostID() (id int, exists bool) {
-	if m.host != nil {
-		return *m.host, true
+// RemoveHostIDs removes the "host" edge to the Hosts entity by IDs.
+func (m *FoldersMutation) RemoveHostIDs(ids ...int) {
+	if m.removedhost == nil {
+		m.removedhost = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.host, ids[i])
+		m.removedhost[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedHost returns the removed IDs of the "host" edge to the Hosts entity.
+func (m *FoldersMutation) RemovedHostIDs() (ids []int) {
+	for id := range m.removedhost {
+		ids = append(ids, id)
 	}
 	return
 }
 
 // HostIDs returns the "host" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// HostID instead. It exists only for internal usage by the builders.
 func (m *FoldersMutation) HostIDs() (ids []int) {
-	if id := m.host; id != nil {
-		ids = append(ids, *id)
+	for id := range m.host {
+		ids = append(ids, id)
 	}
 	return
 }
@@ -351,6 +366,7 @@ func (m *FoldersMutation) HostIDs() (ids []int) {
 func (m *FoldersMutation) ResetHost() {
 	m.host = nil
 	m.clearedhost = false
+	m.removedhost = nil
 }
 
 // Where appends a list predicates to the FoldersMutation builder.
@@ -543,9 +559,11 @@ func (m *FoldersMutation) AddedIDs(name string) []ent.Value {
 		}
 		return ids
 	case folders.EdgeHost:
-		if id := m.host; id != nil {
-			return []ent.Value{*id}
+		ids := make([]ent.Value, 0, len(m.host))
+		for id := range m.host {
+			ids = append(ids, id)
 		}
+		return ids
 	}
 	return nil
 }
@@ -555,6 +573,9 @@ func (m *FoldersMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 3)
 	if m.removedchildren != nil {
 		edges = append(edges, folders.EdgeChildren)
+	}
+	if m.removedhost != nil {
+		edges = append(edges, folders.EdgeHost)
 	}
 	return edges
 }
@@ -566,6 +587,12 @@ func (m *FoldersMutation) RemovedIDs(name string) []ent.Value {
 	case folders.EdgeChildren:
 		ids := make([]ent.Value, 0, len(m.removedchildren))
 		for id := range m.removedchildren {
+			ids = append(ids, id)
+		}
+		return ids
+	case folders.EdgeHost:
+		ids := make([]ent.Value, 0, len(m.removedhost))
+		for id := range m.removedhost {
 			ids = append(ids, id)
 		}
 		return ids
@@ -608,9 +635,6 @@ func (m *FoldersMutation) ClearEdge(name string) error {
 	switch name {
 	case folders.EdgeParent:
 		m.ClearParent()
-		return nil
-	case folders.EdgeHost:
-		m.ClearHost()
 		return nil
 	}
 	return fmt.Errorf("unknown Folders unique edge %s", name)

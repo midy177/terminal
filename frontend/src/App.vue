@@ -8,7 +8,7 @@
         <hosts :open-ssh-terminal="handleOpenSshTerminal"/>
       </span>
       <span class="header-btn-bar">
-        <more/>
+        <more :file-browser="openFileBrowser"/>
       </span>
     </template>
   </terminal-tabs>
@@ -17,6 +17,7 @@
       <terminal :id="item.key" :item="item" v-show="item.key === state.tab" v-model:title="item.label"/>
     </template>
   </div>
+  <FileBrowser ref="fileBrowserRef" :tid="state.tab"></FileBrowser>
 </template>
 
 <script lang="ts" setup>
@@ -24,13 +25,15 @@ import TerminalTabs, {Tab} from "./components/tabs/chrome-tabs.vue";
 import { reactive, ref } from 'vue';
 import Terminal from "./components/terminal/terminal.vue";
 import {nanoid} from "nanoid";
-const tabRef = ref()
+const tabRef = ref();
+const fileBrowserRef = ref();
 import Dropdown  from "./components/dropdown/dropdown.vue";
 import {CreateLocalPty, CreateSshPty} from "../wailsjs/go/logic/Logic";
 import Hosts from "./components/hosts/hosts.vue";
 import {logic, termx} from "../wailsjs/go/models";
 import {NotificationService,LoadingService} from "vue-devui";
 import More from "./components/more/more.vue";
+import FileBrowser from "./components/terminal/file_browser.vue";
 
 const state = reactive({
   tabs: <Array<Tab>>[],
@@ -90,7 +93,11 @@ function handleOpenSshTerminal(id:number,label:string){
     closeLoading()
   })
 }
-
+function openFileBrowser(){
+if (fileBrowserRef.value) {
+  fileBrowserRef.value.openModel()
+}
+}
 function closeLoading() {
   setTimeout(()=>{
     state.loading?.loadingInstance?.close()

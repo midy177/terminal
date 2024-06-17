@@ -56,12 +56,12 @@ func (Hosts) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("folder", Folders.Type).
 			Ref("host").
-			Unique().
-			Field("folder_id"),
+			Field("folder_id").
+			Unique(),
 		edge.From("key", Keys.Type).
 			Ref("host").
-			Unique().
-			Field("key_id"),
+			Field("key_id").
+			Unique(),
 	}
 }
 func (Hosts) Annotations() []schema.Annotation {

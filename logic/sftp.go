@@ -12,7 +12,7 @@ import (
 	"path/filepath"
 )
 
-func (l *Logic) getStpClient(id string) (*sftp.Client, error) {
+func (l *Logic) getSftpClient(id string) (*sftp.Client, error) {
 	t, ok := l.ptyMap.Load(id)
 	if !ok {
 		return nil, errors.New("pty already released")
@@ -21,16 +21,24 @@ func (l *Logic) getStpClient(id string) (*sftp.Client, error) {
 }
 
 type FileInfo struct {
-	Name     string // 文件的基本名称
-	FullPath string // 完整路径
-	Size     string // 常规文件的长度（以字节为单位）;对其他人依赖系统
-	Mode     string // 文件模式
-	ModTime  int64  // 时间
-	IsDir    bool   // abbreviation for Mode().IsDir()
+	Name     string `json:"name"`      // 文件的基本名称
+	FullPath string `json:"full_path"` // 完整路径
+	Size     string `json:"size"`      // 常规文件的长度（以字节为单位）;对其他人依赖系统
+	Mode     string `json:"mode"`      // 文件模式
+	ModTime  int64  `json:"mod_time"`  // 时间
+	IsDir    bool   `json:"is_dir"`    // abbreviation for Mode().IsDir()
 }
 
-func (l *Logic) Dir(id string, dstDir string) ([]FileInfo, error) {
-	sftpCli, err := l.getStpClient(id)
+func (l *Logic) SftpHomeDir(id string) (string, error) {
+	sftpCli, err := l.getSftpClient(id)
+	if err != nil {
+		return "", err
+	}
+	return sftpCli.Getwd()
+}
+
+func (l *Logic) SftpDir(id string, dstDir string) ([]FileInfo, error) {
+	sftpCli, err := l.getSftpClient(id)
 	if err != nil {
 		return nil, err
 	}
@@ -59,8 +67,8 @@ func (l *Logic) Dir(id string, dstDir string) ([]FileInfo, error) {
 	return files, nil
 }
 
-func (l *Logic) UploadDirectory(id string, dstDir string) error {
-	sftpCli, err := l.getStpClient(id)
+func (l *Logic) SftpUploadDirectory(id string, dstDir string) error {
+	sftpCli, err := l.getSftpClient(id)
 	if err != nil {
 		return err
 	}
@@ -90,8 +98,8 @@ func (l *Logic) UploadDirectory(id string, dstDir string) error {
 	return uploadDirectory(sftpCli, srcDir, dstDir)
 }
 
-func (l *Logic) UploadMultipleFiles(id string, dstDir string) error {
-	sftpCli, err := l.getStpClient(id)
+func (l *Logic) SftpUploadMultipleFiles(id string, dstDir string) error {
+	sftpCli, err := l.getSftpClient(id)
 	if err != nil {
 		return err
 	}
@@ -123,8 +131,8 @@ func (l *Logic) UploadMultipleFiles(id string, dstDir string) error {
 	return nil
 }
 
-func (l *Logic) Download(id string, dst string) error {
-	sftpCli, err := l.getStpClient(id)
+func (l *Logic) SftpDownload(id string, dst string) error {
+	sftpCli, err := l.getSftpClient(id)
 	if err != nil {
 		return err
 	}
@@ -147,7 +155,13 @@ func (l *Logic) Download(id string, dst string) error {
 		return downloadFile(sftpCli, dst, localDir)
 	}
 }
-
+func (l *Logic) SftpDelete(id string, dst string) error {
+	sftpCli, err := l.getSftpClient(id)
+	if err != nil {
+		return err
+	}
+	return sftpCli.Remove(dst)
+}
 func uploadDirectory(sftpClient *sftp.Client, localPath string, remotePath string) error {
 	localFiles, err := os.ReadDir(localPath)
 	if err != nil {

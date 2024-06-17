@@ -37,7 +37,7 @@ var (
 		{Name: "address", Type: field.TypeString, Unique: true},
 		{Name: "port", Type: field.TypeUint, Default: 22},
 		{Name: "password", Type: field.TypeString, Nullable: true},
-		{Name: "folder_id", Type: field.TypeInt, Unique: true, Nullable: true},
+		{Name: "folder_id", Type: field.TypeInt, Nullable: true},
 		{Name: "key_id", Type: field.TypeInt, Nullable: true},
 	}
 	// HostsTable holds the schema information for the "hosts" table.

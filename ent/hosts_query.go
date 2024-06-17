@@ -75,7 +75,7 @@ func (hq *HostsQuery) QueryFolder() *FoldersQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(hosts.Table, hosts.FieldID, selector),
 			sqlgraph.To(folders.Table, folders.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, hosts.FolderTable, hosts.FolderColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, hosts.FolderTable, hosts.FolderColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(hq.driver.Dialect(), step)
 		return fromU, nil

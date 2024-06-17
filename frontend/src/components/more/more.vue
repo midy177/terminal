@@ -6,6 +6,11 @@ import {
   WindowMinimise, WindowToggleMaximise, WindowUnfullscreen, WindowUnminimise
 } from "../../../wailsjs/runtime";
 import {reactive} from "vue";
+const props = defineProps({
+  fileBrowser: {
+    type: Function,
+  }
+})
 const state = reactive({
   isMax: false,
   isFull: true,
@@ -26,6 +31,10 @@ function toggleMin(){
       duration: 3000,
     })
   })
+}
+
+function openFileBrowser() {
+  if (props.fileBrowser) props.fileBrowser()
 }
 function toggleFull(){
   WindowIsFullscreen().then((res:boolean)=>{
@@ -56,22 +65,25 @@ function toggleFull(){
     <template #menu>
       <List style="min-width: 60px;padding-bottom: 0;">
         <ListItem :key="0">
-          <Button icon="icon-exit" variant="text" @click="WindowToggleMaximise">最大化切换</Button>
+          <Button icon="icon-folder" variant="text" @click="openFileBrowser">管理文件</Button>
         </ListItem>
         <ListItem :key="1">
-          <Button icon="icon-exit" variant="text" @click="WindowCenter">窗口居中</Button>
+          <Button icon="icon-maxmize" variant="text" @click="WindowToggleMaximise">最大化切换</Button>
         </ListItem>
         <ListItem :key="2">
-          <Button icon="icon-exit" variant="text" @click="toggleMin">
+          <Button icon="icon-text-align-center" variant="text" @click="WindowCenter">窗口居中</Button>
+        </ListItem>
+        <ListItem :key="3">
+          <Button icon="icon-minimize" variant="text" @click="toggleMin">
             {{state.isMin ? '取消最小化': '最小化'}}
           </Button>
         </ListItem>
-        <ListItem :key="3">
-          <Button icon="icon-exit" variant="text" @click="toggleFull">
+        <ListItem :key="4">
+          <Button icon="icon-ue-expand" variant="text" @click="toggleFull">
             {{ state.isFull ? '全屏':'取消全屏' }}
           </Button>
         </ListItem>
-        <ListItem :key="4">
+        <ListItem :key="5">
           <Button icon="icon-exit" variant="text" @click="Quit()">退出</Button>
         </ListItem>
       </List>

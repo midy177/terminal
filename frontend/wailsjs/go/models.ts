@@ -1,7 +1,12 @@
 export namespace logic {
 	
 	export class FileInfo {
-	
+	    name: string;
+	    full_path: string;
+	    size: string;
+	    mode: string;
+	    mod_time: number;
+	    is_dir: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new FileInfo(source);
@@ -9,7 +14,12 @@ export namespace logic {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	
+	        this.name = source["name"];
+	        this.full_path = source["full_path"];
+	        this.size = source["size"];
+	        this.mode = source["mode"];
+	        this.mod_time = source["mod_time"];
+	        this.is_dir = source["is_dir"];
 	    }
 	}
 	export class HostEntry {

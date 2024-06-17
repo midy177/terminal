@@ -82,23 +82,19 @@ func (fu *FoldersUpdate) AddChildren(f ...*Folders) *FoldersUpdate {
 	return fu.AddChildIDs(ids...)
 }
 
-// SetHostID sets the "host" edge to the Hosts entity by ID.
-func (fu *FoldersUpdate) SetHostID(id int) *FoldersUpdate {
-	fu.mutation.SetHostID(id)
+// AddHostIDs adds the "host" edge to the Hosts entity by IDs.
+func (fu *FoldersUpdate) AddHostIDs(ids ...int) *FoldersUpdate {
+	fu.mutation.AddHostIDs(ids...)
 	return fu
 }
 
-// SetNillableHostID sets the "host" edge to the Hosts entity by ID if the given value is not nil.
-func (fu *FoldersUpdate) SetNillableHostID(id *int) *FoldersUpdate {
-	if id != nil {
-		fu = fu.SetHostID(*id)
+// AddHost adds the "host" edges to the Hosts entity.
+func (fu *FoldersUpdate) AddHost(h ...*Hosts) *FoldersUpdate {
+	ids := make([]int, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
 	}
-	return fu
-}
-
-// SetHost sets the "host" edge to the Hosts entity.
-func (fu *FoldersUpdate) SetHost(h *Hosts) *FoldersUpdate {
-	return fu.SetHostID(h.ID)
+	return fu.AddHostIDs(ids...)
 }
 
 // Mutation returns the FoldersMutation object of the builder.
@@ -133,10 +129,25 @@ func (fu *FoldersUpdate) RemoveChildren(f ...*Folders) *FoldersUpdate {
 	return fu.RemoveChildIDs(ids...)
 }
 
-// ClearHost clears the "host" edge to the Hosts entity.
+// ClearHost clears all "host" edges to the Hosts entity.
 func (fu *FoldersUpdate) ClearHost() *FoldersUpdate {
 	fu.mutation.ClearHost()
 	return fu
+}
+
+// RemoveHostIDs removes the "host" edge to Hosts entities by IDs.
+func (fu *FoldersUpdate) RemoveHostIDs(ids ...int) *FoldersUpdate {
+	fu.mutation.RemoveHostIDs(ids...)
+	return fu
+}
+
+// RemoveHost removes "host" edges to Hosts entities.
+func (fu *FoldersUpdate) RemoveHost(h ...*Hosts) *FoldersUpdate {
+	ids := make([]int, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
+	}
+	return fu.RemoveHostIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -267,7 +278,7 @@ func (fu *FoldersUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if fu.mutation.HostCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   folders.HostTable,
 			Columns: []string{folders.HostColumn},
@@ -278,9 +289,25 @@ func (fu *FoldersUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
+	if nodes := fu.mutation.RemovedHostIDs(); len(nodes) > 0 && !fu.mutation.HostCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   folders.HostTable,
+			Columns: []string{folders.HostColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(hosts.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
 	if nodes := fu.mutation.HostIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   folders.HostTable,
 			Columns: []string{folders.HostColumn},
@@ -368,23 +395,19 @@ func (fuo *FoldersUpdateOne) AddChildren(f ...*Folders) *FoldersUpdateOne {
 	return fuo.AddChildIDs(ids...)
 }
 
-// SetHostID sets the "host" edge to the Hosts entity by ID.
-func (fuo *FoldersUpdateOne) SetHostID(id int) *FoldersUpdateOne {
-	fuo.mutation.SetHostID(id)
+// AddHostIDs adds the "host" edge to the Hosts entity by IDs.
+func (fuo *FoldersUpdateOne) AddHostIDs(ids ...int) *FoldersUpdateOne {
+	fuo.mutation.AddHostIDs(ids...)
 	return fuo
 }
 
-// SetNillableHostID sets the "host" edge to the Hosts entity by ID if the given value is not nil.
-func (fuo *FoldersUpdateOne) SetNillableHostID(id *int) *FoldersUpdateOne {
-	if id != nil {
-		fuo = fuo.SetHostID(*id)
+// AddHost adds the "host" edges to the Hosts entity.
+func (fuo *FoldersUpdateOne) AddHost(h ...*Hosts) *FoldersUpdateOne {
+	ids := make([]int, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
 	}
-	return fuo
-}
-
-// SetHost sets the "host" edge to the Hosts entity.
-func (fuo *FoldersUpdateOne) SetHost(h *Hosts) *FoldersUpdateOne {
-	return fuo.SetHostID(h.ID)
+	return fuo.AddHostIDs(ids...)
 }
 
 // Mutation returns the FoldersMutation object of the builder.
@@ -419,10 +442,25 @@ func (fuo *FoldersUpdateOne) RemoveChildren(f ...*Folders) *FoldersUpdateOne {
 	return fuo.RemoveChildIDs(ids...)
 }
 
-// ClearHost clears the "host" edge to the Hosts entity.
+// ClearHost clears all "host" edges to the Hosts entity.
 func (fuo *FoldersUpdateOne) ClearHost() *FoldersUpdateOne {
 	fuo.mutation.ClearHost()
 	return fuo
+}
+
+// RemoveHostIDs removes the "host" edge to Hosts entities by IDs.
+func (fuo *FoldersUpdateOne) RemoveHostIDs(ids ...int) *FoldersUpdateOne {
+	fuo.mutation.RemoveHostIDs(ids...)
+	return fuo
+}
+
+// RemoveHost removes "host" edges to Hosts entities.
+func (fuo *FoldersUpdateOne) RemoveHost(h ...*Hosts) *FoldersUpdateOne {
+	ids := make([]int, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
+	}
+	return fuo.RemoveHostIDs(ids...)
 }
 
 // Where appends a list predicates to the FoldersUpdate builder.
@@ -583,7 +621,7 @@ func (fuo *FoldersUpdateOne) sqlSave(ctx context.Context) (_node *Folders, err e
 	}
 	if fuo.mutation.HostCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   folders.HostTable,
 			Columns: []string{folders.HostColumn},
@@ -594,9 +632,25 @@ func (fuo *FoldersUpdateOne) sqlSave(ctx context.Context) (_node *Folders, err e
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
+	if nodes := fuo.mutation.RemovedHostIDs(); len(nodes) > 0 && !fuo.mutation.HostCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   folders.HostTable,
+			Columns: []string{folders.HostColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(hosts.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
 	if nodes := fuo.mutation.HostIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   folders.HostTable,
 			Columns: []string{folders.HostColumn},

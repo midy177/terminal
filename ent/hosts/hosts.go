@@ -143,7 +143,7 @@ func newFolderStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(FolderInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, true, FolderTable, FolderColumn),
+		sqlgraph.Edge(sqlgraph.M2O, true, FolderTable, FolderColumn),
 	)
 }
 func newKeyStep() *sqlgraph.Step {

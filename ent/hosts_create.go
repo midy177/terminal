@@ -228,7 +228,7 @@ func (hc *HostsCreate) createSpec() (*Hosts, *sqlgraph.CreateSpec) {
 	}
 	if nodes := hc.mutation.FolderIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   hosts.FolderTable,
 			Columns: []string{hosts.FolderColumn},

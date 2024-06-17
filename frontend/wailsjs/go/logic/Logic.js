@@ -30,14 +30,6 @@ export function DelKey(arg1) {
   return window['go']['logic']['Logic']['DelKey'](arg1);
 }
 
-export function Dir(arg1, arg2) {
-  return window['go']['logic']['Logic']['Dir'](arg1, arg2);
-}
-
-export function Download(arg1, arg2) {
-  return window['go']['logic']['Logic']['Download'](arg1, arg2);
-}
-
 export function GetFolds() {
   return window['go']['logic']['Logic']['GetFolds']();
 }
@@ -62,20 +54,36 @@ export function ResizePty(arg1, arg2, arg3) {
   return window['go']['logic']['Logic']['ResizePty'](arg1, arg2, arg3);
 }
 
+export function SftpDelete(arg1, arg2) {
+  return window['go']['logic']['Logic']['SftpDelete'](arg1, arg2);
+}
+
+export function SftpDir(arg1, arg2) {
+  return window['go']['logic']['Logic']['SftpDir'](arg1, arg2);
+}
+
+export function SftpDownload(arg1, arg2) {
+  return window['go']['logic']['Logic']['SftpDownload'](arg1, arg2);
+}
+
+export function SftpHomeDir(arg1) {
+  return window['go']['logic']['Logic']['SftpHomeDir'](arg1);
+}
+
+export function SftpUploadDirectory(arg1, arg2) {
+  return window['go']['logic']['Logic']['SftpUploadDirectory'](arg1, arg2);
+}
+
+export function SftpUploadMultipleFiles(arg1, arg2) {
+  return window['go']['logic']['Logic']['SftpUploadMultipleFiles'](arg1, arg2);
+}
+
 export function UpdFoldOrHost(arg1) {
   return window['go']['logic']['Logic']['UpdFoldOrHost'](arg1);
 }
 
 export function UpdKey(arg1) {
   return window['go']['logic']['Logic']['UpdKey'](arg1);
-}
-
-export function UploadDirectory(arg1, arg2) {
-  return window['go']['logic']['Logic']['UploadDirectory'](arg1, arg2);
-}
-
-export function UploadMultipleFiles(arg1, arg2) {
-  return window['go']['logic']['Logic']['UploadMultipleFiles'](arg1, arg2);
 }
 
 export function WriteToPty(arg1, arg2) {
