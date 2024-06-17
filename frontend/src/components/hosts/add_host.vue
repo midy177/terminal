@@ -39,7 +39,7 @@ const initState = () => ({
 const state = reactive(initState())
 
 const rules = {
-  label: [{ required: true, min: 3, max: 6, message: '用户名需不小于3个字符，不大于6个字符', trigger: 'blur' }],
+  label: [{ required: true, min: 3, max: 26, message: '用户名需不小于3个字符，不大于6个字符', trigger: 'blur' }],
   username: [{ required: true, message: '用户信息不能为空', trigger: 'blur' }],
   address: [{ required: true, message: '用户信息不能为空', trigger: 'blur' }],
   port: [{ required: true, message: '端口必须填写', trigger: 'blur' }],

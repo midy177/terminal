@@ -1,11 +1,11 @@
 package termx
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/sync/errgroup"
+	"io"
 	"os"
 	"time"
 )
@@ -13,8 +13,9 @@ import (
 type sshSession struct {
 	client  *ssh.Client
 	session *ssh.Session
-	iBuf    *bytes.Buffer
-	oBuf    *bytes.Buffer
+	stdin   io.WriteCloser
+	stdout  io.Reader
+	stderr  io.Reader
 	sftp    *sftp.Client
 }
 
@@ -35,11 +36,18 @@ func (s *sshSession) Resize(rows, cols int) error {
 }
 
 func (s *sshSession) Read(p []byte) (n int, err error) {
-	return s.oBuf.Read(p)
+	or, err := s.stdout.Read(p)
+	if err != nil {
+		return 0, err
+	}
+	if or > 0 {
+		return or, nil
+	}
+	return s.stderr.Read(p)
 }
 
 func (s *sshSession) Write(p []byte) (n int, err error) {
-	return s.iBuf.Write(p)
+	return s.stdin.Write(p)
 }
 
 func (s *sshSession) Close() error {
@@ -77,7 +85,6 @@ func NewSshPTY(username, password, address string, port uint, privateKey []byte,
 		fmt.Printf("%s%s\n\r", "Unable to create SSH connection: ", err)
 		return nil, err
 	}
-	defer sshClient.Close()
 
 	session, err := sshClient.NewSession()
 	if err != nil {
@@ -94,13 +101,19 @@ func NewSshPTY(username, password, address string, port uint, privateKey []byte,
 		fmt.Printf("request for pseudo terminal failed: %s\n", err)
 		return nil, err
 	}
-	// 创建一个缓冲区来捕获合并后的输出
-	var (
-		ib, ob bytes.Buffer
-	)
-	session.Stdin = &ib
-	session.Stdout = &ob
-	session.Stderr = &ob
+
+	ib, err := session.StdinPipe()
+	if err != nil {
+		return nil, err
+	}
+	ob, err := session.StdoutPipe()
+	if err != nil {
+		return nil, err
+	}
+	eb, err := session.StderrPipe()
+	if err != nil {
+		return nil, err
+	}
 	// 启动一个 shell 会话
 	err = session.Shell()
 	if err != nil {
@@ -110,7 +123,8 @@ func NewSshPTY(username, password, address string, port uint, privateKey []byte,
 	return &sshSession{
 		client:  sshClient,
 		session: session,
-		iBuf:    &ib,
-		oBuf:    &ob,
+		stdin:   ib,
+		stdout:  ob,
+		stderr:  eb,
 	}, nil
 }
