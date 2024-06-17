@@ -8,7 +8,7 @@ import {
 import {reactive} from "vue";
 const state = reactive({
   isMax: false,
-  isFull: false,
+  isFull: true,
   isMin: false,
 })
 function toggleMin(){
