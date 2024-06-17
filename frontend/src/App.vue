@@ -1,5 +1,5 @@
 <template>
-  <terminal-tabs ref="tabRef" style="--wails-draggable:drag" :tabs="tabs" v-model="tab">
+  <terminal-tabs ref="tabRef" style="--wails-draggable:drag" :tabs="state.tabs" v-model="state.tab">
     <template v-slot:after>
       <span class="header-btn-bar">
         <dropdown :at-click="addLocalTab"/>
@@ -12,29 +12,40 @@
       </span>
     </template>
   </terminal-tabs>
-  <div class="terminal-layout" v-if="tabs.length>0">
-    <template v-for="item in tabs" :key="item.key">
-      <terminal :id="item.key" :item="item" v-show="item.key === tab" v-model:title="item.label"/>
+  <div class="terminal-layout" v-if="state.tabs.length>0">
+    <template v-for="item in state.tabs" :key="item.key">
+      <terminal :id="item.key" :item="item" v-show="item.key === state.tab" v-model:title="item.label"/>
     </template>
   </div>
 </template>
 
 <script lang="ts" setup>
 import TerminalTabs, {Tab} from "./components/tabs/chrome-tabs.vue";
-import {reactive, ref} from 'vue';
+import {type ComponentInternalInstance, reactive, ref, type VNode} from 'vue';
 import Terminal from "./components/terminal/terminal.vue";
 import {nanoid} from "nanoid";
-const tab = ref('')
+// const tab = ref('')
 const tabRef = ref()
 import Dropdown  from "./components/dropdown/dropdown.vue";
 import {CreateLocalPty, CreateSshPty} from "../wailsjs/go/logic/Logic";
 import Hosts from "./components/hosts/hosts.vue";
 import {logic, termx} from "../wailsjs/go/models";
-import {NotificationService} from "vue-devui";
+import {NotificationService,LoadingService} from "vue-devui";
 import More from "./components/more/more.vue";
-const tabs = <Array<Tab>>reactive([])
+
+// const tabs = <Array<Tab>>reactive([])
+
+
+const state = reactive({
+  tabs: <Array<Tab>>[],
+  tab: '',
+  loading: <any>null
+})
 
 function addLocalTab(data: termx.SystemShell) {
+  state.loading = LoadingService.open({
+    message: '打开本地终端中...',
+  })?.loadingInstance
   let key = nanoid()
   data.id = key
   CreateLocalPty(data).then(res=>{
@@ -42,13 +53,17 @@ function addLocalTab(data: termx.SystemShell) {
       label: data.name,
       key: key,
     }
-    // tabs.push(newTab)
     tabRef.value.addTab(newTab)
-    tab.value = key
+    state.tab = key
+  }).finally(()=>{
+    closeLoading()
   })
 }
 
 function handleOpenSshTerminal(id:number,label:string){
+  state.loading = LoadingService.open({
+    message: '连接到ssh服务器中...',
+  })
   let tid = nanoid()
   CreateSshPty(tid,id,70,40).then(()=>{
     let newTab = {
@@ -56,16 +71,23 @@ function handleOpenSshTerminal(id:number,label:string){
       key: tid,
     }
     tabRef.value.addTab(newTab)
-    tab.value = tid
+    state.tab = tid
   }).catch(e=>{
     NotificationService.open({
       type: 'error',
       title: '创建ssh连接失败',
       content: e,
-      duration: 3000,
+      duration: 5000,
     })
+  }).finally(()=>{
+    closeLoading()
   })
+}
 
+function closeLoading() {
+  setTimeout(()=>{
+    if (state.loading) state.loading?.close()
+  },500)
 }
 </script>
 
