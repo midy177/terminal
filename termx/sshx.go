@@ -157,5 +157,6 @@ func NewSshPTY(username, password, address string, port uint, privateKey []byte,
 			_ = stdoutPipe.Close()
 			_ = clientOut.Close()
 		},
+		closed: &atomic.Bool{},
 	}, nil
 }

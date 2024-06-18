@@ -102,6 +102,7 @@ function openModel() {
 function handleBack() {
   if (state.currentDir.includes('/')){
     state.currentDir = state.currentDir.substring(0, state.currentDir.lastIndexOf('/'));
+    if (state.currentDir === '') state.currentDir = '/';
     handleFoldList(state.currentDir);
   }
 }
@@ -115,6 +116,7 @@ function handleUploadFile(){
         content: '目的路径'+state.currentDir,
         duration: 3000,
       })
+      handleFoldList(state.currentDir);
     }).catch(e=>{
       NotificationService.open({
         type: 'error',
@@ -134,6 +136,7 @@ function handleUploadFold(){
         content: '目的路径'+state.currentDir,
         duration: 3000,
       })
+      handleFoldList(state.currentDir);
     }).catch(e=>{
       NotificationService.open({
         type: 'error',
@@ -148,7 +151,8 @@ function handleFoldList(dst: string) {
   state.showTable = false
   if (props.tid) {
     SftpDir(props.tid,dst).then((res:Array<logic.FileInfo>)=>{
-      state.tableData = res
+      state.currentDir = dst;
+      state.tableData = res;
     }).catch(e=>{
       NotificationService.open({
         type: 'error',
@@ -189,6 +193,7 @@ function handleDelete(dst: string){
         content: dst,
         duration: 3000,
       })
+      handleFoldList(state.currentDir);
     }).catch(e=>{
       NotificationService.open({
         type: 'error',

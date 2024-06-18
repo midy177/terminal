@@ -9,7 +9,6 @@ import (
 	"io"
 	"os"
 	"path"
-	"path/filepath"
 )
 
 func (l *Logic) getSftpClient(id string) (*sftp.Client, error) {
@@ -57,7 +56,7 @@ func (l *Logic) SftpDir(id string, dstDir string) ([]FileInfo, error) {
 	for _, d := range dirs {
 		files = append(files, FileInfo{
 			Name:     d.Name(),
-			FullPath: filepath.Join(dstDir, d.Name()),
+			FullPath: path.Join(dstDir, d.Name()),
 			Size:     bytesize.New(float64(d.Size())).String(),
 			Mode:     d.Mode().String(),
 			ModTime:  d.ModTime().Unix(),
