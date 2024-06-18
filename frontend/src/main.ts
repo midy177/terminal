@@ -9,4 +9,6 @@ import { ThemeServiceInit, galaxyTheme } from 'devui-theme';
 const themeService = ThemeServiceInit({ galaxyTheme }, 'galaxyTheme');
 // 可以动态切换成 galaxyTheme 追光主题
 themeService?.applyTheme(galaxyTheme);
+// import STable from '@shene/table';
+
 createApp(App).use(DevUI).mount('#app')

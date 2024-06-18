@@ -12,7 +12,7 @@ import {
   Icon,
   Message, NotificationService,Tag
 } from "vue-devui";
-import {STableColumnsType, STableContextmenuPopupArg} from '@shene/table';
+import {STableColumnsType, STableContextmenuPopupArg, STableProps} from '@shene/table';
 import { STable,STableProvider } from '@shene/table';
 import {onMounted, PropType, reactive, ref} from "vue";
 import Add_host from "./add_host.vue";
@@ -51,6 +51,8 @@ const columns: STableColumnsType<logic.HostEntry> = [
     key: 'label',
     width: 120,
     resizable: true,
+    ellipsis: true,
+    ellipsisTitle: { showTitle: false },
     filter: {
       component: filter,
       props: {
@@ -68,6 +70,8 @@ const columns: STableColumnsType<logic.HostEntry> = [
     dataIndex: 'username',
     width: 120,
     resizable: true,
+    ellipsis: true,
+    ellipsisTitle: { showTitle: false },
     filter: {
       component: filter,
       props: {
@@ -85,6 +89,8 @@ const columns: STableColumnsType<logic.HostEntry> = [
     key: 'address',
     width: 120,
     resizable: true,
+    ellipsis: true,
+    ellipsisTitle: { showTitle: false },
     filter: {
       component: filter,
       props: {
@@ -100,7 +106,8 @@ const columns: STableColumnsType<logic.HostEntry> = [
     title: '端口',
     dataIndex: 'port',
     key: 'port',
-    width: 60,
+    width: 60,ellipsis: true,
+    ellipsisTitle: { showTitle: false }
   },
   {
     title: '操作',
@@ -178,6 +185,12 @@ function getList(id:number) {
     state.showTable = true
   })
 }
+const onSorterChange: STableProps['onSorterChange'] = params => {
+  state.showTable = false;
+  setTimeout(()=>{
+    state.showTable = true;
+  },100)
+}
 </script>
 
 <template>
@@ -219,16 +232,16 @@ function getList(id:number) {
         </Row>
     </template>
     <template #default>
-      <STableProvider size="small">
+      <STableProvider size="small" rowKey="hosts">
         <STable
             style="--s-bg-color-component: transport;"
             :columns="columns"
-            :scroll="{ y: 300 }"
             :data-source="state.tableData"
-            :pagination="true"
             :max-height="300"
             :height="300"
             v-if="state.showTable"
+            :pagination="false"
+            @sorter-change="onSorterChange"
         >
           <template #bodyCell="{ text, column, record }">
             <template v-if="column.key === 'label'">

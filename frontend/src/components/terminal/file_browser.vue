@@ -10,10 +10,10 @@ import {
   Popover,
   Row
 } from "vue-devui";
-import {STable, STableColumnsType, STableProvider} from "@shene/table";
+import {STable, STableColumnsType, STablePaginationConfig, STableProps, STableProvider} from "@shene/table";
 import Update_host from "../hosts/update_host.vue";
 import {logic} from "../../../wailsjs/go/models";
-import {reactive} from "vue";
+import {reactive, ref} from "vue";
 import {
   SftpDelete,
   SftpDir,
@@ -21,19 +21,19 @@ import {
   SftpUploadDirectory,
   SftpUploadMultipleFiles
 } from "../../../wailsjs/go/logic/Logic";
+import filter from "../hosts/filter.vue";
 const props =defineProps({
   tid: {
     type: String,
     require: true,
   }
 })
-
 const initState = () => ({
   tid: '',
   visible: false,
   tableData: <Array<logic.FileInfo>>[],
   showTable: true,
-  currentDir: '',
+  currentDir: ''
 })
 const state = reactive(initState())
 
@@ -44,31 +44,47 @@ const columns: STableColumnsType<logic.FileInfo> = [
     key: 'name',
     width: 120,
     resizable: true,
+    ellipsis: true,
+    ellipsisTitle: { showTitle: false },
+    filter: {
+      component: filter,
+      props: {
+        placeholder: '输入搜索内容',
+        style: {
+          width: '160px'
+        }
+      },
+      onFilter: (value, record) => record.name.includes(value)
+    }
   },
   {
     title: '大小',
     key: 'size',
     dataIndex: 'size',
-    width: 120,
-    resizable: true,
+    width: 60,
+    ellipsis: true,
+    ellipsisTitle: { showTitle: false },
+    sorter: true
   },
   {
     title: '权限',
     dataIndex: 'mode',
     key: 'mode',
-    width: 120,
-    resizable: true,
+    width: 50,
+    ellipsis: true,
+    ellipsisTitle: { showTitle: false }
   },
   {
     title: '修改时间',
     dataIndex: 'mod_time',
     key: 'mod_time',
-    width: 80,
+    width: 90,
+    sorter: true
   },
   {
     title: '操作',
     key: 'action',
-    width: 90
+    width: 30
   }
 ]
 function closeModel(){
@@ -204,6 +220,26 @@ function handleDelete(dst: string){
     })
   }
 }
+
+function formatTimestamp(timestamp: number): string {
+  const date = new Date(timestamp * 1000);
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+const onSorterChange: STableProps['onSorterChange'] = params => {
+  console.log('change')
+  state.showTable = false;
+  setTimeout(()=>{
+    state.showTable = true;
+  },100)
+}
 defineExpose({
   closeModel,
   openModel,
@@ -243,16 +279,16 @@ defineExpose({
         </Row>
       </template>
       <template #default>
-        <STableProvider size="small">
-          <STable
+        <s-table-provider size="small" rowKey="file_browser">
+          <s-table
               style="--s-bg-color-component: transport;"
               :columns="columns"
-              :scroll="{ y: 300 }"
               :data-source="state.tableData"
-              :pagination="true"
               :max-height="300"
               :height="300"
               v-if="state.showTable"
+              :pagination="false"
+              @sorter-change="onSorterChange"
           >
             <template #bodyCell="{ text, column, record }">
               <template v-if="column.key === 'name'">
@@ -267,14 +303,10 @@ defineExpose({
                   </template>
                 </Icon>
               </template>
+              <template v-else-if="column.key === 'mod_time'">
+                {{ formatTimestamp(text) }}
+              </template>
               <template v-else-if="column.key === 'action'">
-<!--                <Button-->
-<!--                    v-if="record.is_dir"-->
-<!--                    icon="icon-open-folder"-->
-<!--                    variant="text"-->
-<!--                    title="Connect"-->
-<!--                    @click="handleFoldList(record.full_path)"-->
-<!--                />-->
                 <Button
                     icon="icon-download"
                     variant="text"
@@ -298,17 +330,16 @@ defineExpose({
                 </Popover>
               </template>
             </template>
-          </STable>
+          </s-table>
           <STable
               style="--s-bg-color-component: transport;"
               :columns="columns"
-              :scroll="{ y: 300 }"
               :pagination="true"
               :max-height="300"
               :height="300"
               v-else
           />
-        </STableProvider>
+        </s-table-provider>
         <update_host ref="modifyHostRef"/>
       </template>
       <template #footer>
