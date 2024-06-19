@@ -10,7 +10,8 @@ import {
   Popover,
   Row
 } from "vue-devui";
-import {STable, STableColumnsType, STablePaginationConfig, STableProps, STableProvider} from "@shene/table";
+import zhCN from 'ant-design-vue/es/locale/zh_CN';
+import {Table, ConfigProvider, theme, Space, TableProps} from "ant-design-vue";
 import Update_host from "../hosts/update_host.vue";
 import {logic} from "../../../wailsjs/go/models";
 import {reactive, ref} from "vue";
@@ -32,61 +33,55 @@ const initState = () => ({
   tid: '',
   visible: false,
   tableData: <Array<logic.FileInfo>>[],
-  showTable: true,
   currentDir: ''
 })
 const state = reactive(initState())
 
-const columns: STableColumnsType<logic.FileInfo> = [
+const columns: TableProps['columns'] = [
   {
     title: '名称',
     dataIndex: 'name',
     key: 'name',
-    width: 120,
+    width: 100,
     resizable: true,
     ellipsis: true,
-    ellipsisTitle: { showTitle: false },
-    filter: {
-      component: filter,
-      props: {
-        placeholder: '输入搜索内容',
-        style: {
-          width: '160px'
-        }
-      },
-      onFilter: (value, record) => record.name.includes(value)
-    }
   },
   {
     title: '大小',
     key: 'size',
     dataIndex: 'size',
-    width: 60,
-    ellipsis: true,
-    ellipsisTitle: { showTitle: false },
-    sorter: true
+    width: 50,
+    resizable: true,
+    ellipsis: true
   },
   {
     title: '权限',
     dataIndex: 'mode',
     key: 'mode',
-    width: 50,
-    ellipsis: true,
-    ellipsisTitle: { showTitle: false }
+    width: 60,
+    resizable: true,
+    ellipsis: true
   },
   {
     title: '修改时间',
     dataIndex: 'mod_time',
     key: 'mod_time',
-    width: 90,
-    sorter: true
+    resizable: true,
+    width: 100,
+    ellipsis: true
   },
   {
     title: '操作',
+    resizable: true,
     key: 'action',
-    width: 30
+    width: 60
   }
 ]
+
+function handleResizeColumn(w:any, col:any) {
+  col.width = w;
+}
+
 function closeModel(){
   // reset reactive
   Object.assign(state, initState());
@@ -164,7 +159,6 @@ function handleUploadFold(){
   }
 }
 function handleFoldList(dst: string) {
-  state.showTable = false
   if (props.tid) {
     SftpDir(props.tid,dst).then((res:Array<logic.FileInfo>)=>{
       state.currentDir = dst;
@@ -176,8 +170,6 @@ function handleFoldList(dst: string) {
         content: e,
         duration: 3000,
       })
-    }).finally(() => {
-      state.showTable = true
     })
   }
 }
@@ -233,13 +225,6 @@ function formatTimestamp(timestamp: number): string {
 
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
-const onSorterChange: STableProps['onSorterChange'] = params => {
-  console.log('change')
-  state.showTable = false;
-  setTimeout(()=>{
-    state.showTable = true;
-  },100)
-}
 defineExpose({
   closeModel,
   openModel,
@@ -279,67 +264,68 @@ defineExpose({
         </Row>
       </template>
       <template #default>
-        <s-table-provider size="small" rowKey="file_browser">
-          <s-table
-              style="--s-bg-color-component: transport;"
+        <ConfigProvider
+            :locale="zhCN"
+            :theme="{
+              algorithm: theme.darkAlgorithm,
+              }"
+        >
+          <Table
+              :rowKey="(record:logic.FileInfo) => record.name"
+              :dataSource="state.tableData"
               :columns="columns"
-              :data-source="state.tableData"
-              :max-height="300"
-              :height="300"
-              v-if="state.showTable"
-              :pagination="false"
-              @sorter-change="onSorterChange"
+              :pagination="{ pageSize: 10 ,showSizeChanger: true}"
+              sticky
+              :scroll="{ y: '44vh' }"
+              @resizeColumn="handleResizeColumn"
           >
-            <template #bodyCell="{ text, column, record }">
+            <template #bodyCell="{ column, record }">
               <template v-if="column.key === 'name'">
                 <Icon v-if="record.is_dir" name="icon-open-folder-2" color="#3DCCA6" operable @dblclick="handleFoldList(record.full_path)">
                   <template #suffix>
-                    <span style="color: #f2f3f5;">{{ text }}</span>
+                    <span style="color: #f2f3f5;">{{ record.name }}</span>
                   </template>
                 </Icon>
-                <Icon v-else name="icon-file">
+                <Icon v-else name="icon-file" operable @dblclick="handleDownload(record.full_path)">
                   <template #suffix>
-                    <span style="color: #f2f3f5;">{{ text }}</span>
+                    <span style="color: #f2f3f5;">{{ record.name }}</span>
                   </template>
                 </Icon>
+              </template>
+              <template v-else-if="column.key === 'size'">
+                {{ record.is_dir ? '目录' : record.size }}
               </template>
               <template v-else-if="column.key === 'mod_time'">
-                {{ formatTimestamp(text) }}
+                {{ formatTimestamp(record.mod_time) }}
               </template>
               <template v-else-if="column.key === 'action'">
-                <Button
-                    icon="icon-download"
-                    variant="text"
-                    title="Connect"
-                    @click="handleDownload(record.full_path)"
-                />
-                <Popover trigger="hover">
+                <Space :size="1">
                   <Button
-                      icon="delete"
+                      icon="icon-download"
                       variant="text"
-                      title="Delete"
+                      title="Connect"
+                      @click="handleDownload(record.full_path)"
                   />
-                  <template #content>
+                  <Popover trigger="hover">
                     <Button
-                        variant="solid"
-                        color="danger"
+                        icon="delete"
+                        variant="text"
                         title="Delete"
-                        @click="handleDelete(record.full_path)"
-                    >确认</Button>
-                  </template>
-                </Popover>
+                    />
+                    <template #content>
+                      <Button
+                          variant="solid"
+                          color="danger"
+                          title="Delete"
+                          @click="handleDelete(record.full_path)"
+                      >确认</Button>
+                    </template>
+                  </Popover>
+                  </Space>
               </template>
             </template>
-          </s-table>
-          <STable
-              style="--s-bg-color-component: transport;"
-              :columns="columns"
-              :pagination="true"
-              :max-height="300"
-              :height="300"
-              v-else
-          />
-        </s-table-provider>
+          </Table>
+        </ConfigProvider>
         <update_host ref="modifyHostRef"/>
       </template>
       <template #footer>
@@ -366,5 +352,11 @@ defineExpose({
   align-items: center;
   justify-content: center;
   background-color: transparent;
+}
+/deep/.ant-table {
+  border-radius: .5rem;
+}
+/deep/.ant-table-body {
+  min-height: 44vh !important;
 }
 </style>

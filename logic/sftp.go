@@ -154,7 +154,8 @@ func (l *Logic) SftpDownload(id string, dst string) error {
 	if dstStat.IsDir() {
 		return downloadDirectory(sftpCli, dst, localDir)
 	} else {
-		return downloadFile(sftpCli, dst, localDir)
+		localFilePath := filepath.Join(localDir, path.Base(dst))
+		return downloadFile(sftpCli, dst, localFilePath)
 	}
 }
 func (l *Logic) SftpDelete(id string, dst string) error {

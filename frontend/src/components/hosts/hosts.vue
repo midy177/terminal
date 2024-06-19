@@ -10,16 +10,15 @@ import {
   Col,
   Popover,
   Icon,
-  Message, NotificationService,Tag
+  Message, NotificationService
 } from "vue-devui";
-import {STableColumnsType, STableContextmenuPopupArg, STableProps} from '@shene/table';
-import { STable,STableProvider } from '@shene/table';
 import {onMounted, PropType, reactive, ref} from "vue";
 import Add_host from "./add_host.vue";
 import {logic} from "../../../wailsjs/go/models";
 import {DelFoldOrHost, GetFoldsAndHosts} from '../../../wailsjs/go/logic/Logic';
-import filter from './filter.vue';
 import Update_host from "./update_host.vue";
+import zhCN from "ant-design-vue/es/locale/zh_CN";
+import {ConfigProvider, Space, Table, TableProps, theme} from "ant-design-vue";
 const modifyHostRef = ref();
 const props = defineProps({
   openSshTerminal: {
@@ -35,7 +34,6 @@ const initState = () => ({
   visible: false,
   tableData: <Array<logic.HostEntry>>[],
   currentDirId: 0,
-  showTable: true,
   breadcrumbSource: <Array<breadcrumbItem>>[{
     id: 0,
     name: '根'
@@ -44,7 +42,7 @@ const initState = () => ({
 
 const state = reactive(initState())
 
-const columns: STableColumnsType<logic.HostEntry> = [
+const columns: TableProps['columns'] = [
   {
     title: '名称',
     dataIndex: 'label',
@@ -52,69 +50,42 @@ const columns: STableColumnsType<logic.HostEntry> = [
     width: 120,
     resizable: true,
     ellipsis: true,
-    ellipsisTitle: { showTitle: false },
-    filter: {
-      component: filter,
-      props: {
-        placeholder: '输入搜索内容',
-        style: {
-          width: '160px'
-        }
-      },
-      onFilter: (value, record) => record.label.includes(value)
-    }
   },
   {
     title: '用户名',
     key: 'username',
     dataIndex: 'username',
-    width: 120,
+    width: 80,
     resizable: true,
     ellipsis: true,
-    ellipsisTitle: { showTitle: false },
-    filter: {
-      component: filter,
-      props: {
-        placeholder: '输入搜索内容',
-        style: {
-          width: '160px'
-        }
-      },
-      onFilter: (value, record) => record.username.includes(value)
-    }
   },
   {
     title: '主机',
     dataIndex: 'address',
     key: 'address',
-    width: 120,
+    width: 100,
     resizable: true,
     ellipsis: true,
-    ellipsisTitle: { showTitle: false },
-    filter: {
-      component: filter,
-      props: {
-        placeholder: '输入搜索内容',
-        style: {
-          width: '160px'
-        }
-      },
-      onFilter: (value, record) => record.address.includes(value)
-    }
   },
   {
     title: '端口',
     dataIndex: 'port',
     key: 'port',
-    width: 60,ellipsis: true,
-    ellipsisTitle: { showTitle: false }
+    width: 60,
+    resizable: true,
+    ellipsis: true,
   },
   {
     title: '操作',
     key: 'action',
-    width: 90
+    width: 100,
+    resizable: true,
   }
 ]
+
+function handleResizeColumn(w:any, col:any) {
+  col.width = w;
+}
 
 function closeModel(){
   // reset reactive
@@ -171,7 +142,6 @@ function handleDelete(args: logic.HostEntry) {
 }
 
 function getList(id:number) {
-  state.showTable = false
   GetFoldsAndHosts(id).then((res:logic.HostEntry[])=>{
     state.tableData = res
   }).catch(e=>{
@@ -181,15 +151,7 @@ function getList(id:number) {
       content: e,
       duration: 3000,
     })
-  }).finally(()=>{
-    state.showTable = true
   })
-}
-const onSorterChange: STableProps['onSorterChange'] = params => {
-  state.showTable = false;
-  setTimeout(()=>{
-    state.showTable = true;
-  },100)
 }
 </script>
 
@@ -232,82 +194,79 @@ const onSorterChange: STableProps['onSorterChange'] = params => {
         </Row>
     </template>
     <template #default>
-      <STableProvider size="small" rowKey="hosts">
-        <STable
-            style="--s-bg-color-component: transport;"
+      <ConfigProvider
+          :locale="zhCN"
+          :theme="{
+              algorithm: theme.darkAlgorithm,
+              }"
+      >
+        <Table
+            :rowKey="(record:logic.HostEntry) => record.label"
+            :dataSource="state.tableData"
             :columns="columns"
-            :data-source="state.tableData"
-            :max-height="300"
-            :height="300"
-            v-if="state.showTable"
-            :pagination="false"
-            @sorter-change="onSorterChange"
+            :pagination="{ pageSize: 10 ,showSizeChanger: true}"
+            sticky
+            :scroll="{ y: '44vh' }"
+            @resizeColumn="handleResizeColumn"
         >
-          <template #bodyCell="{ text, column, record }">
+          <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'label'">
-                <Icon v-if="record.is_folder" name="icon-open-folder-2" color="#3DCCA6" operable>
-                  <template #suffix>
-                    <span style="color: #f2f3f5;">{{ text }}</span>
-                  </template>
-                </Icon>
-                <Icon v-else name="icon-console">
-                  <template #suffix>
-                    <span style="color: #f2f3f5;">{{ text }}</span>
-                  </template>
-                </Icon>
+              <Icon v-if="record.is_folder" name="icon-open-folder-2" color="#3DCCA6" operable @dblclick="handleOpenFolder(record.id,record.label)">
+                <template #suffix>
+                  <span style="color: #f2f3f5;">{{ record.label }}</span>
+                </template>
+              </Icon>
+              <Icon v-else name="icon-console" operable @dblclick="handleConnect(record)">
+                <template #suffix>
+                  <span style="color: #f2f3f5;">{{ record.label }}</span>
+                </template>
+              </Icon>
             </template>
             <template v-else-if="column.key === 'port'">
-                {{record.is_folder ? '': text}}
+              {{record.is_folder ? '': record.port }}
             </template>
             <template v-else-if="column.key === 'action'">
-              <Button
-                  v-if="record.is_folder"
-                  icon="icon-open-folder"
-                  variant="text"
-                  title="Connect"
-                  @click="handleOpenFolder(record.id,record.label)"
-              />
-              <Button
-                  v-else
-                  icon="icon-connect"
-                  variant="text"
-                  title="Connect"
-                  @click="handleConnect(record)"
-              />
-              <Button
-                  icon="icon-setting"
-                  variant="text"
-                  title="Delete"
-                  @click="handleEdit(record)"
-              />
-              <Popover trigger="hover">
+              <Space :size="1">
                 <Button
-                    icon="delete"
+                    v-if="record.is_folder"
+                    icon="icon-open-folder"
                     variant="text"
-                    title="Delete"
+                    title="打开目录"
+                    @click="handleOpenFolder(record.id,record.label)"
                 />
-                <template #content>
+                <Button
+                    v-else
+                    icon="icon-connect"
+                    variant="text"
+                    title="连接ssh"
+                    @click="handleConnect(record)"
+                />
+                <Button
+                    icon="icon-setting"
+                    variant="text"
+                    title="编辑"
+                    @click="handleEdit(record)"
+                />
+                <Popover trigger="hover">
                   <Button
-                      variant="solid"
-                      color="danger"
-                      title="Delete"
-                      @click="handleDelete(record)"
-                  >确认</Button>
-                </template>
-              </Popover>
+                      icon="delete"
+                      variant="text"
+                      title="删除"
+                  />
+                  <template #content>
+                    <Button
+                        variant="solid"
+                        color="danger"
+                        title="删除"
+                        @click="handleDelete(record)"
+                    >确认</Button>
+                  </template>
+                </Popover>
+              </Space>
             </template>
           </template>
-      </STable>
-        <STable
-            style="--s-bg-color-component: transport;"
-            :columns="columns"
-            :scroll="{ y: 300 }"
-            :pagination="true"
-            :max-height="300"
-            :height="300"
-            v-else
-        />
-      </STableProvider>
+        </Table>
+      </ConfigProvider>
       <update_host ref="modifyHostRef"/>
     </template>
     <template #footer>
@@ -335,18 +294,10 @@ const onSorterChange: STableProps['onSorterChange'] = params => {
   justify-content: center;
   background-color: transparent;
 }
-.popup {
-  width: 120px;
+/deep/.ant-table {
+  border-radius: .5rem;
 }
-.popup-item {
-  cursor: pointer;
-  padding: 8px 8px 8px 20px;
-}
-.popup-item:hover {
-  background-color: #fafafa;
-}
-.popup-item.disabled {
-  color: #00000040;
-  cursor: not-allowed;
+/deep/.ant-table-body {
+  min-height: 44vh !important;
 }
 </style>
