@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 	"path"
+	"path/filepath"
 )
 
 func (l *Logic) getSftpClient(id string) (*sftp.Client, error) {
@@ -119,6 +120,7 @@ func (l *Logic) SftpUploadMultipleFiles(id string, dstDir string) error {
 		return errors.New("没有选择文件")
 	}
 	for _, f := range files {
+
 		err := uploadFile(sftpCli, f, dstDir)
 		if err != nil {
 			_, _ = runtime.MessageDialog(l.Ctx, runtime.MessageDialogOptions{
@@ -193,7 +195,7 @@ func uploadFile(sftpClient *sftp.Client, localFilePath string, remotePath string
 
 	}
 	defer srcFile.Close()
-	var remoteFileName = path.Base(localFilePath)
+	var remoteFileName = filepath.Base(localFilePath)
 	dstFile, err := sftpClient.Create(path.Join(remotePath, remoteFileName))
 	if err != nil {
 		return err
