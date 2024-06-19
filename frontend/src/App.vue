@@ -1,15 +1,17 @@
 <template>
-  <terminal-tabs ref="tabRef" style="--wails-draggable:drag" :tabs="state.tabs" v-model="state.tab" :on-close="closePty">
+  <ConfigProvider
+      :locale="zhCN"
+      :theme="{
+              algorithm: theme.darkAlgorithm,
+              }"
+  >
+  <terminal-tabs ref="tabRef" :tabs="state.tabs" v-model="state.tab" :on-close="closePty">
     <template v-slot:after>
-      <span class="header-btn-bar">
+        <Space :size="0">
         <dropdown :at-click="addLocalTab"/>
-      </span>
-      <span class="header-btn-bar">
-        <hosts :open-ssh-terminal="handleOpenSshTerminal"/>
-      </span>
-      <span class="header-btn-bar">
-        <more :file-browser="openFileBrowser"/>
-      </span>
+          <hosts :open-ssh-terminal="handleOpenSshTerminal"/>
+          <more :file-browser="openFileBrowser"/>
+        </Space>
     </template>
   </terminal-tabs>
   <div class="terminal-layout" v-if="state.tabs.length>0">
@@ -18,6 +20,7 @@
     </template>
   </div>
   <FileBrowser ref="fileBrowserRef" :tid="state.tab"></FileBrowser>
+  </ConfigProvider>
 </template>
 
 <script lang="ts" setup>
@@ -34,6 +37,9 @@ import {logic, termx} from "../wailsjs/go/models";
 import {NotificationService, LoadingService, Message} from "vue-devui";
 import More from "./components/more/more.vue";
 import FileBrowser from "./components/terminal/file_browser.vue";
+import zhCN from "ant-design-vue/es/locale/zh_CN";
+import {ConfigProvider, theme} from "ant-design-vue";
+import { Space } from "ant-design-vue";
 
 const state = reactive({
   tabs: <Array<Tab>>[],

@@ -1,8 +1,10 @@
 <script setup lang="ts">
-// import Dropdown from 'v-dropdown';
 import {onMounted, PropType, reactive} from "vue";
 import {GetLocalPtyList} from "../../../wailsjs/go/logic/Logic";
-import {Button, Dropdown, List, ListItem} from "vue-devui";
+import {Icon} from "vue-devui";
+
+import {Dropdown, Button, Menu, MenuItem
+} from "ant-design-vue";
 import {logic, termx} from "../../../wailsjs/go/models";
 const props = defineProps({
   atClick: {
@@ -29,24 +31,36 @@ function dropClick(item: termx.SystemShell) {
 </script>
 
 <template>
-  <Dropdown trigger="hover" :position="['bottom-end']">
+  <Dropdown :position="['bottom-end']">
     <Button
-        icon="icon-op-add"
-        variant="text"
-        title="AddTab"
-    />
-    <template #menu>
-      <List style="min-width: 100px;padding-bottom: 0;">
-        <ListItem
+        type="text"
+        ghost
+        size="small"
+    >
+      <template #icon>
+        <Icon name="icon-copy-to-new" color="#f2f3f5"/>
+      </template>
+    </Button>
+    <template #overlay>
+      <Menu>
+        <MenuItem
             v-for="(item,index) of state.items"
             :key="index"
-            @click="dropClick(item)">
+            @click="dropClick(item)"
+        >
+<!--          <template #icon>-->
+<!--            <Icon name="icon-folder" color="#f2f3f5" size="1rem">-->
+<!--            </Icon>-->
+<!--          </template>-->
           {{item.name}}
-        </ListItem>
-      </List>
+        </MenuItem>
+      </Menu>
     </template>
   </Dropdown>
 </template>
 
-<style lang="less">
+<style scoped lang="less">
+/deep/.devui-icon__container {
+  display: block;
+}
 </style>

@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import {
-  Button, Modal, Form, FormItem,
-  FormOperation, Input, FixedOverlay,
-  Switch, InputNumber, Select, Option,
-  Popover, Row, Col, NotificationService, Message
+  NotificationService, Message, Icon
 } from "vue-devui";
-import {onMounted, reactive} from "vue";
+import {onMounted, reactive, ref} from "vue";
 import {logic} from "../../../wailsjs/go/models";
 import {AddFoldOrHost, DelFoldOrHost, DelKey, GetFolds, GetKeyList} from "../../../wailsjs/go/logic/Logic";
 import Add_key from "../keys/add_key.vue";
+import {Modal, Form, FormItem, Space, Table,Breadcrumb,
+  BreadcrumbItem,Input,
+  Switch, InputNumber, Select, SelectOption,
+  TableProps, Row, Col,Button,Popover,
+} from "ant-design-vue";
+const formRef = ref();
 const props= defineProps({
   folder_id: {
     type: Number,
@@ -103,6 +106,15 @@ function closeModel() {
   state.visible = false;
 }
 
+function onSubmit(){
+  formRef.value.validate()
+      .then(() => {
+        addHost();
+      }).catch((e:any) => {
+        console.log('error', e);
+      });
+}
+
 function addHost(){
   AddFoldOrHost(state.formModel).then(()=>{
     NotificationService.open({
@@ -128,130 +140,113 @@ function addHost(){
 
 <template>
   <Button
-      icon="add"
-      variant="solid"
-      title="Add"
+      type="primary"
+      ghost
+      size="small"
       @click="openModel"
-  />
-  <FixedOverlay v-model="state.visible" class="hosts-fixed-overlay" :close-on-click-overlay="false">
+  >
+    <template #icon>
+      <Icon name="add" color="#f2f3f5"/>
+    </template>
+  </Button>
   <Modal
-      v-model="state.visible"
-      style="min-width: 60%;"
       title="添加主机"
-      :show-close="false"
-      :draggable="false"
-      :show-overlay="false"
-      :close-on-click-overlay="false"
+      v-model:open="state.visible"
+      width="80%"
+      centered
+      :closable="false"
+      :destroyOnClose="true"
+      :maskClosable="false"
+      @ok="onSubmit"
+      :mask="false"
+      style="--wails-draggable:drag"
   >
     <Form
         layout="horizontal"
-        :data="state.formModel"
-        label-size="sm"
-        label-align="center"
+        ref="formRef"
+        :model="state.formModel"
         :rules="rules"
-        :pop-position="['top-start','bottom-start']"
+        name="add_host"
+        :label-col="{ span: 4 }"
+        :wrapper-col="{ span: 20 }"
+        autocomplete="off"
     >
-      <FormItem field="folder_id" label="上级目录">
+      <FormItem name="folder_id" label="上级目录">
         <Select
-            v-model="state.formModel.folder_id"
+            v-model:value="state.formModel.folder_id"
             placeholder="请选择上级目录"
-        >
-          <Option
-              v-for="(item, index) in state.foldList"
-              :key="index"
-              :value="item.id"
-              :name="item.label"
-          />
-        </Select>
+            :options="state.foldList"
+            :field-names="{ label: 'label', value: 'id'}"
+        />
       </FormItem>
-      <FormItem field="label" label="标签">
-        <Input v-model="state.formModel.label" placeholder="请设置标签名"/>
+      <FormItem name="label" label="标签">
+        <Input v-model:value="state.formModel.label" placeholder="请设置标签名"/>
       </FormItem>
-      <FormItem field="is_folder" label="目录?">
-        <Switch v-model="state.formModel.is_folder">
-          <template #checkedContent>是</template>
-          <template #uncheckedContent>否</template>
-        </Switch>
+      <FormItem name="is_folder" label="目录?">
+        <Switch v-model:checked="state.formModel.is_folder" checked-children="是" un-checked-children="否"/>
       </FormItem>
       <template v-if="!state.formModel.is_folder">
-      <FormItem field="username" label="用户">
-        <Input v-model="state.formModel.username" placeholder="请输入用户名"/>
+      <FormItem name="username" label="用户">
+        <Input v-model:value="state.formModel.username" placeholder="请输入用户名"/>
       </FormItem>
-        <FormItem field="address" label="地址">
-          <Input v-model="state.formModel.address" placeholder="请输入用户名"/>
+        <FormItem name="address" label="地址">
+          <Input v-model:value="state.formModel.address" placeholder="请输入用户名"/>
         </FormItem>
-      <FormItem field="port" label="端口">
-        <InputNumber v-model="state.formModel.port" :min="0" :max="65535"/>
+      <FormItem name="port" label="端口">
+        <InputNumber id="sshPort" v-model:value="state.formModel.port" :min="0" :max="65535"/>
       </FormItem>
-      <FormItem v-if="state.useKey" field="key_id">
+      <FormItem v-if="state.useKey" name="key_id">
         <template #label>
           <Popover content="是否使用私钥?" trigger="hover" style="background-color: #7693f5; color: #fff">
-            <Switch v-model="state.useKey">
-              <template #checkedContent>是</template>
-              <template #uncheckedContent>否</template>
-            </Switch>
+            <Switch v-model:checked="state.useKey" checked-children="是" un-checked-children="否"/>
           </Popover>
         </template>
         <Row :gutter="8" style="width: 98%;">
-          <Col :span="16" style="flex: 1;">
+          <Col :span="18" style="flex: 1;">
             <Select
-                v-model="state.formModel.key_id"
+                v-model:value="state.formModel.key_id"
                 placeholder="请选择私钥"
+                allowClear
             >
 
-              <Option
+              <SelectOption
                   v-for="(item, index) in state.keyList"
                   :key="index"
                   :value="item.id"
-                  :name="item.label"
               >
-                <Popover trigger="hover" style="background-color: transparent;" :position="['right']">
-                  {{item.label}}
-                  <template #content>
-                    <Button
-                        size="sm"
-                        icon="icon-delete"
-                        variant="solid"
-                        color="danger"
+                <Row justify="space-between">
+                  <Col>{{item.label}}</Col>
+                  <Col>
+                    <Button v-if="state.formModel.key_id !== item.id"
+                        type="text"
+                        danger
+                        ghost
+                        size="small"
                         @click="delKey(<number>item.id)"
                     >
                       删除
                     </Button>
-                  </template>
-                </Popover>
-              </Option>
+                  </Col>
+                </Row>
+              </SelectOption>
             </Select>
           </Col>
-          <Col :span="6">
+          <Col :span="4">
             <add_key :on-success="getKeys"/>
           </Col>
         </Row>
       </FormItem>
-      <FormItem v-else field="password">
+      <FormItem v-else name="password">
         <template #label>
           <Popover content="是否使用私钥?" trigger="hover" style="background-color: #7693f5; color: #fff">
-            <Switch v-model="state.useKey">
-              <template #checkedContent>是</template>
-              <template #uncheckedContent>否</template>
-            </Switch>
+            <Switch v-model:checked="state.useKey" checked-children="是" un-checked-children="否"/>
           </Popover>
         </template>
         <Input v-model="state.formModel.password" show-password placeholder="请输入ssh密码"/>
       </FormItem>
       </template>
-      <FormOperation>
-        <Row justify="end" style="width: 100%;">
-          <Col :span="6">
-            <Button @click="closeModel">取消</Button>
-          </Col>
-          <Col :span="6">
-            <Button variant="solid" @click="addHost">提交</Button>
-          </Col>
-        </Row>
-      </FormOperation>
     </Form>
   </Modal>
-  </FixedOverlay>
 </template>
 
 <style scoped lang="less">

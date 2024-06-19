@@ -1,24 +1,18 @@
 <script setup lang="ts">
 import {
-  FixedOverlay,
-  Modal,
-  ModalFooter,
-  Button,
-  Breadcrumb,
-  BreadcrumbItem,
-  Row,
-  Col,
-  Popover,
   Icon,
   Message, NotificationService
 } from "vue-devui";
-import {onMounted, PropType, reactive, ref} from "vue";
+import { PropType, reactive, ref} from "vue";
 import Add_host from "./add_host.vue";
 import {logic} from "../../../wailsjs/go/models";
 import {DelFoldOrHost, GetFoldsAndHosts} from '../../../wailsjs/go/logic/Logic';
 import Update_host from "./update_host.vue";
-import zhCN from "ant-design-vue/es/locale/zh_CN";
-import {ConfigProvider, Space, Table, TableProps, theme} from "ant-design-vue";
+import {Modal, Space, Table,Breadcrumb,
+  BreadcrumbItem,
+  TableProps, Row, Col,Button,Popover,
+} from "ant-design-vue";
+
 const modifyHostRef = ref();
 const props = defineProps({
   openSshTerminal: {
@@ -78,7 +72,7 @@ const columns: TableProps['columns'] = [
   {
     title: '操作',
     key: 'action',
-    width: 100,
+    width: 80,
     resizable: true,
   }
 ]
@@ -156,22 +150,22 @@ function getList(id:number) {
 </script>
 
 <template>
-  <Button
-      icon="icon-go-tree"
-      variant="text"
-      title="Tree"
-      @click="openModel"
-  />
-  <FixedOverlay v-model="state.visible" class="hosts-fixed-overlay" :close-on-click-overlay="false">
+  <Button type="text" ghost size="small" @click="openModel">
+    <template #icon>
+      <Icon name="icon-go-tree" color="#f2f3f5"/>
+    </template>
+  </Button>
   <Modal
-      v-model="state.visible"
-      style="width: 80%;"
-      :show-close="false"
-      :draggable="false"
-      :show-overlay="false"
-      :close-on-click-overlay="false"
+      v-model:open="state.visible"
+      width="90%"
+      centered
+      :closable="false"
+      :destroyOnClose="true"
+      :maskClosable="false"
+      :mask="false"
+      style="--wails-draggable:drag"
   >
-    <template #header>
+    <template #title>
         <Row type="flex" class="header-bar">
           <Col flex="2.5rem">
             <add_host :folder_id="state.currentDirId" :callback="reRender"/>
@@ -183,7 +177,9 @@ function getList(id:number) {
                   :key="index"
               >
                 <Button
-                    variant="text"
+                    type="link"
+                    ghost
+                    size="small"
                     @click="jumperFolder(index)"
                 >
                   {{ item.name }}
@@ -193,13 +189,6 @@ function getList(id:number) {
           </Col>
         </Row>
     </template>
-    <template #default>
-      <ConfigProvider
-          :locale="zhCN"
-          :theme="{
-              algorithm: theme.darkAlgorithm,
-              }"
-      >
         <Table
             :rowKey="(record:logic.HostEntry) => record.label"
             :dataSource="state.tableData"
@@ -208,19 +197,40 @@ function getList(id:number) {
             sticky
             :scroll="{ y: '44vh' }"
             @resizeColumn="handleResizeColumn"
+            size="small"
         >
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'label'">
-              <Icon v-if="record.is_folder" name="icon-open-folder-2" color="#3DCCA6" operable @dblclick="handleOpenFolder(record.id,record.label)">
-                <template #suffix>
-                  <span style="color: #f2f3f5;">{{ record.label }}</span>
+              <Button
+                  v-if="record.is_folder"
+                  type="link"
+                  ghost
+                  size="small"
+                  @dblclick="handleOpenFolder(record.id,record.label)"
+              >
+                <template #icon>
+                  <Icon  name="icon-open-folder-2" color="#3DCCA6" >
+                    <template #suffix>
+                      <span style="color: #f2f3f5;">{{ record.label }}</span>
+                    </template>
+                  </Icon>
                 </template>
-              </Icon>
-              <Icon v-else name="icon-console" operable @dblclick="handleConnect(record)">
-                <template #suffix>
-                  <span style="color: #f2f3f5;">{{ record.label }}</span>
+              </Button>
+              <Button
+                  v-else
+                  type="link"
+                  ghost
+                  size="small"
+                  @dblclick="handleConnect(record)"
+              >
+                <template #icon>
+                  <Icon name="icon-console">
+                    <template #suffix>
+                      <span style="color: #f2f3f5;">{{ record.label }}</span>
+                    </template>
+                  </Icon>
                 </template>
-              </Icon>
+              </Button>
             </template>
             <template v-else-if="column.key === 'port'">
               {{record.is_folder ? '': record.port }}
@@ -229,35 +239,52 @@ function getList(id:number) {
               <Space :size="1">
                 <Button
                     v-if="record.is_folder"
-                    icon="icon-open-folder"
-                    variant="text"
-                    title="打开目录"
+                    type="link"
+                    ghost
+                    size="small"
                     @click="handleOpenFolder(record.id,record.label)"
-                />
+                >
+                  <template #icon>
+                    <Icon name="icon-open-folder"></Icon>
+                  </template>
+                </Button>
                 <Button
                     v-else
-                    icon="icon-connect"
-                    variant="text"
-                    title="连接ssh"
+                    type="link"
+                    ghost
+                    size="small"
                     @click="handleConnect(record)"
-                />
+                >
+                  <template #icon>
+                    <Icon name="icon-connect"></Icon>
+                  </template>
+                </Button>
                 <Button
-                    icon="icon-setting"
-                    variant="text"
-                    title="编辑"
+                    type="link"
+                    ghost
+                    size="small"
                     @click="handleEdit(record)"
-                />
-                <Popover trigger="hover">
+                >
+                  <template #icon>
+                    <Icon name="icon-edit"></Icon>
+                  </template>
+                </Button>
+                <Popover trigger="click" placement="bottomLeft">
                   <Button
-                      icon="delete"
-                      variant="text"
-                      title="删除"
-                  />
+                      type="link"
+                      ghost
+                      size="small"
+                  >
+                    <template #icon>
+                      <Icon name="delete"></Icon>
+                    </template>
+                  </Button>
                   <template #content>
                     <Button
-                        variant="solid"
-                        color="danger"
-                        title="删除"
+                        type="link"
+                        ghost
+                        size="small"
+                        danger
                         @click="handleDelete(record)"
                     >确认</Button>
                   </template>
@@ -266,22 +293,17 @@ function getList(id:number) {
             </template>
           </template>
         </Table>
-      </ConfigProvider>
-      <update_host ref="modifyHostRef"/>
-    </template>
     <template #footer>
-      <ModalFooter style="text-align: right; padding-right: .4rem;bottom: 0;">
         <Button
-            variant="solid"
-            color="secondary"
+            type="primary"
+            ghost
             @click="closeModel"
         >
           关闭
         </Button>
-      </ModalFooter>
     </template>
   </Modal>
-  </FixedOverlay>
+  <update_host ref="modifyHostRef"/>
 </template>
 
 <style scoped lang="less">
@@ -299,5 +321,8 @@ function getList(id:number) {
 }
 /deep/.ant-table-body {
   min-height: 44vh !important;
+}
+/deep/.devui-icon__container {
+  display: block;
 }
 </style>

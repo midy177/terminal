@@ -582,9 +582,9 @@ export default defineComponent({
 
 <style scoped lang="less">
 .chrome-tabs {
-  @bg: #3b3f41;
+  @bg: #303335;
   @gap: 6px;
-  @divider: #a9adb0;
+  @divider: #1f1f1f;
   @speed: 150ms;
 
   padding-top: 7px;

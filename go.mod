@@ -12,7 +12,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/pkg/sftp v1.13.6
 	github.com/trzsz/trzsz-go v1.1.7
-	github.com/wailsapp/wails/v2 v2.9.0
+	github.com/wailsapp/wails/v2 v2.9.1
 	golang.org/x/crypto v0.24.0
 	golang.org/x/sync v0.7.0
 	golang.org/x/sys v0.21.0

@@ -1,20 +1,14 @@
 <script setup lang="ts">
 import {
-  Button,
-  Col,
-  FixedOverlay,
   Icon, Message,
-  Modal,
-  ModalFooter,
   NotificationService,
-  Popover,
-  Row
 } from "vue-devui";
-import zhCN from 'ant-design-vue/es/locale/zh_CN';
-import {Table, ConfigProvider, theme, Space, TableProps} from "ant-design-vue";
+import {Modal, Space, Table,
+  TableProps, Row, Col,Button,Popover,
+} from "ant-design-vue";
 import Update_host from "../hosts/update_host.vue";
 import {logic} from "../../../wailsjs/go/models";
-import {reactive, ref} from "vue";
+import {reactive} from "vue";
 import {
   SftpDelete,
   SftpDir,
@@ -22,7 +16,7 @@ import {
   SftpUploadDirectory,
   SftpUploadMultipleFiles
 } from "../../../wailsjs/go/logic/Logic";
-import filter from "../hosts/filter.vue";
+import {ColumnType} from "ant-design-vue/es/table/interface";
 const props =defineProps({
   tid: {
     type: String,
@@ -67,18 +61,17 @@ const columns: TableProps['columns'] = [
     dataIndex: 'mod_time',
     key: 'mod_time',
     resizable: true,
-    width: 100,
+    width: 80,
     ellipsis: true
   },
   {
     title: '操作',
-    resizable: true,
     key: 'action',
-    width: 60
+    width: 40
   }
 ]
 
-function handleResizeColumn(w:any, col:any) {
+function handleResizeColumn(w:number, col:ColumnType<any>) {
   col.width = w;
 }
 
@@ -232,16 +225,18 @@ defineExpose({
 </script>
 
 <template>
-  <FixedOverlay v-model="state.visible" class="hosts-fixed-overlay" :close-on-click-overlay="false">
     <Modal
-        v-model="state.visible"
-        style="width: 80%;"
-        :show-close="false"
-        :draggable="false"
-        :show-overlay="false"
-        :close-on-click-overlay="false"
+        title="SFTP文件管理"
+        v-model:open="state.visible"
+        width="90%"
+        centered
+        :closable="false"
+        :destroyOnClose="true"
+        :maskClosable="false"
+        :mask="false"
+        style="--wails-draggable:drag"
     >
-      <template #header>
+      <template #title>
         <Row :gutter="10" class="header-bar">
           <Col :span="12">
             <Popover :content="state.currentDir" trigger="hover" style="background-color: #7693f5; color: #fff">
@@ -264,12 +259,6 @@ defineExpose({
         </Row>
       </template>
       <template #default>
-        <ConfigProvider
-            :locale="zhCN"
-            :theme="{
-              algorithm: theme.darkAlgorithm,
-              }"
-        >
           <Table
               :rowKey="(record:logic.FileInfo) => record.name"
               :dataSource="state.tableData"
@@ -278,19 +267,40 @@ defineExpose({
               sticky
               :scroll="{ y: '44vh' }"
               @resizeColumn="handleResizeColumn"
+              size="small"
           >
             <template #bodyCell="{ column, record }">
               <template v-if="column.key === 'name'">
-                <Icon v-if="record.is_dir" name="icon-open-folder-2" color="#3DCCA6" operable @dblclick="handleFoldList(record.full_path)">
-                  <template #suffix>
-                    <span style="color: #f2f3f5;">{{ record.name }}</span>
+                <Button
+                    v-if="record.is_dir"
+                    type="link"
+                    ghost
+                    size="small"
+                    @dblclick="handleFoldList(record.full_path)"
+                >
+                  <template #icon>
+                    <Icon  name="icon-open-folder-2" color="#3DCCA6" >
+                      <template #suffix>
+                        <span style="color: #f2f3f5;">{{ record.name }}</span>
+                      </template>
+                    </Icon>
                   </template>
-                </Icon>
-                <Icon v-else name="icon-file" operable @dblclick="handleDownload(record.full_path)">
-                  <template #suffix>
-                    <span style="color: #f2f3f5;">{{ record.name }}</span>
+                </Button>
+                <Button
+                    v-else
+                    type="link"
+                    ghost
+                    size="small"
+                    @dblclick="handleDownload(record.full_path)"
+                >
+                  <template #icon>
+                    <Icon name="icon-file">
+                      <template #suffix>
+                        <span style="color: #f2f3f5;">{{ record.name }}</span>
+                      </template>
+                    </Icon>
                   </template>
-                </Icon>
+                </Button>
               </template>
               <template v-else-if="column.key === 'size'">
                 {{ record.is_dir ? '目录' : record.size }}
@@ -300,36 +310,30 @@ defineExpose({
               </template>
               <template v-else-if="column.key === 'action'">
                 <Space :size="1">
-                  <Button
-                      icon="icon-download"
-                      variant="text"
-                      title="Connect"
-                      @click="handleDownload(record.full_path)"
-                  />
-                  <Popover trigger="hover">
-                    <Button
-                        icon="delete"
-                        variant="text"
-                        title="Delete"
-                    />
+                  <Button type="text" ghost size="small" @click="handleDownload(record.full_path)">
+                    <template #icon>
+                      <Icon name="icon-download" color="#f2f3f5"/>
+                    </template>
+                  </Button>
+
+                  <Popover trigger="click">
+                    <Button type="text" ghost danger size="small">
+                      <template #icon>
+                        <Icon name="delete" color="#aa1111"/>
+                      </template>
+                    </Button>
                     <template #content>
-                      <Button
-                          variant="solid"
-                          color="danger"
-                          title="Delete"
-                          @click="handleDelete(record.full_path)"
-                      >确认</Button>
+                      <Button type="text" ghost danger size="small" @click="handleDelete(record.full_path)">
+                        确认
+                      </Button>
                     </template>
                   </Popover>
                   </Space>
               </template>
             </template>
           </Table>
-        </ConfigProvider>
-        <update_host ref="modifyHostRef"/>
       </template>
       <template #footer>
-        <ModalFooter style="text-align: right; padding-right: .4rem;bottom: 0;">
           <Button
               variant="solid"
               color="secondary"
@@ -337,10 +341,9 @@ defineExpose({
           >
             关闭
           </Button>
-        </ModalFooter>
       </template>
     </Modal>
-  </FixedOverlay>
+    <update_host ref="modifyHostRef"/>
 </template>
 
 <style scoped lang="less">
@@ -358,5 +361,8 @@ defineExpose({
 }
 /deep/.ant-table-body {
   min-height: 44vh !important;
+}
+/deep/.devui-icon__container {
+  display: block;
 }
 </style>
