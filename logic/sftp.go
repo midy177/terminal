@@ -120,7 +120,6 @@ func (l *Logic) SftpUploadMultipleFiles(id string, dstDir string) error {
 		return errors.New("没有选择文件")
 	}
 	for _, f := range files {
-
 		err := uploadFile(sftpCli, f, dstDir)
 		if err != nil {
 			_, _ = runtime.MessageDialog(l.Ctx, runtime.MessageDialogOptions{
@@ -170,7 +169,7 @@ func uploadDirectory(sftpClient *sftp.Client, localPath string, remotePath strin
 	}
 
 	for _, backupDir := range localFiles {
-		localFilePath := path.Join(localPath, backupDir.Name())
+		localFilePath := filepath.Join(localPath, backupDir.Name())
 		remoteFilePath := path.Join(remotePath, backupDir.Name())
 		if backupDir.IsDir() {
 			if err := sftpClient.Mkdir(remoteFilePath); err != nil {
@@ -180,7 +179,7 @@ func uploadDirectory(sftpClient *sftp.Client, localPath string, remotePath strin
 				return err
 			}
 		} else {
-			if err := uploadFile(sftpClient, path.Join(localPath, backupDir.Name()), remotePath); err != nil {
+			if err := uploadFile(sftpClient, localFilePath, remotePath); err != nil {
 				return err
 			}
 		}
@@ -188,15 +187,14 @@ func uploadDirectory(sftpClient *sftp.Client, localPath string, remotePath strin
 	return nil
 }
 
-func uploadFile(sftpClient *sftp.Client, localFilePath string, remotePath string) error {
+func uploadFile(sftpClient *sftp.Client, localFilePath string, remoteFilePath string) error {
 	srcFile, err := os.Open(localFilePath)
 	if err != nil {
 		return err
 
 	}
 	defer srcFile.Close()
-	var remoteFileName = filepath.Base(localFilePath)
-	dstFile, err := sftpClient.Create(path.Join(remotePath, remoteFileName))
+	dstFile, err := sftpClient.Create(remoteFilePath)
 	if err != nil {
 		return err
 
@@ -214,17 +212,17 @@ func downloadDirectory(sftpClient *sftp.Client, remotePath, localPath string) er
 	}
 
 	for _, backupDir := range remoteFiles {
-		localFilePath := path.Join(localPath, backupDir.Name())
+		localFilePath := filepath.Join(localPath, backupDir.Name())
 		remoteFilePath := path.Join(remotePath, backupDir.Name())
 		if backupDir.IsDir() {
 			if err := os.Mkdir(localFilePath, os.ModeDir); err != nil {
 				return err
 			}
-			if err := downloadDirectory(sftpClient, localFilePath, remoteFilePath); err != nil {
+			if err := downloadDirectory(sftpClient, remoteFilePath, localFilePath); err != nil {
 				return err
 			}
 		} else {
-			if err := downloadFile(sftpClient, path.Join(localPath, backupDir.Name()), remotePath); err != nil {
+			if err := downloadFile(sftpClient, remoteFilePath, localFilePath); err != nil {
 				return err
 			}
 		}
@@ -232,15 +230,14 @@ func downloadDirectory(sftpClient *sftp.Client, remotePath, localPath string) er
 	return nil
 }
 
-func downloadFile(sftpClient *sftp.Client, remoteFilePath, localPath string) error {
+func downloadFile(sftpClient *sftp.Client, remoteFilePath, localFilePath string) error {
 	srcFile, err := sftpClient.Open(remoteFilePath)
 	if err != nil {
 		return err
 
 	}
 	defer srcFile.Close()
-	var localFileName = path.Base(remoteFilePath)
-	dstFile, err := os.Create(path.Join(localPath, localFileName))
+	dstFile, err := os.Create(localFilePath)
 	if err != nil {
 		return err
 
