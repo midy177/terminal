@@ -2,7 +2,6 @@ package logic
 
 import (
 	"errors"
-	"fmt"
 	"github.com/inhies/go-bytesize"
 	"github.com/pkg/sftp"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -120,12 +119,15 @@ func (l *Logic) SftpUploadMultipleFiles(id string, dstDir string) error {
 		return errors.New("没有选择文件")
 	}
 	for _, f := range files {
-		err := uploadFile(sftpCli, f, dstDir)
+		fname := filepath.Base(f)
+		remoteFilePath := path.Join(dstDir, fname)
+		err := uploadFile(sftpCli, f, remoteFilePath)
 		if err != nil {
-			_, _ = runtime.MessageDialog(l.Ctx, runtime.MessageDialogOptions{
-				Title:   "It's your turn!",
-				Message: fmt.Sprintf("上传文件失败: %s", err.Error()),
-			})
+			return err
+			//_, _ = runtime.MessageDialog(l.Ctx, runtime.MessageDialogOptions{
+			//	Title:   "It's your turn!",
+			//	Message: fmt.Sprintf("上传文件失败: %s", err.Error()),
+			//})
 		}
 	}
 	return nil
@@ -167,7 +169,6 @@ func uploadDirectory(sftpClient *sftp.Client, localPath string, remotePath strin
 	if err != nil {
 		return err
 	}
-
 	for _, backupDir := range localFiles {
 		localFilePath := filepath.Join(localPath, backupDir.Name())
 		remoteFilePath := path.Join(remotePath, backupDir.Name())
@@ -179,7 +180,7 @@ func uploadDirectory(sftpClient *sftp.Client, localPath string, remotePath strin
 				return err
 			}
 		} else {
-			if err := uploadFile(sftpClient, localFilePath, remotePath); err != nil {
+			if err := uploadFile(sftpClient, localFilePath, remoteFilePath); err != nil {
 				return err
 			}
 		}
@@ -210,7 +211,11 @@ func downloadDirectory(sftpClient *sftp.Client, remotePath, localPath string) er
 	if err != nil {
 		return err
 	}
-
+	folderName := filepath.Base(filepath.Clean(remotePath))
+	localPath = filepath.Join(localPath, folderName)
+	if err := os.Mkdir(localPath, os.ModeDir); err != nil {
+		return err
+	}
 	for _, backupDir := range remoteFiles {
 		localFilePath := filepath.Join(localPath, backupDir.Name())
 		remoteFilePath := path.Join(remotePath, backupDir.Name())
@@ -234,7 +239,6 @@ func downloadFile(sftpClient *sftp.Client, remoteFilePath, localFilePath string)
 	srcFile, err := sftpClient.Open(remoteFilePath)
 	if err != nil {
 		return err
-
 	}
 	defer srcFile.Close()
 	dstFile, err := os.Create(localFilePath)
