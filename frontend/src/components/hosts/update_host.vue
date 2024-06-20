@@ -7,7 +7,7 @@ import {logic} from "../../../wailsjs/go/models";
 import {DelKey, GetFolds, GetKeyList, UpdFoldOrHost} from "../../../wailsjs/go/logic/Logic";
 import Add_key from "../keys/add_key.vue";
 import {
-  Button, Modal,Form, FormItem, Input,
+  Button, Modal,Form, FormItem, Input, InputPassword,
   Switch, InputNumber, Select, SelectOption,
   Popover, Row, Col,
 } from "ant-design-vue";
@@ -226,7 +226,7 @@ defineExpose({
               <Switch v-model:checked="state.useKey" checked-children="是" un-checked-children="否"/>
             </Popover>
           </template>
-          <Input v-model:value="state.formModel.password" show-password placeholder="请输入ssh密码"/>
+          <InputPassword v-model:value="state.formModel.password" show-password placeholder="请输入ssh密码"/>
         </FormItem>
       </template>
     </Form>

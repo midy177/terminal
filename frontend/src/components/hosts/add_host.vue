@@ -7,10 +7,9 @@ import {logic} from "../../../wailsjs/go/models";
 import {AddFoldOrHost, DelFoldOrHost, DelKey, GetFolds, GetKeyList} from "../../../wailsjs/go/logic/Logic";
 import Add_key from "../keys/add_key.vue";
 import {
-  Modal, Form, FormItem, Space, Table, Breadcrumb,
-  BreadcrumbItem, Input,
+  Modal, Form, FormItem, InputPassword, Input,
   Switch, InputNumber, Select, SelectOption,
-  TableProps, Row, Col, Button, Popover, Tooltip,
+  Row, Col, Button, Popover, Tooltip,
 } from "ant-design-vue";
 const formRef = ref();
 const props= defineProps({
@@ -244,7 +243,7 @@ function addHost(){
             <Switch v-model:checked="state.useKey" checked-children="是" un-checked-children="否"/>
           </Popover>
         </template>
-        <Input v-model:value="state.formModel.password" show-password placeholder="请输入ssh密码"/>
+        <InputPassword  v-model:value="state.formModel.password" show-password placeholder="请输入ssh密码"/>
       </FormItem>
       </template>
     </Form>

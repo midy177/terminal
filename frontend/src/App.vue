@@ -38,8 +38,7 @@ import {NotificationService, LoadingService, Message} from "vue-devui";
 import More from "./components/more/more.vue";
 import FileBrowser from "./components/terminal/file_browser.vue";
 import zhCN from "ant-design-vue/es/locale/zh_CN";
-import {ConfigProvider, theme} from "ant-design-vue";
-import { Space } from "ant-design-vue";
+import { ConfigProvider, theme, Space } from "ant-design-vue";
 
 const state = reactive({
   tabs: <Array<Tab>>[],
