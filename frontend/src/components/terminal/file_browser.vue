@@ -84,6 +84,7 @@ function closeModel(){
 function openModel() {
   if (props.tid) {
     SftpHomeDir(props.tid).then((res: string)=>{
+      state.visible = true;
       state.currentDir = res;
       handleFoldList(state.currentDir);
     }).catch(e=>{
@@ -94,7 +95,6 @@ function openModel() {
         duration: 3000,
       })
     })
-    state.visible = true
   } else {
     Message({
       message: '当前没有打开ssh连接',
