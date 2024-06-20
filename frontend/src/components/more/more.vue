@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { NotificationService, Icon} from 'vue-devui';
-import {Dropdown, Button, Menu, MenuItem
+import {
+  Dropdown, Button, Menu, MenuItem, Tooltip
 } from "ant-design-vue";
 import {
   Quit, WindowCenter,
@@ -65,7 +66,9 @@ function toggleFull(){
         size="small"
     >
       <template #icon>
-        <Icon name="icon-drag-small" color="#f2f3f5"/>
+        <Tooltip placement="left" title="更多">
+          <Icon name="icon-drag-small" color="#f2f3f5"/>
+        </Tooltip>
       </template>
     </Button>
     <template #overlay>

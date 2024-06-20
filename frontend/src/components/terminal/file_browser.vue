@@ -3,8 +3,9 @@ import {
   Icon, Message,
   NotificationService,
 } from "vue-devui";
-import {Modal, Space, Table,
-  TableProps, Row, Col,Button,Popover,
+import {
+  Modal, Space, Table,
+  TableProps, Row, Col, Button, Popover, Tooltip,
 } from "ant-design-vue";
 import Update_host from "../hosts/update_host.vue";
 import {logic} from "../../../wailsjs/go/models";
@@ -234,13 +235,12 @@ defineExpose({
         :destroyOnClose="true"
         :maskClosable="false"
         :mask="false"
-        style="--wails-draggable:drag"
     >
       <template #title>
         <Row :gutter="10" class="header-bar">
           <Col :span="12">
             <Popover :content="state.currentDir" trigger="hover" style="background-color: #7693f5; color: #fff">
-              <Icon name="icon-folder" operable>
+              <Icon name="icon-folder">
                 <template #suffix>
                   当前路径
                 </template>
@@ -294,11 +294,13 @@ defineExpose({
                     @dblclick="handleDownload(record.full_path)"
                 >
                   <template #icon>
+                    <Tooltip placement="bottom" title="点击下载">
                     <Icon name="icon-file">
                       <template #suffix>
                         <span style="color: #f2f3f5;">{{ record.name }}</span>
                       </template>
                     </Icon>
+                    </Tooltip>
                   </template>
                 </Button>
               </template>
@@ -312,14 +314,18 @@ defineExpose({
                 <Space :size="1">
                   <Button type="text" ghost size="small" @click="handleDownload(record.full_path)">
                     <template #icon>
-                      <Icon name="icon-download" color="#f2f3f5"/>
+                      <Tooltip placement="bottom" title="点击下载">
+                        <Icon name="icon-download" color="#f2f3f5"/>
+                      </Tooltip>
                     </template>
                   </Button>
 
                   <Popover trigger="click">
                     <Button type="text" ghost danger size="small">
                       <template #icon>
-                        <Icon name="delete" color="#aa1111"/>
+                        <Tooltip placement="bottom" title="删除">
+                          <Icon name="delete" color="#aa1111"/>
+                        </Tooltip>
                       </template>
                     </Button>
                     <template #content>

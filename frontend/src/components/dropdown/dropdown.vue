@@ -3,7 +3,7 @@ import {onMounted, PropType, reactive} from "vue";
 import {GetLocalPtyList} from "../../../wailsjs/go/logic/Logic";
 import {Icon} from "vue-devui";
 
-import {Dropdown, Button, Menu, MenuItem
+import {Dropdown, Button, Menu, MenuItem, Tooltip
 } from "ant-design-vue";
 import {logic, termx} from "../../../wailsjs/go/models";
 const props = defineProps({
@@ -38,7 +38,9 @@ function dropClick(item: termx.SystemShell) {
         size="small"
     >
       <template #icon>
-        <Icon name="icon-copy-to-new" color="#f2f3f5"/>
+        <Tooltip placement="left" title="打开本地终端">
+          <Icon name="icon-copy-to-new" color="#f2f3f5"/>
+        </Tooltip>
       </template>
     </Button>
     <template #overlay>
@@ -48,10 +50,6 @@ function dropClick(item: termx.SystemShell) {
             :key="index"
             @click="dropClick(item)"
         >
-<!--          <template #icon>-->
-<!--            <Icon name="icon-folder" color="#f2f3f5" size="1rem">-->
-<!--            </Icon>-->
-<!--          </template>-->
           {{item.name}}
         </MenuItem>
       </Menu>

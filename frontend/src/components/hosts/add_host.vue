@@ -6,10 +6,11 @@ import {onMounted, reactive, ref} from "vue";
 import {logic} from "../../../wailsjs/go/models";
 import {AddFoldOrHost, DelFoldOrHost, DelKey, GetFolds, GetKeyList} from "../../../wailsjs/go/logic/Logic";
 import Add_key from "../keys/add_key.vue";
-import {Modal, Form, FormItem, Space, Table,Breadcrumb,
-  BreadcrumbItem,Input,
+import {
+  Modal, Form, FormItem, Space, Table, Breadcrumb,
+  BreadcrumbItem, Input,
   Switch, InputNumber, Select, SelectOption,
-  TableProps, Row, Col,Button,Popover,
+  TableProps, Row, Col, Button, Popover, Tooltip,
 } from "ant-design-vue";
 const formRef = ref();
 const props= defineProps({
@@ -146,7 +147,9 @@ function addHost(){
       @click="openModel"
   >
     <template #icon>
-      <Icon name="add" color="#f2f3f5"/>
+      <Tooltip placement="right" title="添加主机终端">
+        <Icon name="add" color="#f2f3f5"/>
+      </Tooltip>
     </template>
   </Button>
   <Modal
@@ -159,7 +162,6 @@ function addHost(){
       :maskClosable="false"
       @ok="onSubmit"
       :mask="false"
-      style="--wails-draggable:drag"
   >
     <Form
         layout="horizontal"

@@ -147,7 +147,6 @@ defineExpose({
       :maskClosable="false"
       @ok="onSubmit"
       :mask="false"
-      style="--wails-draggable:drag"
   >
     <Form
         layout="horizontal"

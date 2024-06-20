@@ -8,9 +8,10 @@ import Add_host from "./add_host.vue";
 import {logic} from "../../../wailsjs/go/models";
 import {DelFoldOrHost, GetFoldsAndHosts} from '../../../wailsjs/go/logic/Logic';
 import Update_host from "./update_host.vue";
-import {Modal, Space, Table,Breadcrumb,
+import {
+  Modal, Space, Table, Breadcrumb,
   BreadcrumbItem,
-  TableProps, Row, Col,Button,Popover,
+  TableProps, Row, Col, Button, Popover, Tooltip,
 } from "ant-design-vue";
 
 const modifyHostRef = ref();
@@ -152,7 +153,9 @@ function getList(id:number) {
 <template>
   <Button type="text" ghost size="small" @click="openModel">
     <template #icon>
-      <Icon name="icon-go-tree" color="#f2f3f5"/>
+      <Tooltip placement="bottom" title="SSH配置">
+        <Icon name="icon-go-tree" color="#f2f3f5"/>
+      </Tooltip>
     </template>
   </Button>
   <Modal
@@ -163,7 +166,6 @@ function getList(id:number) {
       :destroyOnClose="true"
       :maskClosable="false"
       :mask="false"
-      style="--wails-draggable:drag"
   >
     <template #title>
         <Row type="flex" class="header-bar">
@@ -224,11 +226,13 @@ function getList(id:number) {
                   @dblclick="handleConnect(record)"
               >
                 <template #icon>
+                  <Tooltip placement="bottom" title="链接ssh">
                   <Icon name="icon-console">
                     <template #suffix>
                       <span style="color: #f2f3f5;">{{ record.label }}</span>
                     </template>
                   </Icon>
+                  </Tooltip>
                 </template>
               </Button>
             </template>
@@ -245,7 +249,9 @@ function getList(id:number) {
                     @click="handleOpenFolder(record.id,record.label)"
                 >
                   <template #icon>
-                    <Icon name="icon-open-folder"></Icon>
+                    <Tooltip placement="bottom" title="打开文件夹">
+                      <Icon name="icon-open-folder"></Icon>
+                    </Tooltip>
                   </template>
                 </Button>
                 <Button
@@ -256,7 +262,9 @@ function getList(id:number) {
                     @click="handleConnect(record)"
                 >
                   <template #icon>
-                    <Icon name="icon-connect"></Icon>
+                    <Tooltip placement="bottom" title="连接ssh">
+                      <Icon name="icon-connect"></Icon>
+                    </Tooltip>
                   </template>
                 </Button>
                 <Button
@@ -266,7 +274,9 @@ function getList(id:number) {
                     @click="handleEdit(record)"
                 >
                   <template #icon>
-                    <Icon name="icon-edit"></Icon>
+                    <Tooltip placement="bottom" title="编辑">
+                      <Icon name="icon-edit"></Icon>
+                    </Tooltip>
                   </template>
                 </Button>
                 <Popover trigger="click" placement="bottomLeft">
@@ -276,7 +286,9 @@ function getList(id:number) {
                       size="small"
                   >
                     <template #icon>
-                      <Icon name="delete"></Icon>
+                      <Tooltip placement="bottom" title="删除">
+                        <Icon name="delete"></Icon>
+                      </Tooltip>
                     </template>
                   </Button>
                   <template #content>

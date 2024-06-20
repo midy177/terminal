@@ -3,10 +3,10 @@ package logic
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 	"terminal/ent"
 	"terminal/pkg/syncmapx"
 	"terminal/termx"
@@ -25,7 +25,8 @@ func NewApp() *Logic {
 		ptyMap: syncmapx.New[string, termx.PtyX](),
 	}
 	sqliteFilePath := getSqliteFilePath()
-	client, err := ent.Open("sqlite3", sqliteFilePath)
+	moveDBFile(sqliteFilePath)
+	client, err := ent.Open("sqlite3", fmt.Sprintf("%s%s", sqliteFilePath, "?cache=shared&mode=rwc&_fk=1"))
 	if err != nil {
 		log.Fatalf("failed opening connection to sqlite: %v", err)
 	}
@@ -37,31 +38,58 @@ func NewApp() *Logic {
 	return l
 }
 
-const sqliteFile = "terminal.db?cache=shared&mode=rwc&_fk=1"
+const sqliteFile = "terminal.db"
 
 func getSqliteFilePath() string {
-	if isGoRun() {
-		return sqliteFile
-	}
 	configDir, err := os.UserConfigDir()
 	if err != nil {
 		fmt.Println("Error getting user config directory:", err)
 		return sqliteFile
 	}
-	return filepath.Join(configDir, sqliteFile)
+	dbDir := filepath.Join(configDir, "console.terminal.db")
+	if _, err := os.Stat(dbDir); os.IsNotExist(err) {
+		err := os.MkdirAll(dbDir, os.ModePerm)
+		if err != nil {
+			return sqliteFile
+		}
+	}
+	return filepath.Join(dbDir, sqliteFile)
 }
 
-func isGoRun() bool {
-	// 获取可执行文件的路径
-	exePath, err := os.Executable()
+// 迁移文件
+func moveDBFile(destFile string) error {
+	// 打开源文件
+	src, err := os.Open(sqliteFile)
 	if err != nil {
-		fmt.Println("Error getting executable path:", err)
-		return false
+		return fmt.Errorf("打开源文件失败: %v", err)
 	}
-	// 获取可执行文件的目录
-	exeDir := filepath.Dir(exePath)
+	defer src.Close()
 
-	// 检查目录是否包含临时目录路径的一部分
-	tempDir := os.TempDir()
-	return strings.HasPrefix(exeDir, tempDir)
+	// 创建目标文件夹（如果不存在）
+	destDir := filepath.Dir(destFile)
+	err = os.MkdirAll(destDir, os.ModePerm)
+	if err != nil {
+		return fmt.Errorf("创建目标文件夹失败: %v", err)
+	}
+
+	// 创建目标文件
+	dest, err := os.Create(destFile)
+	if err != nil {
+		return fmt.Errorf("创建目标文件失败: %v", err)
+	}
+	defer dest.Close()
+
+	// 复制文件内容
+	_, err = io.Copy(dest, src)
+	if err != nil {
+		return fmt.Errorf("复制文件内容失败: %v", err)
+	}
+
+	// 删除源文件
+	err = os.Remove(sqliteFile)
+	if err != nil {
+		return nil
+	}
+
+	return nil
 }
