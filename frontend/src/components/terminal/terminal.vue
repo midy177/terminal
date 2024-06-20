@@ -5,20 +5,28 @@ import "./xterm.css";
 import {ComponentPublicInstance, onMounted, onUnmounted, reactive, ref, VNodeRef} from 'vue';
 import {ClosePty, ResizePty, WriteToPty} from "../../../wailsjs/go/logic/Logic";
 import {EventsOff, EventsOn} from "../../../wailsjs/runtime";
+import debounce from "../../utils";
+import useDebounce from "../../utils";
+import {Message} from "vue-devui";
 
 const props = defineProps({
   id: {
     type: String,
     required: true
   },
-  item: {
-    type: Object,
-    required: true
-  },
+  // isHidden: {
+  //   type: Boolean,
+  //   required: true
+  // },
+  // item: {
+  //   type: Object,
+  //   required: true
+  // },
 });
 const fitAddon = new FitAddon();
 const state = reactive({
   term: null as unknown as Terminal,
+  // autoResize: false
 });
 const currentRef = ref<VNodeRef | null>(null);
 // 赋值动态ref到变量
@@ -68,33 +76,29 @@ function NewTerminal(){
     emit('update:title', title);
   })
 }
+
 const emit = defineEmits(['update:title']);
+
+// const autoResize = useDebounce(fitTerminal,100)
 // Make the terminal fit all the window size
 async function fitTerminal() {
-  fitAddon.fit();
-  // Todo 从后端读取数据，通过调用func写入后端
-  ResizePty(props.id,state.term.rows,state.term.cols).then(res => {
-    if (res !== null && res !== undefined) console.log(res)
-  }).catch(e=>{
-    console.log(e);
-  })
+    fitAddon.fit();
+    // Todo 从后端读取数据，通过调用func写入后端
+    ResizePty(props.id,state.term.rows,state.term.cols).then()
 }
-
 // Write data from pty into the terminal
 function writeToTerminal(data: string | Uint8Array | ArrayBuffer | Blob) {
   toUint8Array(data).then(res=>{
     // Todo 从后端读取数据，通过调用写入xterm
     state.term.write(res);
-  }).catch(e=>console.log(e))
+  })
 }
 
 // Write data from the terminal to the pty
 function writeToPty(data: string | Uint8Array | ArrayBuffer | Blob) {
   toUint8Array(data).then(res=>{
     // Todo 通过调用func写入后端
-    WriteToPty(props.id,Array.from(res)).then().catch(e=>{
-      console.log(e);
-    })
+    WriteToPty(props.id,Array.from(res)).then()
   })
 }
 
@@ -149,19 +153,34 @@ function handleSelectToClipboardOrClipboardToTerm() {
   }
 }
 
+// function addResizeHandle() {
+//   if (!state.autoResize) addEventListener("resize", autoResize);
+//   state.autoResize = true
+//   autoResize()
+// }
+
+// function delResizeHandle() {
+//   if (state.autoResize) removeEventListener("resize", autoResize);
+//   state.autoResize = false
+// }
+
+defineExpose({
+  fitTerminal,
+  // addResizeHandle,
+  // delResizeHandle,
+})
+
 onMounted(()=>{
   initShell();
   state.term.onData(writeToPty);
   state.term.onBinary(writeToPty);
-  addEventListener("resize", fitTerminal);
+  // addEventListener("resize", fitTerminal);
   fitTerminal();
 })
 onUnmounted( () => {
-  ClosePty(props.id).then().catch(e=>{
-    console.log(e)
-  });
+  // removeEventListener("resize", fitTerminal);
+  ClosePty(props.id).then().catch();
   EventsOff(props.id);
-  removeEventListener("resize", fitTerminal);
 })
 </script>
 

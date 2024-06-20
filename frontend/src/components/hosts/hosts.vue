@@ -151,7 +151,7 @@ function getList(id:number) {
 </script>
 
 <template>
-  <Button type="text" ghost size="small" @click="openModel">
+  <Button type="text" size="small" @click="openModel">
     <template #icon>
       <Tooltip placement="bottom" title="SSH配置">
         <Icon name="icon-go-tree" color="#f2f3f5"/>
@@ -180,7 +180,6 @@ function getList(id:number) {
               >
                 <Button
                     type="link"
-                    ghost
                     size="small"
                     @click="jumperFolder(index)"
                 >
@@ -206,7 +205,6 @@ function getList(id:number) {
               <Button
                   v-if="record.is_folder"
                   type="link"
-                  ghost
                   size="small"
                   @dblclick="handleOpenFolder(record.id,record.label)"
               >
@@ -221,7 +219,6 @@ function getList(id:number) {
               <Button
                   v-else
                   type="link"
-                  ghost
                   size="small"
                   @dblclick="handleConnect(record)"
               >
@@ -244,7 +241,6 @@ function getList(id:number) {
                 <Button
                     v-if="record.is_folder"
                     type="link"
-                    ghost
                     size="small"
                     @click="handleOpenFolder(record.id,record.label)"
                 >
@@ -257,7 +253,6 @@ function getList(id:number) {
                 <Button
                     v-else
                     type="link"
-                    ghost
                     size="small"
                     @click="handleConnect(record)"
                 >
@@ -269,7 +264,6 @@ function getList(id:number) {
                 </Button>
                 <Button
                     type="link"
-                    ghost
                     size="small"
                     @click="handleEdit(record)"
                 >
@@ -282,7 +276,6 @@ function getList(id:number) {
                 <Popover trigger="click" placement="bottomLeft">
                   <Button
                       type="link"
-                      ghost
                       size="small"
                   >
                     <template #icon>
@@ -294,7 +287,6 @@ function getList(id:number) {
                   <template #content>
                     <Button
                         type="link"
-                        ghost
                         size="small"
                         danger
                         @click="handleDelete(record)"

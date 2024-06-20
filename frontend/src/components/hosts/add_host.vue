@@ -221,7 +221,6 @@ function addHost(){
                     <Button v-if="state.formModel.key_id !== item.id"
                         type="text"
                         danger
-                        ghost
                         size="small"
                         @click="delKey(<number>item.id)"
                     >

@@ -62,7 +62,6 @@ function toggleFull(){
   <Dropdown :position="['bottom-end']">
     <Button
         type="text"
-        ghost
         size="small"
     >
       <template #icon>

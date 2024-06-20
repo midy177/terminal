@@ -34,7 +34,6 @@ function dropClick(item: termx.SystemShell) {
   <Dropdown :position="['bottom-end']">
     <Button
         type="text"
-        ghost
         size="small"
     >
       <template #icon>

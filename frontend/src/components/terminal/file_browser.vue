@@ -241,7 +241,6 @@ defineExpose({
             <Popover :content="state.currentDir" trigger="hover" style="background-color: #7693f5; color: #fff">
               <Button
                   type="link"
-                  ghost
                   size="small"
               >
                 <template #icon>
@@ -257,7 +256,6 @@ defineExpose({
           <Col :span="4">
             <Button
                 type="link"
-                ghost
                 size="small"
                 @click="handleBack"
             >
@@ -273,7 +271,6 @@ defineExpose({
           <Col :span="4">
             <Button
                 type="link"
-                ghost
                 size="small"
                 @click="handleUploadFile"
             >
@@ -289,7 +286,6 @@ defineExpose({
           <Col :span="4">
             <Button
                 type="link"
-                ghost
                 size="small"
                 @click="handleUploadFold"
             >
@@ -320,7 +316,6 @@ defineExpose({
                 <Button
                     v-if="record.is_dir"
                     type="link"
-                    ghost
                     size="small"
                     @dblclick="handleFoldList(record.full_path)"
                 >
@@ -335,7 +330,6 @@ defineExpose({
                 <Button
                     v-else
                     type="link"
-                    ghost
                     size="small"
                     @dblclick="handleDownload(record.full_path)"
                 >

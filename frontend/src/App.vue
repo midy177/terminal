@@ -1,31 +1,6 @@
-<template>
-  <ConfigProvider
-      :locale="zhCN"
-      :theme="{
-              algorithm: theme.darkAlgorithm,
-              }"
-  >
-  <terminal-tabs ref="tabRef" :tabs="state.tabs" v-model="state.tab" :on-close="closePty">
-    <template v-slot:after>
-        <Space :size="0">
-        <dropdown :at-click="addLocalTab"/>
-          <hosts :open-ssh-terminal="handleOpenSshTerminal"/>
-          <more :file-browser="openFileBrowser"/>
-        </Space>
-    </template>
-  </terminal-tabs>
-  <div class="terminal-layout" v-if="state.tabs.length>0">
-    <template v-for="item in state.tabs" :key="item.key">
-      <terminal :id="item.key" :item="item" v-show="item.key === state.tab" v-model:title="item.label"/>
-    </template>
-  </div>
-  <FileBrowser ref="fileBrowserRef" :tid="state.tab"></FileBrowser>
-  </ConfigProvider>
-</template>
-
 <script lang="ts" setup>
 import TerminalTabs, {Tab} from "./components/tabs/chrome-tabs.vue";
-import { reactive, ref } from 'vue';
+import {ComponentPublicInstance, onMounted, onUnmounted, reactive, ref, watch} from 'vue';
 import Terminal from "./components/terminal/terminal.vue";
 import {nanoid} from "nanoid";
 const tabRef = ref();
@@ -39,11 +14,13 @@ import More from "./components/more/more.vue";
 import FileBrowser from "./components/terminal/file_browser.vue";
 import zhCN from "ant-design-vue/es/locale/zh_CN";
 import { ConfigProvider, theme, Space } from "ant-design-vue";
+import {EventsOff} from "../wailsjs/runtime";
 
 const state = reactive({
   tabs: <Array<Tab>>[],
   tab: '',
-  loading: <any>null
+  loading: <any>null,
+  termRefMap: new Map<string, Element | ComponentPublicInstance | null>()
 })
 
 function addLocalTab(data: termx.SystemShell) {
@@ -53,7 +30,6 @@ function addLocalTab(data: termx.SystemShell) {
   let key = nanoid()
   data.id = key
   CreateLocalPty(data).then(()=>{
-    // closeLoading()
     let newTab = {
       label: data.name,
       key: key,
@@ -61,7 +37,6 @@ function addLocalTab(data: termx.SystemShell) {
     tabRef.value.addTab(newTab)
     state.tab = key
   }).catch(e=>{
-    // closeLoading()
     NotificationService.open({
       type: 'error',
       title: '创建本地终端失败',
@@ -77,7 +52,6 @@ function handleOpenSshTerminal(id:number,label:string){
   })
   let tid = nanoid()
   CreateSshPty(tid,id,70,40).then(()=>{
-    // closeLoading()
     let newTab = {
       label: label,
       key: tid,
@@ -85,7 +59,6 @@ function handleOpenSshTerminal(id:number,label:string){
     tabRef.value.addTab(newTab)
     state.tab = tid
   }).catch(e=>{
-    // closeLoading()
     NotificationService.open({
       type: 'error',
       title: '创建ssh连接失败',
@@ -95,9 +68,9 @@ function handleOpenSshTerminal(id:number,label:string){
   }).finally(closeLoading)
 }
 function openFileBrowser(){
-if (fileBrowserRef.value) {
-  fileBrowserRef.value.openModel()
-}
+  if (fileBrowserRef.value) {
+    fileBrowserRef.value.openModel()
+  }
 }
 function closeLoading() {
   setTimeout(()=>{
@@ -108,9 +81,85 @@ function closeLoading() {
 function closePty(tab: Tab,key: string,i: number){
   ClosePty(key).then().catch(e=>{
     console.log(e)
+  }).finally(()=>{
+    EventsOff(key);
+    state.termRefMap.delete(key);
   });
 }
+function setTerminalRef(tabKey: string,el: Element | ComponentPublicInstance | null) {
+  if (el) {
+    state.termRefMap.set(tabKey,el);
+  }
+}
+
+function resizeTerminal(newKey: string) {
+  let newRef = state.termRefMap.get(newKey)
+  if (newRef) {
+    (newRef as InstanceType<typeof Terminal>).fitTerminal()
+  }
+}
+
+function resizeHandle() {
+  let currTermRef = state.termRefMap.get(state.tab)
+  if (currTermRef) {
+    (currTermRef as InstanceType<typeof Terminal>).fitTerminal()
+  }
+}
+
+onMounted(()=>{
+  addEventListener("resize", resizeHandle);
+})
+onUnmounted(()=>{
+  removeEventListener("resize", resizeHandle);
+})
+
+watch(
+    () => state.tab,
+    (newVal, oldVal) => {
+      setTimeout(() => resizeTerminal(newVal),200)
+      // resizeTerminal(newVal)
+    },
+    // {immediate: true}
+);
+
+const shouldShowTerminal = (key: string) => {
+  return key === state.tab
+};
 </script>
+<template>
+  <ConfigProvider
+      :locale="zhCN"
+      :theme="{
+              algorithm: theme.darkAlgorithm,
+              }"
+  >
+  <terminal-tabs
+      ref="tabRef"
+      :tabs="state.tabs"
+      v-model="state.tab"
+      :on-close="closePty"
+  >
+    <template v-slot:after>
+        <Space :size="1">
+        <dropdown :at-click="addLocalTab"/>
+          <hosts :open-ssh-terminal="handleOpenSshTerminal"/>
+          <more :file-browser="openFileBrowser"/>
+        </Space>
+    </template>
+  </terminal-tabs>
+  <div class="terminal-layout" v-if="state.tabs.length>0">
+    <template v-for="item in state.tabs" :key="item.key">
+      <terminal
+          :id="item.key"
+          v-show="shouldShowTerminal(item.key)"
+          v-model:title="item.label"
+          :ref="(el: Element | ComponentPublicInstance | null)=> setTerminalRef(item.key,el)"
+      />
+    </template>
+  </div>
+  <FileBrowser ref="fileBrowserRef" :tid="state.tab"></FileBrowser>
+  </ConfigProvider>
+</template>
 
 <style lang="less">
 input[type=search]::-webkit-search-cancel-button{
