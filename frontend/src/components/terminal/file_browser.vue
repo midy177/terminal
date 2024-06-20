@@ -227,7 +227,6 @@ defineExpose({
 
 <template>
     <Modal
-        title="SFTP文件管理"
         v-model:open="state.visible"
         width="90%"
         centered
@@ -240,21 +239,68 @@ defineExpose({
         <Row :gutter="10" class="header-bar">
           <Col :span="12">
             <Popover :content="state.currentDir" trigger="hover" style="background-color: #7693f5; color: #fff">
-              <Icon name="icon-folder">
-                <template #suffix>
-                  当前路径
+              <Button
+                  type="link"
+                  ghost
+                  size="small"
+              >
+                <template #icon>
+                  <Icon  name="icon-folder" color="#3DCCA6" >
+                    <template #suffix>
+                      <span style="color: #f2f3f5;">当前路径</span>
+                    </template>
+                  </Icon>
                 </template>
-              </Icon>
+              </Button>
             </Popover>
           </Col>
           <Col :span="4">
-            <Button icon="icon-go-back" @click="handleBack">上一级</Button>
+            <Button
+                type="link"
+                ghost
+                size="small"
+                @click="handleBack"
+            >
+              <template #icon>
+                <Icon  name="icon-go-back" color="#3DCCA6" >
+                  <template #suffix>
+                    <span style="color: #f2f3f5;">上一级</span>
+                  </template>
+                </Icon>
+              </template>
+            </Button>
           </Col>
           <Col :span="4">
-            <Button icon="icon-upload" @click="handleUploadFile">多文件</Button>
+            <Button
+                type="link"
+                ghost
+                size="small"
+                @click="handleUploadFile"
+            >
+              <template #icon>
+                <Icon name="icon-upload" color="#3DCCA6">
+                  <template #suffix>
+                    <span style="color: #f2f3f5;">多文件</span>
+                  </template>
+                </Icon>
+              </template>
+            </Button>
           </Col>
           <Col :span="4">
-            <Button icon="icon-upload" @click="handleUploadFold">文件夹</Button>
+            <Button
+                type="link"
+                ghost
+                size="small"
+                @click="handleUploadFold"
+            >
+              <template #icon>
+                <Icon  name="icon-upload" color="#3DCCA6" >
+                  <template #suffix>
+                    <span style="color: #f2f3f5;">文件夹</span>
+                  </template>
+                </Icon>
+              </template>
+            </Button>
           </Col>
         </Row>
       </template>
