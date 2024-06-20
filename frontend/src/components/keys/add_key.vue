@@ -77,7 +77,7 @@ function submitData() {
           :pop-position="['top-start','bottom-start']"
       >
         <FormItem field="label" label="标签">
-          <Input v-model="state.formModel.label" placeholder="请设置标签名"/>
+          <Input v-model:value="state.formModel.label" placeholder="请设置标签名"/>
         </FormItem>
         <FormItem field="content" label="私钥">
           <Textarea v-model="state.formModel.content" placeholder="请输入私钥"/>

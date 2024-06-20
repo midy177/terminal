@@ -244,7 +244,7 @@ function addHost(){
             <Switch v-model:checked="state.useKey" checked-children="是" un-checked-children="否"/>
           </Popover>
         </template>
-        <Input v-model="state.formModel.password" show-password placeholder="请输入ssh密码"/>
+        <Input v-model:value="state.formModel.password" show-password placeholder="请输入ssh密码"/>
       </FormItem>
       </template>
     </Form>
