@@ -9,14 +9,18 @@
     /*background: #e0e1e3;*/
     display: flex;
     flex-direction: column;
-    .devui-fixed-overlay {
-        border-radius: .5rem;
-    }
+    /*.devui-fixed-overlay {*/
+    /*    border-radius: .5rem;*/
+    /*}*/
+    --wails-draggable:drag;
 }
 body {
     margin: 0;
     font-family: Arial, sans-serif;
     overflow: hidden;
     background: transparent;
-    --wails-draggable:drag;
+}
+html {
+    height: 100%;
+    overflow: hidden;
 }

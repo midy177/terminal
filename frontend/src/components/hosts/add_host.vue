@@ -71,7 +71,7 @@ function openModel() {
 }
 function getKeys() {
   GetKeyList(false).then((res: Array<logic.KeyEntry>)=>{
-    if (res.length>0) {
+    if (res) {
       state.keyList = res;
     }
   }).catch(e=>{

@@ -79,7 +79,7 @@ function NewTerminal(){
 
 const emit = defineEmits(['update:title']);
 
-// const autoResize = useDebounce(fitTerminal,100)
+const autoResize = useDebounce(fitTerminal,100)
 // Make the terminal fit all the window size
 async function fitTerminal() {
     fitAddon.fit();
@@ -166,8 +166,7 @@ function handleSelectToClipboardOrClipboardToTerm() {
 
 defineExpose({
   fitTerminal,
-  // addResizeHandle,
-  // delResizeHandle,
+  autoResize
 })
 
 onMounted(()=>{

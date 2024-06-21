@@ -13,7 +13,7 @@ import {NotificationService, LoadingService, Message} from "vue-devui";
 import More from "./components/more/more.vue";
 import FileBrowser from "./components/terminal/file_browser.vue";
 import zhCN from "ant-design-vue/es/locale/zh_CN";
-import { ConfigProvider, theme, Space } from "ant-design-vue";
+import { ConfigProvider, theme, Space, Layout, LayoutHeader, LayoutContent } from "ant-design-vue";
 import {EventsOff} from "../wailsjs/runtime";
 
 const state = reactive({
@@ -95,14 +95,14 @@ function setTerminalRef(tabKey: string,el: Element | ComponentPublicInstance | n
 function resizeTerminal(newKey: string) {
   let newRef = state.termRefMap.get(newKey)
   if (newRef) {
-    (newRef as InstanceType<typeof Terminal>).fitTerminal()
+    (newRef as InstanceType<typeof Terminal>).autoResize()
   }
 }
 
 function resizeHandle() {
   let currTermRef = state.termRefMap.get(state.tab)
   if (currTermRef) {
-    (currTermRef as InstanceType<typeof Terminal>).fitTerminal()
+    (currTermRef as InstanceType<typeof Terminal>).autoResize()
   }
 }
 
@@ -147,46 +147,21 @@ const shouldShowTerminal = (key: string) => {
         </Space>
     </template>
   </terminal-tabs>
-  <div class="terminal-layout" v-if="state.tabs.length>0">
-    <template v-for="item in state.tabs" :key="item.key">
-      <terminal
-          :id="item.key"
-          v-show="shouldShowTerminal(item.key)"
-          v-model:title="item.label"
-          :ref="(el: Element | ComponentPublicInstance | null)=> setTerminalRef(item.key,el)"
-      />
-    </template>
-  </div>
+      <LayoutContent
+          v-show="state.tabs.length>0"
+          style="padding-top: .2rem;padding-left: .2rem;padding-bottom: .2rem;background-color: #1A1B1E;height: 100%;width: 100%;"
+      >
+          <terminal
+              v-for="item in state.tabs" :key="item.key"
+              :id="item.key"
+              v-show="shouldShowTerminal(item.key)"
+              v-model:title="item.label"
+              :ref="(el: Element | ComponentPublicInstance | null)=> setTerminalRef(item.key,el)"
+          />
+      </LayoutContent>
   <FileBrowser ref="fileBrowserRef" :tid="state.tab"></FileBrowser>
   </ConfigProvider>
 </template>
 
 <style lang="less">
-input[type=search]::-webkit-search-cancel-button{
-  -webkit-appearance: none;
-}
-
-.header-btn-bar {
-  width: 34px;
-  border-radius: 5px;
-  padding: 0;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: background 300ms;
-  height: 34px;
-  line-height: 34px;
-  &:hover {
-    background-color: rgba(0, 0, 0, .1);
-  }
-}
-.terminal-layout {
-  padding-right: .3rem;
-  padding-left: .3rem;
-  background-color: #1A1B1E;
-  height: 100%;
-  width: 100%;
-  flex: 1;
-}
 </style>

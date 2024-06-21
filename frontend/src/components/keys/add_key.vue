@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import {Button, Modal, Form, FormItem,
-  FormOperation, Input, FixedOverlay,
-  Textarea, Row,Col,NotificationService} from "vue-devui";
-import { onUnmounted, reactive} from "vue";
+import {NotificationService} from "vue-devui";
+import {onUnmounted, reactive, ref} from "vue";
 import {logic} from "../../../wailsjs/go/models";
 import {AddKey} from "../../../wailsjs/go/logic/Logic";
+import {
+  Modal, Input, Button, FormItem, Textarea, Form,
+} from "ant-design-vue";
+
+const formRef = ref();
 const props = defineProps({
   onSuccess: {
     type: Function
@@ -51,6 +54,15 @@ function submitData() {
     })
   })
 }
+
+function onSubmit(){
+  formRef.value.validate()
+      .then(() => {
+        submitData();
+      }).catch((e:any) => {
+    console.log('error', e);
+  });
+}
 </script>
 
 <template>
@@ -58,43 +70,35 @@ function submitData() {
       variant="solid"
       @click="openModel"
   >添加私钥</Button>
-  <FixedOverlay v-model="state.visible" class="hosts-fixed-overlay" :close-on-click-overlay="false">
     <Modal
-        v-model="state.visible"
-        style="min-width: 60%;"
         title="添加私钥"
-        :show-close="false"
-        :draggable="false"
-        :show-overlay="false"
-        :close-on-click-overlay="false"
+        v-model:open="state.visible"
+        width="80%"
+        centered
+        :closable="false"
+        :destroyOnClose="true"
+        :maskClosable="false"
+        @ok="onSubmit"
+        :mask="false"
     >
       <Form
           layout="horizontal"
-          :data="state.formModel"
-          label-size="sm"
-          label-align="center"
+          ref="formRef"
+          :model="state.formModel"
           :rules="rules"
-          :pop-position="['top-start','bottom-start']"
+          name="add_host"
+          :label-col="{ span: 4 }"
+          :wrapper-col="{ span: 20 }"
+          autocomplete="off"
       >
-        <FormItem field="label" label="标签">
+        <FormItem name="label" label="标签">
           <Input v-model:value="state.formModel.label" placeholder="请设置标签名"/>
         </FormItem>
-        <FormItem field="content" label="私钥">
-          <Textarea v-model="state.formModel.content" placeholder="请输入私钥"/>
+        <FormItem name="content" label="私钥">
+          <Textarea v-model:value="state.formModel.content" :rows="4" placeholder="请输入私钥"/>
         </FormItem>
-        <FormOperation>
-          <Row justify="end" style="width: 100%;">
-            <Col :span="6">
-              <Button @click="closeModel">取消</Button>
-            </Col>
-            <Col :span="6">
-              <Button variant="solid" @click="submitData">提交</Button>
-            </Col>
-          </Row>
-        </FormOperation>
       </Form>
     </Modal>
-  </FixedOverlay>
 </template>
 
 <style scoped lang="less">
