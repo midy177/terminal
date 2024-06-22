@@ -130,13 +130,13 @@ function addHost(){
       @click="openModel"
   >
     <template #icon>
-      <Tooltip placement="right" title="添加主机终端">
+      <Tooltip placement="right" title="添加">
         <Icon name="add" color="#f2f3f5"/>
       </Tooltip>
     </template>
   </Button>
   <Modal
-      title="添加主机"
+      title="添加"
       v-model:open="state.visible"
       width="80%"
       centered

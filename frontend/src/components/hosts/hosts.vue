@@ -9,8 +9,8 @@ import {
   Modal, Space, Table, Breadcrumb,
   BreadcrumbItem,
   TableProps, Row, Col, Button, Popover, Tooltip, message, notification,
-} from "ant-design-vue";
-
+} from 'ant-design-vue';
+import { HomeFilled } from '@ant-design/icons-vue';
 const modifyHostRef = ref();
 const props = defineProps({
   openSshTerminal: {
@@ -28,7 +28,7 @@ const initState = () => ({
   currentDirId: 0,
   breadcrumbSource: <Array<breadcrumbItem>>[{
     id: 0,
-    name: '根'
+    name: 'Home'
   }]
 })
 
@@ -172,13 +172,12 @@ function getList(id:number) {
                   v-for="(item,index) in state.breadcrumbSource"
                   :key="index"
               >
-                <Button
-                    type="link"
-                    size="small"
-                    @click="jumperFolder(index)"
-                >
+                <template v-if="item.id === 0">
+                  <HomeFilled @click="jumperFolder(index)"/>
+                </template>
+                <template v-else>
                   {{ item.name }}
-                </Button>
+                </template>
               </BreadcrumbItem>
           </Breadcrumb>
           </Col>

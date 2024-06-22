@@ -16,5 +16,10 @@
   "author": {
     "name": "",
     "email": ""
+  },
+  "build": {
+    "mac": {
+      "icon": "./icons/AppIcon.appiconset"
+    }
   }
 }
