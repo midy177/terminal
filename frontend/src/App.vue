@@ -7,7 +7,7 @@ const tabRef = ref();
 const fileBrowserRef = ref();
 const  terminalLayoutRef = ref();
 import Dropdown  from "./components/dropdown/dropdown.vue";
-import {ClosePty, CreateLocalPty, CreateSshPty} from "../wailsjs/go/logic/Logic";
+import {ClosePty, CreateLocalPty, CreateSshPty, ResizePty} from "../wailsjs/go/logic/Logic";
 import Hosts from "./components/hosts/hosts.vue";
 import {termx} from "../wailsjs/go/models";
 import More from "./components/more/more.vue";
@@ -47,7 +47,6 @@ function addLocalTab(data: termx.SystemShell) {
 function handleOpenSshTerminal(id:number,label:string){
   const hide = message.loading('连接到ssh服务器中...', 0);
   let tid = nanoid()
-  console.log(tid)
   CreateSshPty(tid, id,22,60).then((e)=>{
     let newTab = {
       label: label,

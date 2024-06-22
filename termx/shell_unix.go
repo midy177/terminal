@@ -33,12 +33,12 @@ func supportLogin() bool {
 		_ = tty.Close()
 	}()
 	var buf = make([]byte, 1024)
-	read, err := tty.Read(buf)
+	_, err = tty.Read(buf)
 	if err != nil {
 		fmt.Println("not support use 'login -f " + user + "' to start pty,err: " + err.Error())
 		return false
 	}
-	fmt.Println("support use 'login -f " + user + "' to start pty,stdout: " + string(buf[:read]))
+	//fmt.Println("support use 'login -f " + user + "' to start pty,stdout: " + string(buf[:read]))
 	return true
 }
 
@@ -51,7 +51,7 @@ func getShortHostname() string {
 	}
 	// 将输出转换为字符串并去除可能存在的空白字符
 	hostname := strings.TrimSpace(string(output))
-	fmt.Println("Short hostname:", hostname)
+	//fmt.Println("Short hostname:", hostname)
 	return hostname
 }
 
@@ -92,7 +92,7 @@ func getShells() {
 			if strings.HasPrefix(line, "#") {
 				continue
 			}
-			fmt.Println(line)
+			//fmt.Println(line)
 			parts := strings.Split(line, "/")
 			if len(parts) > 0 {
 				lastPart := parts[len(parts)-1]
