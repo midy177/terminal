@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"log"
 	"terminal/termx"
@@ -52,6 +53,13 @@ func (l *Logic) CreateSshPty(tid string, id, rows, cols int) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println(one.Username,
+		one.Password,
+		one.Address,
+		one.Port,
+		pKey,
+		rows,
+		cols)
 	l.ptyMap.Store(tid, term)
 	return l.eventEmitLoop(tid)
 }

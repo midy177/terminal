@@ -47,7 +47,8 @@ function addLocalTab(data: termx.SystemShell) {
 function handleOpenSshTerminal(id:number,label:string){
   const hide = message.loading('连接到ssh服务器中...', 0);
   let tid = nanoid()
-  CreateSshPty(tid,id,70,40).then(()=>{
+  console.log(tid)
+  CreateSshPty(tid, id,22,60).then((e)=>{
     let newTab = {
       label: label,
       key: tid,

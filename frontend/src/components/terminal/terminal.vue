@@ -68,6 +68,19 @@ function NewTerminal(){
 
 const emit = defineEmits(['update:title']);
 
+interface ColsRows {
+  cols: number,
+  rows: number
+}
+
+function getColsRows() {
+  fitWithHeightWidth()
+  return <ColsRows>{
+    cols: state.term.cols,
+    rows :state.term.rows
+  }
+}
+
 function fitWithHeightWidth() {
   if (!currentRef.value) return;
   const xtermElement = currentRef.value;
@@ -88,7 +101,7 @@ function fitWithHeightWidth() {
 function fitTerminal() {
     fitAddon.fit();
     // Todo 从后端读取数据，通过调用func写入后端
-    ResizePty(props.id,state.term.rows,state.term.cols).then()
+    ResizePty(props.id,state.term.rows,state.term.cols).then();
 }
 // Write data from pty into the terminal
 function writeToTerminal(data: string | Uint8Array | ArrayBuffer | Blob) {
@@ -163,7 +176,7 @@ function handleSelectToClipboardOrClipboardToTerm() {
 
 defineExpose({
   fitWithHeightWidth,
-  // fitTerminal,
+  getColsRows,
 })
 
 

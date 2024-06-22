@@ -25,7 +25,7 @@ func NewApp() *Logic {
 		ptyMap: syncmapx.New[string, termx.PtyX](),
 	}
 	sqliteFilePath := getSqliteFilePath()
-	moveDBFile(sqliteFilePath)
+	//moveDBFile(sqliteFilePath)
 	client, err := ent.Open("sqlite3", fmt.Sprintf("%s%s", sqliteFilePath, "?cache=shared&mode=rwc&_fk=1"))
 	if err != nil {
 		log.Fatalf("failed opening connection to sqlite: %v", err)
