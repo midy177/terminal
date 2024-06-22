@@ -32,21 +32,7 @@ func init() {
 	// hostsDescAddress is the schema descriptor for address field.
 	hostsDescAddress := hostsFields[2].Descriptor()
 	// hosts.AddressValidator is a validator for the "address" field. It is called by the builders before save.
-	hosts.AddressValidator = func() func(string) error {
-		validators := hostsDescAddress.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(address string) error {
-			for _, fn := range fns {
-				if err := fn(address); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	hosts.AddressValidator = hostsDescAddress.Validators[0].(func(string) error)
 	// hostsDescPort is the schema descriptor for port field.
 	hostsDescPort := hostsFields[3].Descriptor()
 	// hosts.DefaultPort holds the default value on creation for the port field.

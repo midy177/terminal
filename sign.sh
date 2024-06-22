@@ -1,4 +1,5 @@
 #!/bin/sh
+wails build
 #  Script.sh
 #  sign
 path=$(cd "$(dirname "$0")";pwd)

@@ -6,8 +6,6 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"errors"
-	"net"
 )
 
 // Hosts holds the schema definition for the Host entity.
@@ -28,12 +26,6 @@ func (Hosts) Fields() []ent.Field {
 		field.String("address").
 			NotEmpty().
 			Unique().
-			Validate(func(s string) error {
-				if net.ParseIP(s) == nil {
-					return errors.New("IP地址不合法")
-				}
-				return nil
-			}).
 			Comment("地址"),
 		field.Uint("port").
 			Default(22).
