@@ -40,36 +40,13 @@ func main() {
 		},
 		Windows: &windows.Options{
 			WebviewIsTransparent:              true,
-			WindowIsTranslucent:               false,
+			WindowIsTranslucent:               true,
 			BackdropType:                      windows.Mica,
 			DisableWindowIcon:                 false,
 			DisableFramelessWindowDecorations: false,
 			WebviewUserDataPath:               "",
 			WebviewBrowserPath:                "",
-			Theme:                             windows.SystemDefault,
-			//CustomTheme: &windows.ThemeSettings{
-			//	// Theme to use when window is active
-			//	DarkModeTitleBar:   windows.RGB(255, 0, 0), // Red
-			//	DarkModeTitleText:  windows.RGB(0, 255, 0), // Green
-			//	DarkModeBorder:     windows.RGB(0, 0, 255), // Blue
-			//	LightModeTitleBar:  windows.RGB(200, 200, 200),
-			//	LightModeTitleText: windows.RGB(20, 20, 20),
-			//	LightModeBorder:    windows.RGB(200, 200, 200),
-			//	// Theme to use when window is inactive
-			//	DarkModeTitleBarInactive:   windows.RGB(128, 0, 0),
-			//	DarkModeTitleTextInactive:  windows.RGB(0, 128, 0),
-			//	DarkModeBorderInactive:     windows.RGB(0, 0, 128),
-			//	LightModeTitleBarInactive:  windows.RGB(100, 100, 100),
-			//	LightModeTitleTextInactive: windows.RGB(10, 10, 10),
-			//	LightModeBorderInactive:    windows.RGB(100, 100, 100),
-			//},
-			// User messages that can be customised
-			//Messages *windows.Messages
-			// OnSuspend is called when Windows enters low power mode
-			//OnSuspend func()
-			// OnResume is called when Windows resumes from low power mode
-			//OnResume func(),
-			//WebviewGpuDisabled: false,
+			Theme:                             windows.Dark,
 		},
 		Mac: &mac.Options{
 			TitleBar: &mac.TitleBar{
@@ -82,7 +59,7 @@ func main() {
 			},
 			Appearance:           mac.NSAppearanceNameDarkAqua,
 			WebviewIsTransparent: true,
-			WindowIsTranslucent:  false,
+			WindowIsTranslucent:  true,
 			About: &mac.AboutInfo{
 				Title:   "Terminal Console",
 				Message: "© 2024 Wuly",
@@ -91,7 +68,7 @@ func main() {
 		},
 		Linux: &linux.Options{
 			//Icon: icon,
-			WindowIsTranslucent: false,
+			WindowIsTranslucent: true,
 			WebviewGpuPolicy:    linux.WebviewGpuPolicyAlways,
 			ProgramName:         "terminal-console",
 		},
