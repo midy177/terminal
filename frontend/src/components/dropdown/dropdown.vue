@@ -37,9 +37,7 @@ function dropClick(item: termx.SystemShell) {
         size="small"
     >
       <template #icon>
-        <Tooltip placement="left" title="打开本地终端">
-          <Icon name="icon-copy-to-new" color="#f2f3f5"/>
-        </Tooltip>
+        <Icon name="icon-copy-to-new" color="#f2f3f5"/>
       </template>
     </Button>
     <template #overlay>

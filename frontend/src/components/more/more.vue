@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { NotificationService, Icon} from 'vue-devui';
+import { Icon } from 'vue-devui';
 import {
-  Dropdown, Button, Menu, MenuItem, Tooltip
+  Dropdown, Button, Menu, MenuItem, Tooltip, notification
 } from "ant-design-vue";
 import {
   Quit, WindowCenter,
@@ -27,12 +27,11 @@ function toggleMin(){
       WindowMinimise()
     }
   }).catch(e=>{
-    NotificationService.open({
-      type: 'error',
-      title: '获取窗口是否最小化失败',
-      content: e,
-      duration: 3000,
-    })
+    notification.error({
+      message: '获取窗口是否最小化失败',
+      description: '错误信息：'+ e,
+      duration: null
+    });
   })
 }
 
@@ -48,12 +47,11 @@ function toggleFull(){
       WindowFullscreen()
     }
   }).catch(e=>{
-    NotificationService.open({
-      type: 'error',
-      title: '获取窗口是否全屏失败',
-      content: e,
-      duration: 3000,
-    })
+    notification.error({
+      message: '获取窗口是否全屏失败',
+      description: '错误信息：'+ e,
+      duration: null
+    });
   })
 }
 </script>
@@ -65,9 +63,7 @@ function toggleFull(){
         size="small"
     >
       <template #icon>
-        <Tooltip placement="left" title="更多">
           <Icon name="icon-drag-small" color="#f2f3f5"/>
-        </Tooltip>
       </template>
     </Button>
     <template #overlay>

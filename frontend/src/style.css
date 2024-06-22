@@ -2,16 +2,12 @@
     /*这里只需要设置高度100%就行，宽度不知道为啥自适应了*/
     width: 100vw;
     height: 100vh;
-    overflow: hidden;
-    border-radius: .5rem;
     box-shadow: 0 0 20px rgba(184, 184, 184, 0.01);
     background: #303335;
-    /*background: #e0e1e3;*/
     display: flex;
     flex-direction: column;
-    /*.devui-fixed-overlay {*/
-    /*    border-radius: .5rem;*/
-    /*}*/
+    overflow: hidden;
+    border-radius: .5rem;
     --wails-draggable:drag;
 }
 body {
@@ -19,6 +15,7 @@ body {
     font-family: Arial, sans-serif;
     overflow: hidden;
     background: transparent;
+    border-radius: .5rem;
 }
 html {
     height: 100%;

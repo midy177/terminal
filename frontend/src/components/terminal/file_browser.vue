@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import {
-  Icon, Message,
-  NotificationService,
+  Icon
 } from "vue-devui";
 import {
   Modal, Space, Table,
-  TableProps, Row, Col, Button, Popover, Tooltip,
+  TableProps, Row, Col, Button, Popover, Tooltip, message, notification,
 } from "ant-design-vue";
 import Update_host from "../hosts/update_host.vue";
 import {logic} from "../../../wailsjs/go/models";
@@ -88,19 +87,14 @@ function openModel() {
       state.currentDir = res;
       handleFoldList(state.currentDir);
     }).catch(e=>{
-      NotificationService.open({
-        type: 'error',
-        title: '获取Home路径失败',
-        content: e,
-        duration: 3000,
-      })
+      notification.error({
+        message: '获取Home路径失败',
+        description: e,
+        duration: null
+      });
     })
   } else {
-    Message({
-      message: '当前没有打开ssh连接',
-      type: 'warning',
-      bordered: false,
-    });
+    message.warning('当前没有打开ssh连接',1);
   }
 }
 
@@ -115,40 +109,36 @@ function handleBack() {
 function handleUploadFile(){
   if (props.tid) {
     SftpUploadMultipleFiles(props.tid,state.currentDir).then(()=>{
-      NotificationService.open({
-        type: 'success',
-        title: '上传文件成功',
-        content: '目的路径'+state.currentDir,
-        duration: 3000,
-      })
+      notification.success({
+        message: '文件上传成功',
+        description: '目标路径'+state.currentDir,
+        duration: 3
+      });
       handleFoldList(state.currentDir);
     }).catch(e=>{
-      NotificationService.open({
-        type: 'error',
-        title: '上传文件失败，目的路径：'+state.currentDir,
-        content: e,
-        duration: 3000,
-      })
+      notification.error({
+        message: '文件上传失败',
+        description: '目标路径：'+state.currentDir+'错误信息：'+ e,
+        duration: null
+      });
     })
   }
 }
 function handleUploadFold(){
   if (props.tid) {
     SftpUploadDirectory(props.tid,state.currentDir).then(()=>{
-      NotificationService.open({
-        type: 'success',
-        title: '上传文件夹成功',
-        content: '目的路径'+state.currentDir,
-        duration: 3000,
-      })
+      notification.success({
+        message: '文件夹上传成功',
+        description: '目标路径'+state.currentDir,
+        duration: 3
+      });
       handleFoldList(state.currentDir);
     }).catch(e=>{
-      NotificationService.open({
-        type: 'error',
-        title: '上传文件夹：'+state.currentDir,
-        content: e,
-        duration: 3000,
-      })
+      notification.error({
+        message: '文件夹上传失败',
+        description: '目标路径：'+state.currentDir+'错误信息：'+ e,
+        duration: null
+      });
     })
   }
 }
@@ -158,51 +148,46 @@ function handleFoldList(dst: string) {
       state.currentDir = dst;
       state.tableData = res;
     }).catch(e=>{
-      NotificationService.open({
-        type: 'error',
-        title: '获取目录失败：'+dst,
-        content: e,
-        duration: 3000,
-      })
+      notification.error({
+        message: '目录获取失败',
+        description: '目标路径：' + dst + '错误信息：'+ e,
+        duration: null
+      });
     })
   }
 }
 function handleDownload(dst: string) {
   if (props.tid) {
     SftpDownload(props.tid, dst).then(()=>{
-      NotificationService.open({
-        type: 'success',
-        title: '下载成功',
-        content: dst,
-        duration: 3000,
-      })
+      notification.success({
+        message: '下载成功',
+        description: '远端路径信息：' + dst,
+        duration: 3
+      });
     }).catch(e=>{
-      NotificationService.open({
-        type: 'error',
-        title: '下载失败：'+dst,
-        content: e,
-        duration: 3000,
-      })
+      notification.error({
+        message: '下载失败',
+        description: '远端路径信息：' + dst + ' 错误信息：'+ e,
+        duration: null
+      });
     })
   }
 }
 function handleDelete(dst: string){
   if (props.tid) {
     SftpDelete(props.tid,dst).then(()=>{
-      NotificationService.open({
-        type: 'success',
-        title: '删除成功',
-        content: dst,
-        duration: 3000,
-      })
+      notification.success({
+        message: '删除成功',
+        description: '远端路径信息：' + dst,
+        duration: 3
+      });
       handleFoldList(state.currentDir);
     }).catch(e=>{
-      NotificationService.open({
-        type: 'error',
-        title: '删除失败：'+dst,
-        content: e,
-        duration: 3000,
-      })
+      notification.error({
+        message: '删除失败',
+        description: '远端路径信息：' + dst,
+        duration: null
+      });
     })
   }
 }

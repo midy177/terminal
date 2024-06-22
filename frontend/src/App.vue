@@ -1,32 +1,31 @@
 <script lang="ts" setup>
 import TerminalTabs, {Tab} from "./components/tabs/chrome-tabs.vue";
-import {ComponentPublicInstance, onMounted, onUnmounted, reactive, ref, watch} from 'vue';
+import {ComponentPublicInstance, nextTick, onMounted, onUnmounted, reactive, ref, watch} from 'vue';
 import Terminal from "./components/terminal/terminal.vue";
 import {nanoid} from "nanoid";
 const tabRef = ref();
 const fileBrowserRef = ref();
+const  terminalLayoutRef = ref();
 import Dropdown  from "./components/dropdown/dropdown.vue";
 import {ClosePty, CreateLocalPty, CreateSshPty} from "../wailsjs/go/logic/Logic";
 import Hosts from "./components/hosts/hosts.vue";
-import {logic, termx} from "../wailsjs/go/models";
-import {NotificationService, LoadingService, Message} from "vue-devui";
+import {termx} from "../wailsjs/go/models";
 import More from "./components/more/more.vue";
 import FileBrowser from "./components/terminal/file_browser.vue";
 import zhCN from "ant-design-vue/es/locale/zh_CN";
-import { ConfigProvider, theme, Space, Layout, LayoutHeader, LayoutContent } from "ant-design-vue";
+import {ConfigProvider, theme, Space, Spin, notification, message} from "ant-design-vue";
 import {EventsOff} from "../wailsjs/runtime";
 
 const state = reactive({
   tabs: <Array<Tab>>[],
   tab: '',
-  loading: <any>null,
-  termRefMap: new Map<string, Element | ComponentPublicInstance | null>()
+  termRefMap: new Map<string, Element | ComponentPublicInstance | null>(),
+  resizeObserver: <ResizeObserver | null>null,
+  tickTimer: <number | null>null,
 })
 
 function addLocalTab(data: termx.SystemShell) {
-  state.loading = LoadingService.open({
-    message: '打开本地终端中...',
-  })
+  const hide = message.loading('打开本地终端中...', 0);
   let key = nanoid()
   data.id = key
   CreateLocalPty(data).then(()=>{
@@ -37,19 +36,16 @@ function addLocalTab(data: termx.SystemShell) {
     tabRef.value.addTab(newTab)
     state.tab = key
   }).catch(e=>{
-    NotificationService.open({
-      type: 'error',
-      title: '创建本地终端失败',
-      content: e,
-      duration: 5000,
+    notification.error({
+      message: '创建本地终端失败',
+      description: e,
+      duration: null
     })
-  }).finally(closeLoading)
+  }).finally(hide)
 }
 
 function handleOpenSshTerminal(id:number,label:string){
-  state.loading = LoadingService.open({
-    message: '连接到ssh服务器中...',
-  })
+  const hide = message.loading('连接到ssh服务器中...', 0);
   let tid = nanoid()
   CreateSshPty(tid,id,70,40).then(()=>{
     let newTab = {
@@ -59,32 +55,23 @@ function handleOpenSshTerminal(id:number,label:string){
     tabRef.value.addTab(newTab)
     state.tab = tid
   }).catch(e=>{
-    NotificationService.open({
-      type: 'error',
-      title: '创建ssh连接失败',
-      content: e,
-      duration: 5000,
+    notification.error({
+      message: '创建ssh连接失败',
+      description: e,
+      duration: null
     })
-  }).finally(closeLoading)
+  }).finally(hide)
 }
 function openFileBrowser(){
   if (fileBrowserRef.value) {
     fileBrowserRef.value.openModel()
   }
 }
-function closeLoading() {
-  setTimeout(()=>{
-    state.loading?.loadingInstance?.close()
-    state.loading = null
-  },10)
-}
+
 function closePty(tab: Tab,key: string,i: number){
-  ClosePty(key).then().catch(e=>{
-    console.log(e)
-  }).finally(()=>{
-    EventsOff(key);
-    state.termRefMap.delete(key);
-  });
+  ClosePty(key).then().catch();
+  EventsOff(key);
+  state.termRefMap.delete(key);
 }
 function setTerminalRef(tabKey: string,el: Element | ComponentPublicInstance | null) {
   if (el) {
@@ -95,29 +82,60 @@ function setTerminalRef(tabKey: string,el: Element | ComponentPublicInstance | n
 function resizeTerminal(newKey: string) {
   let newRef = state.termRefMap.get(newKey)
   if (newRef) {
-    (newRef as InstanceType<typeof Terminal>).autoResize()
+    (newRef as InstanceType<typeof Terminal>).fitTerminal()
   }
 }
 
 function resizeHandle() {
   let currTermRef = state.termRefMap.get(state.tab)
   if (currTermRef) {
-    (currTermRef as InstanceType<typeof Terminal>).autoResize()
+    (currTermRef as InstanceType<typeof Terminal>).fitWithHeightWidth()
   }
 }
 
+function eventResize() {
+  if (state.tickTimer) clearTimeout(state.tickTimer);
+  state.tickTimer = setTimeout(() => {
+    const resizeBox = terminalLayoutRef.value;
+    if (!resizeBox) return;
+    // console.log('layout',resizeBox.clientWidth,resizeBox.clientHeight)
+    // 计算行和列数
+    resizeHandle()
+  }, 100) as unknown as number; // TypeScript 类型断言
+}
+
+function addEvents() {
+  removeEvents();
+  const resizeBox = terminalLayoutRef.value;
+  if (!resizeBox) return;
+  // addEventListener('resize',eventResize)
+  state.resizeObserver = new ResizeObserver(eventResize);
+  state.resizeObserver.observe(resizeBox);
+}
+
+function removeEvents() {
+  // removeEventListener('resize',eventResize)
+  const resizeBox = terminalLayoutRef.value;
+  if (resizeBox && state.resizeObserver) {
+    state.resizeObserver.unobserve(resizeBox);
+  }
+  if (state.tickTimer) clearTimeout(state.tickTimer);
+}
+
 onMounted(()=>{
-  addEventListener("resize", resizeHandle);
+  nextTick(()=>{
+    message.config({top: '40%'});
+    addEvents();
+  })
 })
 onUnmounted(()=>{
-  removeEventListener("resize", resizeHandle);
+  removeEvents();
 })
 
 watch(
     () => state.tab,
     (newVal, oldVal) => {
-      setTimeout(() => resizeTerminal(newVal),200)
-      // resizeTerminal(newVal)
+      eventResize();
     },
     // {immediate: true}
 );
@@ -147,21 +165,67 @@ const shouldShowTerminal = (key: string) => {
         </Space>
     </template>
   </terminal-tabs>
-      <LayoutContent
-          v-show="state.tabs.length>0"
-          style="padding-top: .2rem;padding-left: .2rem;padding-bottom: .2rem;background-color: #1A1B1E;height: 100%;width: 100%;"
-      >
+      <div ref="terminalLayoutRef" class="terminal-layout">
+        <TransitionGroup name="fade">
           <terminal
-              v-for="item in state.tabs" :key="item.key"
+              v-for="item in state.tabs"
+              :key="item.key"
               :id="item.key"
               v-show="shouldShowTerminal(item.key)"
               v-model:title="item.label"
               :ref="(el: Element | ComponentPublicInstance | null)=> setTerminalRef(item.key,el)"
           />
-      </LayoutContent>
+        </TransitionGroup>
+      </div>
   <FileBrowser ref="fileBrowserRef" :tid="state.tab"></FileBrowser>
   </ConfigProvider>
 </template>
 
 <style lang="less">
+input[type=search]::-webkit-search-cancel-button{
+  -webkit-appearance: none;
+}
+
+.header-btn-bar {
+  width: 34px;
+  border-radius: 5px;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background 300ms;
+  height: 34px;
+  line-height: 34px;
+  &:hover {
+    background-color: rgba(0, 0, 0, .1);
+  }
+}
+.terminal-layout {
+  background-color: transparent;
+  height: 100%;
+  width: 100%;
+  max-height: 100%;
+  max-width: 100%;
+  display: flex;
+  flex: 1;
+  overflow: hidden; /* 防止子元素内容撑开 */
+  justify-content: center; /* 水平居中对齐内容 */
+  align-items: center; /* 垂直居中对齐内容 */
+}
+
+.fade-box {
+  padding: 10px;
+  margin: 5px 0;
+  background-color: lightblue;
+  transition: opacity 0.5s ease; /* 过渡效果设置 */
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease; /* 过渡效果设置 */
+}
+
+.fade-enter, .fade-leave-to {
+  opacity: 0; /* 初始和结束状态的透明度 */
+}
 </style>

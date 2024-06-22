@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import {
-  Icon,
-  Message, NotificationService
-} from "vue-devui";
+import { Icon } from "vue-devui";
 import { PropType, reactive, ref} from "vue";
 import Add_host from "./add_host.vue";
 import {logic} from "../../../wailsjs/go/models";
@@ -11,7 +8,7 @@ import Update_host from "./update_host.vue";
 import {
   Modal, Space, Table, Breadcrumb,
   BreadcrumbItem,
-  TableProps, Row, Col, Button, Popover, Tooltip,
+  TableProps, Row, Col, Button, Popover, Tooltip, message, notification,
 } from "ant-design-vue";
 
 const modifyHostRef = ref();
@@ -73,7 +70,7 @@ const columns: TableProps['columns'] = [
   {
     title: '操作',
     key: 'action',
-    width: 80,
+    width: 60,
     resizable: true,
   }
 ]
@@ -123,16 +120,14 @@ function handleEdit(args: logic.HostEntry) {
 }
 function handleDelete(args: logic.HostEntry) {
   DelFoldOrHost(args.id,args.is_folder).then(()=>{
-    Message({
-      message: '成功删除',
-      type: 'success'
-    })
-    reRender()
+    message.success('成功删除',1)
+    reRender();
   }).catch(e=>{
-    Message({
-      message: e,
-      type: 'error'
-    })
+    notification.error({
+      message: '删除失败',
+      description: e,
+      duration: null
+    });
   })
 }
 
@@ -140,12 +135,11 @@ function getList(id:number) {
   GetFoldsAndHosts(id).then((res:logic.HostEntry[])=>{
     state.tableData = res
   }).catch(e=>{
-    NotificationService.open({
-      type: 'error',
-      title: '获取主机和目录列表失败',
-      content: e,
-      duration: 3000,
-    })
+    notification.error({
+      message: '获取主机和目录列表失败',
+      description: e,
+      duration: null
+    });
   })
 }
 </script>
@@ -257,7 +251,7 @@ function getList(id:number) {
                     @click="handleConnect(record)"
                 >
                   <template #icon>
-                    <Tooltip placement="bottom" title="连接ssh">
+                    <Tooltip placement="right" title="连接ssh">
                       <Icon name="icon-connect"></Icon>
                     </Tooltip>
                   </template>
@@ -268,18 +262,18 @@ function getList(id:number) {
                     @click="handleEdit(record)"
                 >
                   <template #icon>
-                    <Tooltip placement="bottom" title="编辑">
+                    <Tooltip placement="right" title="编辑">
                       <Icon name="icon-edit"></Icon>
                     </Tooltip>
                   </template>
                 </Button>
-                <Popover trigger="click" placement="bottomLeft">
+                <Popover trigger="click" placement="topLeft">
                   <Button
                       type="link"
                       size="small"
                   >
                     <template #icon>
-                      <Tooltip placement="bottom" title="删除">
+                      <Tooltip placement="right" title="删除">
                         <Icon name="delete"></Icon>
                       </Tooltip>
                     </template>

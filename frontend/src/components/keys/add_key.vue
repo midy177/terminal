@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import {NotificationService} from "vue-devui";
 import {onUnmounted, reactive, ref} from "vue";
 import {logic} from "../../../wailsjs/go/models";
 import {AddKey} from "../../../wailsjs/go/logic/Logic";
 import {
-  Modal, Input, Button, FormItem, Textarea, Form,
+  Modal, Input, Button, FormItem, Textarea, Form, message, notification,
 } from "ant-design-vue";
 
 const formRef = ref();
@@ -25,7 +24,7 @@ const initState = () => ({
 const state = reactive(initState())
 
 const rules = {
-  label: [{ required: true, min: 3, max: 16, message: '标签需要不小于3个字符，不大于16个字符', trigger: 'blur' }],
+  label: [{ required: true, min: 1, max: 64, message: '标签需要不小于3个字符，不大于16个字符', trigger: 'blur' }],
   content: [{ required: true, message: '私钥信息不能为空', trigger: 'blur' }],
 };
 function openModel() {
@@ -39,19 +38,14 @@ function closeModel() {
 }
 function submitData() {
   AddKey(state.formModel).then(()=>{
-    NotificationService.open({
-      type: 'success',
-      title: '添加私钥成功',
-      duration: 1000,
-    })
+    message.success('添加私钥成功',1)
     closeModel()
   }).catch(e=>{
-    NotificationService.open({
-      type: 'error',
-      title: '添加私钥失败',
-      content: e,
-      duration: 1000,
-    })
+    notification.error({
+      message: '添加私钥失败',
+      description: e,
+      duration: null
+    });
   })
 }
 
@@ -59,9 +53,7 @@ function onSubmit(){
   formRef.value.validate()
       .then(() => {
         submitData();
-      }).catch((e:any) => {
-    console.log('error', e);
-  });
+      });
 }
 </script>
 

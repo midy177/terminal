@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { PropType, ref, watch } from 'vue'
-import {Input} from "vue-devui";
+import { Input } from 'ant-design-vue';
 const props = defineProps({
   value: String,
   onChange: Function as PropType<(value: string) => void>

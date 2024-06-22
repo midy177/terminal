@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import {
-  NotificationService, Message, Icon
-} from "vue-devui";
+import { Icon } from "vue-devui";
 import {onMounted, reactive, ref} from "vue";
 import {logic} from "../../../wailsjs/go/models";
 import {AddFoldOrHost, DelFoldOrHost, DelKey, GetFolds, GetKeyList} from "../../../wailsjs/go/logic/Logic";
@@ -9,7 +7,7 @@ import Add_key from "../keys/add_key.vue";
 import {
   Modal, Form, FormItem, InputPassword, Input,
   Switch, InputNumber, Select, SelectOption,
-  Row, Col, Button, Popover, Tooltip,
+  Row, Col, Button, Popover, Tooltip, notification, message,
 } from "ant-design-vue";
 const formRef = ref();
 const props= defineProps({
@@ -42,11 +40,11 @@ const initState = () => ({
 const state = reactive(initState())
 
 const rules = {
-  label: [{ required: true, min: 3, max: 26, message: '用户名需不小于3个字符，不大于6个字符', trigger: 'blur' }],
+  label: [{ required: true, min: 1, max: 64, message: '用户名需不小于3个字符，不大于6个字符', trigger: 'blur' }],
   username: [{ required: true, message: '用户信息不能为空', trigger: 'blur' }],
-  address: [{ required: true, message: '用户信息不能为空', trigger: 'blur' }],
+  address: [{ required: true, message: '地址不能为空', trigger: 'blur' }],
   port: [{ required: true, message: '端口必须填写', trigger: 'blur' }],
-  password: [{ required: false, message: '必须填写密码', trigger: 'blur' }],
+  password: [{ required: false, message: '请填写密码', trigger: 'blur' }],
   key_id: [{ required: true, message: '请选择私钥', trigger: 'blur' }],
 };
 
@@ -60,12 +58,11 @@ function openModel() {
   GetFolds().then(res=>{
     state.foldList = res
   }).catch(e=>{
-    NotificationService.open({
-      type: 'error',
-      title: '获取目录列表失败',
-      content: e,
-      duration: 1000,
-    })
+    notification.error({
+      message: '获取目录列表失败',
+      description: e,
+      duration: null
+    });
   })
   state.visible = true
 }
@@ -75,28 +72,23 @@ function getKeys() {
       state.keyList = res;
     }
   }).catch(e=>{
-    NotificationService.open({
-      type: 'error',
-      title: '获取主机列表失败',
-      content: e,
-      duration: 1000,
+    notification.error({
+      message: '获取主机列表失败',
+      description: e,
+      duration: null
     })
   })
 }
 
 function delKey(id:number) {
   DelKey(id).then(()=>{
-    Message({
-      message: '成功删除私钥',
-      type: 'success'
-    })
-    getKeys()
+    message.success('成功删除私钥',1);
+    getKeys();
   }).catch(e=>{
-    NotificationService.open({
-      type: 'error',
-      title: '删除私钥失败',
-      content: e,
-      duration: 3000,
+    notification.error({
+      message: '删除私钥失败',
+      description: e,
+      duration: null
     })
   })
 }
@@ -110,32 +102,24 @@ function onSubmit(){
   formRef.value.validate()
       .then(() => {
         addHost();
-      }).catch((e:any) => {
-        console.log('error', e);
       });
 }
 
 function addHost(){
   AddFoldOrHost(state.formModel).then(()=>{
-    NotificationService.open({
-      type: 'success',
-      title: '添加主机或目录成功',
-      duration: 1000,
-    })
-    closeModel()
+    message.success('添加主机或目录成功',1)
+    closeModel();
     if (props.callback) {
       props.callback()
     }
   }).catch(e=>{
-    NotificationService.open({
-      type: 'error',
-      title: '添加主机或目录失败',
-      content: e,
-      duration: 3000,
+    notification.error({
+      message: '添加主机或目录失败',
+      description: e,
+      duration: null
     })
   })
 }
-
 </script>
 
 <template>
