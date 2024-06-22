@@ -1,5 +1,5 @@
 #!/bin/sh
-wails build
+wails build clearn
 #  Script.sh
 #  sign
 path=$(cd "$(dirname "$0")";pwd)
@@ -13,6 +13,7 @@ if [[ $is_sign  = "y" ]]; then
 fi
 
 cd build/bin
+rm terminal_setup.dmg
 create-dmg --volname terminal \
            --window-pos 200 120 \
            --window-size 800 400 \
