@@ -2,7 +2,7 @@
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import "./xterm.css";
-import {ComponentPublicInstance, nextTick, onBeforeUnmount, onMounted, onUnmounted, reactive, ref, VNodeRef} from 'vue';
+import {ComponentPublicInstance, nextTick, onMounted, onUnmounted, reactive, ref, VNodeRef} from 'vue';
 import {ClosePty, ResizePty, WriteToPty} from "../../../wailsjs/go/logic/Logic";
 import {EventsOff, EventsOn} from "../../../wailsjs/runtime";
 
@@ -74,12 +74,12 @@ function fitWithHeightWidth() {
   const xtermRect = xtermElement.getBoundingClientRect();
   const xtermHelperElement = xtermElement.querySelector('.xterm-helper-textarea');
   if (!xtermHelperElement) return;
-  // console.log('xtermRect',xtermRect)
   const helperRect = xtermHelperElement.getBoundingClientRect();
-  // console.log('helperRect',helperRect)
-  const rows = Math.floor((xtermRect.height - 8) / helperRect.height);
-  const cols = Math.floor((xtermRect.width - 4) / helperRect.width);
-  // console.log(rows,cols)
+  const rows = Math.floor((xtermRect.height - 8) / Math.round(helperRect.height));
+  const cols = Math.floor((xtermRect.width - 8) / Math.round(helperRect.width));
+  if (!Number.isFinite(rows) || !Number.isFinite(cols)){
+    return;
+  }
   state.term.resize(cols, rows);
   ResizePty(props.id,rows,cols).then();
 }
@@ -163,7 +163,7 @@ function handleSelectToClipboardOrClipboardToTerm() {
 
 defineExpose({
   fitWithHeightWidth,
-  fitTerminal,
+  // fitTerminal,
 })
 
 
@@ -198,9 +198,7 @@ onUnmounted( () => {
   max-width: 100%;
 }
 /deep/ .terminal {
-  padding-top: 4px;
-  padding-left: 4px;
-  padding-bottom: 4px;
+  padding: 4px;
   height: 100%;
   width: 100%;
   max-height: 100%;

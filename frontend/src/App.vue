@@ -82,7 +82,7 @@ function setTerminalRef(tabKey: string,el: Element | ComponentPublicInstance | n
 function resizeTerminal(newKey: string) {
   let newRef = state.termRefMap.get(newKey)
   if (newRef) {
-    (newRef as InstanceType<typeof Terminal>).fitTerminal()
+    (newRef as InstanceType<typeof Terminal>).fitWithHeightWidth()
   }
 }
 
