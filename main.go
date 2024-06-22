@@ -40,7 +40,7 @@ func main() {
 		},
 		Windows: &windows.Options{
 			WebviewIsTransparent:              true,
-			WindowIsTranslucent:               true,
+			WindowIsTranslucent:               false,
 			BackdropType:                      windows.Mica,
 			DisableWindowIcon:                 false,
 			DisableFramelessWindowDecorations: false,
@@ -59,7 +59,7 @@ func main() {
 			},
 			Appearance:           mac.NSAppearanceNameDarkAqua,
 			WebviewIsTransparent: true,
-			WindowIsTranslucent:  true,
+			WindowIsTranslucent:  false,
 			About: &mac.AboutInfo{
 				Title:   "Terminal Console",
 				Message: "© 2024 Wuly",

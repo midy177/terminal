@@ -40,6 +40,7 @@ function NewTerminal(){
     allowTransparency: true,
     allowProposedApi: true,
     overviewRulerWidth: 8,
+    scrollback: 10000
   });
   state.term.loadAddon(fitAddon);
   state.term.open(currentRef.value);

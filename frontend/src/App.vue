@@ -158,8 +158,13 @@ const shouldShowTerminal = (key: string) => {
       :on-close="closePty"
   >
     <template v-slot:after>
-        <Space :size="1">
+      <Space :size="1">
         <dropdown :at-click="addLocalTab"/>
+      </Space>
+    </template>
+    <template v-slot:end>
+        <Space :size="1">
+<!--        <dropdown :at-click="addLocalTab"/>-->
           <hosts :open-ssh-terminal="handleOpenSshTerminal"/>
           <more :file-browser="openFileBrowser"/>
         </Space>

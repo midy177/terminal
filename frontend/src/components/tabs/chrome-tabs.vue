@@ -38,10 +38,17 @@
         </div>
       </div>
       <span
-        class="tabs-after"
-        :ref="setAfterRef"
+          class="tabs-after"
+          :ref="setAfterRef"
+          :style="{ left: (tabWidth - gap * 2) * tabs.length + gap * 2 + 'px' }"
       >
         <slot name="after"/>
+      </span>
+      <span
+        class="tabs-end"
+        :ref="setEndRef"
+      >
+        <slot name="end"/>
       </span>
     </div>
   </div>
@@ -171,9 +178,10 @@ export default defineComponent({
     const calcTabWidth = () => {
       const { tabs, minWidth, maxWidth, gap } = props
       const { $content } = $refs
+      const endWidth = $refs.$end?.getBoundingClientRect().width || 0
       const afterWidth = $refs.$after?.getBoundingClientRect().width || 0
       if (!$content) return Math.max(maxWidth, minWidth)
-      const contentWidth: number = $content.clientWidth - gap * 3 - afterWidth
+      const contentWidth: number = $content.clientWidth - gap * 4 - endWidth - afterWidth - 1
       let width: number = contentWidth / tabs.length
       width += gap * 2
       if (width > maxWidth) width = maxWidth
@@ -551,6 +559,16 @@ export default defineComponent({
       }
     }
 
+    /**
+     * 添加末尾元素 dom 节点
+     * @param el 在 tab 后面的元素
+     */
+    const setEndRef = (el: Element | ComponentPublicInstance | null) => {
+      if (el) {
+        $refs.$end = el as Element
+      }
+    }
+
     onMounted(() => {
       calcTabWidth()
       init()
@@ -566,6 +584,7 @@ export default defineComponent({
       setTabRef,
       setContentRef,
       setAfterRef,
+      setEndRef,
       tabWidth,
       handleDelete,
       handleContextMenu,
@@ -583,14 +602,15 @@ export default defineComponent({
 <style scoped lang="less">
 .chrome-tabs {
   @bg: #303335;
-  @gap: 6px;
+  @gap: 7px;
   @divider: #1f1f1f;
   @speed: 150ms;
 
   padding-top: 7px;
   background-color: @bg;
   position: relative;
-  color: rgba(255, 255, 255, 0.76);
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: bold;
 
   .tabs-content {
     height: 34px;
@@ -615,7 +635,7 @@ export default defineComponent({
     align-items: center;
     user-select: none;
     box-sizing: border-box;
-    // transition: width @speed;
+    transition: width @speed;
     position: absolute;
 
     &:hover {
@@ -626,13 +646,14 @@ export default defineComponent({
       }
 
       .tabs-background-content {
-        background-color: #1A1B1E;
-        //background-color: #f2f3f5;
+        //background-color: #1A1B1E;
+        background-color: #202225;
       }
 
       .tabs-background-before,
       .tabs-background-after {
-        fill: #1A1B1E;
+        //fill: #1A1B1E;
+        fill: #202225;
       }
     }
 
@@ -804,11 +825,11 @@ export default defineComponent({
   }
 
   .tabs-background-before {
-    left: -3px;
+    left: -2px;
   }
 
   .tabs-background-after {
-    right: -3px;
+    right: -2px;
   }
 
   .tabs-footer {
@@ -817,7 +838,15 @@ export default defineComponent({
   }
 
   .tabs-after {
-    right: .6rem;
+    top: 50%;
+    display: flex;
+    position: absolute;
+    overflow: hidden;
+    transform: translateY(-50%);
+  }
+
+  .tabs-end {
+    right: 14px;
     top: 50%;
     display: flex;
     position: absolute;
