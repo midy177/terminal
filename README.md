@@ -2,18 +2,19 @@
 
 ## About
 
-This is the official Wails Vue-TS template.
+This is a lightweight terminal implemented with Go Wails.
 
-You can configure the project by editing `wails.json`. More information about the project settings can be found
-here: https://wails.io/docs/reference/project-config
-
-## Live Development
-
-To run in live development mode, run `wails dev` in the project directory. This will run a Vite development
-server that will provide very fast hot reload of your frontend changes. If you want to develop in a browser
-and have access to your Go methods, there is also a dev server that runs on http://localhost:34115. Connect
-to this in your browser, and you can call your Go code from devtools.
 
 ## Building
 
 To build a redistributable, production mode package, use `wails build`.
+
+# Screenshot
+![home](screenshot/home.png "home")
+![open_local_pty](screenshot/open_local_pty.png "open_local_pty")
+![terminal](screenshot/terminal.png "terminal")
+![file_manager](screenshot/file_manager.png "file_manager")
+![more](screenshot/more.png "more")
+![ssh_manage](screenshot/ssh_manage.png "ssh_manage")
+![add_host](screenshot/add_host.png "add_host")
+
