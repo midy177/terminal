@@ -71,7 +71,8 @@ function onSubmit(){
         :destroyOnClose="true"
         :maskClosable="false"
         @ok="onSubmit"
-        :mask="false"
+        :mask="true"
+        :maskStyle="{borderRadius: '.5rem'}"
     >
       <Form
           layout="horizontal"

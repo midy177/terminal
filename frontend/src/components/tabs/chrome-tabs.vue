@@ -102,6 +102,7 @@ export interface Refs {
 
 export default defineComponent({
   name: 'VueTabsChrome',
+  methods: {ComponentPublicInstance},
   components: { RenderTemp },
   emits: ['click', 'update:modelValue', 'remove', 'dragstart', 'dragging', 'dragend', 'swap', 'contextmenu'],
   props: {
@@ -605,6 +606,8 @@ export default defineComponent({
   @gap: 7px;
   @divider: #1f1f1f;
   @speed: 150ms;
+  --wails-draggable:drag;
+  cursor: default;
 
   padding-top: 7px;
   background-color: @bg;

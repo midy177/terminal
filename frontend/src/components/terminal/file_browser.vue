@@ -218,7 +218,8 @@ defineExpose({
         :closable="false"
         :destroyOnClose="true"
         :maskClosable="false"
-        :mask="false"
+        :mask="true"
+        :maskStyle="{borderRadius: '.5rem',backgroundColor: 'var(--d2h-dark-empty-placeholder-bg-color)'}"
     >
       <template #title>
         <Row :gutter="10" class="header-bar">

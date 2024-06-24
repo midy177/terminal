@@ -144,7 +144,8 @@ function addHost(){
       :destroyOnClose="true"
       :maskClosable="false"
       @ok="onSubmit"
-      :mask="false"
+      :mask="true"
+      :maskStyle="{borderRadius: '.5rem',backgroundColor: 'var(--d2h-dark-empty-placeholder-bg-color)'}"
   >
     <Form
         layout="horizontal"

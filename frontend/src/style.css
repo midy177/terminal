@@ -8,7 +8,6 @@
     flex-direction: column;
     overflow: hidden;
     border-radius: .5rem;
-    --wails-draggable:drag;
 }
 body {
     margin: 0;
