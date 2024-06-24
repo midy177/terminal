@@ -67,9 +67,10 @@ import {
   nextTick,
   h,
   onUnmounted,
-  ComponentPublicInstance,
   VNode
 } from 'vue'
+
+import type { ComponentPublicInstance } from 'vue';
 
 export type FaviconType = ((...args: unknown[]) => VNode) | ((...args: unknown[]) => string) | NodeRequire | string
 export interface Tab {
@@ -102,7 +103,6 @@ export interface Refs {
 
 export default defineComponent({
   name: 'VueTabsChrome',
-  methods: {ComponentPublicInstance},
   components: { RenderTemp },
   emits: ['click', 'update:modelValue', 'remove', 'dragstart', 'dragging', 'dragend', 'swap', 'contextmenu'],
   props: {
