@@ -218,5 +218,9 @@ onUnmounted( () => {
   max-width: 100%;
   justify-content: center; /* 水平居中对齐内容 */
   align-items: center; /* 垂直居中对齐内容 */
+  background-color: rgb(26, 27, 30);
+}
+/deep/.xterm .xterm-viewport {
+  right: 3px;
 }
 </style>
