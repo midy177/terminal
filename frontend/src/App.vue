@@ -171,7 +171,6 @@ const shouldShowTerminal = (key: string) => {
     </template>
   </terminal-tabs>
       <div ref="terminalLayoutRef" class="terminal-layout">
-        <TransitionGroup name="fade">
           <terminal
               v-for="item in state.tabs"
               :key="item.key"
@@ -180,7 +179,6 @@ const shouldShowTerminal = (key: string) => {
               v-model:title="item.label"
               :ref="(el: Element | ComponentPublicInstance | null)=> setTerminalRef(item.key,el)"
           />
-        </TransitionGroup>
       </div>
   <FileBrowser ref="fileBrowserRef" :tid="state.tab"></FileBrowser>
   </ConfigProvider>
@@ -217,20 +215,5 @@ input[type=search]::-webkit-search-cancel-button{
   overflow: hidden; /* 防止子元素内容撑开 */
   justify-content: center; /* 水平居中对齐内容 */
   align-items: center; /* 垂直居中对齐内容 */
-}
-
-.fade-box {
-  padding: 10px;
-  margin: 5px 0;
-  background-color: lightblue;
-  transition: opacity 0.3s ease; /* 过渡效果设置 */
-}
-
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.3s ease; /* 过渡效果设置 */
-}
-
-.fade-enter, .fade-leave-to {
-  opacity: 0; /* 初始和结束状态的透明度 */
 }
 </style>
