@@ -101,7 +101,7 @@ function eventResize() {
     // console.log('layout',resizeBox.clientWidth,resizeBox.clientHeight)
     // 计算行和列数
     resizeHandle()
-  }, 400) as unknown as number; // TypeScript 类型断言
+  }, 500) as unknown as number; // TypeScript 类型断言
 }
 
 function addEvents() {
