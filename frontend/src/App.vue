@@ -101,7 +101,7 @@ function eventResize() {
     // console.log('layout',resizeBox.clientWidth,resizeBox.clientHeight)
     // 计算行和列数
     resizeHandle()
-  }, 100) as unknown as number; // TypeScript 类型断言
+  }, 400) as unknown as number; // TypeScript 类型断言
 }
 
 function addEvents() {
@@ -223,11 +223,11 @@ input[type=search]::-webkit-search-cancel-button{
   padding: 10px;
   margin: 5px 0;
   background-color: lightblue;
-  transition: opacity 0.5s ease; /* 过渡效果设置 */
+  transition: opacity 0.3s ease; /* 过渡效果设置 */
 }
 
 .fade-enter-active, .fade-leave-active {
-  transition: opacity 0.5s ease; /* 过渡效果设置 */
+  transition: opacity 0.3s ease; /* 过渡效果设置 */
 }
 
 .fade-enter, .fade-leave-to {
