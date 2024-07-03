@@ -88,8 +88,8 @@ function fitWithHeightWidth() {
   const xtermHelperElement = xtermElement.querySelector('.xterm-helper-textarea');
   if (!xtermHelperElement) return;
   const helperRect = xtermHelperElement.getBoundingClientRect();
-  const rows = Math.floor((xtermRect.height - 8) / Math.round(helperRect.height));
-  const cols = Math.floor((xtermRect.width - 8) / Math.round(helperRect.width));
+  const rows = Math.floor(xtermRect.height / Math.round(helperRect.height));
+  const cols = Math.floor(xtermRect.width / Math.round(helperRect.width));
   if (!Number.isFinite(rows) || !Number.isFinite(cols)){
     return;
   }
@@ -211,7 +211,7 @@ onUnmounted( () => {
   max-width: 100%;
 }
 /deep/ .terminal {
-  padding: 4px;
+  //padding: 4px;
   height: 100%;
   width: 100%;
   max-height: 100%;
@@ -220,7 +220,7 @@ onUnmounted( () => {
   align-items: center; /* 垂直居中对齐内容 */
   background-color: rgb(26, 27, 30);
 }
-/deep/.xterm .xterm-viewport {
-  right: 3px;
-}
+///deep/.xterm .xterm-viewport {
+//  right: 3px;
+//}
 </style>

@@ -170,7 +170,7 @@ const shouldShowTerminal = (key: string) => {
         </Space>
     </template>
   </terminal-tabs>
-      <div ref="terminalLayoutRef" class="terminal-layout">
+      <div ref="terminalLayoutRef" class="terminal-layout" v-show="state.tabs.length>0">
           <terminal
               v-for="item in state.tabs"
               :key="item.key"
@@ -205,7 +205,7 @@ input[type=search]::-webkit-search-cancel-button{
   }
 }
 .terminal-layout {
-  background-color: transparent;
+  //background-color: transparent;
   height: 100%;
   width: 100%;
   max-height: 100%;
@@ -215,5 +215,7 @@ input[type=search]::-webkit-search-cancel-button{
   overflow: hidden; /* 防止子元素内容撑开 */
   justify-content: center; /* 水平居中对齐内容 */
   align-items: center; /* 垂直居中对齐内容 */
+  padding: .5rem;
+  background-color: rgb(26, 27, 30);
 }
 </style>
