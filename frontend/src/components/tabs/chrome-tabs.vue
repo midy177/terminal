@@ -686,6 +686,7 @@ export default defineComponent({
 
       .tabs-close {
         background-color: #1A1B1E;
+        cursor: pointer;
       }
 
       .tabs-background-divider {
@@ -742,7 +743,8 @@ export default defineComponent({
     &:hover {
       //stroke: #000;
       stroke: white;
-      background-color: #1A1B1E;
+      background-color: #da7878;
+      border-radius: 20%;
     }
   }
 

@@ -81,15 +81,19 @@ function getColsRows() {
   }
 }
 
-function fitWithHeightWidth() {
+function fitWithHeightWidth(width:number = 0,height:number = 0) {
+  if (width == 0 || height == 0) return;
   if (!currentRef.value) return;
   const xtermElement = currentRef.value;
-  const xtermRect = xtermElement.getBoundingClientRect();
+  if (xtermElement.style.display == 'none') return;
+  // const xtermRect = xtermElement.getBoundingClientRect();
   const xtermHelperElement = xtermElement.querySelector('.xterm-helper-textarea');
   if (!xtermHelperElement) return;
   const helperRect = xtermHelperElement.getBoundingClientRect();
-  const rows = Math.floor(xtermRect.height / Math.round(helperRect.height));
-  const cols = Math.floor(xtermRect.width / Math.round(helperRect.width));
+  // const rows = Math.floor(xtermRect.height / Math.round(helperRect.height));
+  // const cols = Math.floor(xtermRect.width / Math.round(helperRect.width));
+  const rows = Math.floor(height / helperRect.height);
+  const cols = Math.floor(width / helperRect.width);
   if (!Number.isFinite(rows) || !Number.isFinite(cols)){
     return;
   }

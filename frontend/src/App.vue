@@ -86,10 +86,10 @@ function resizeTerminal(newKey: string) {
   }
 }
 
-function resizeHandle() {
+function resizeHandle(width: number, height: number) {
   let currTermRef = state.termRefMap.get(state.tab)
   if (currTermRef) {
-    (currTermRef as InstanceType<typeof Terminal>).fitWithHeightWidth()
+    (currTermRef as InstanceType<typeof Terminal>).fitWithHeightWidth(width,height)
   }
 }
 
@@ -98,9 +98,8 @@ function eventResize() {
   state.tickTimer = setTimeout(() => {
     const resizeBox = terminalLayoutRef.value;
     if (!resizeBox) return;
-    // console.log('layout',resizeBox.clientWidth,resizeBox.clientHeight)
     // 计算行和列数
-    resizeHandle()
+    resizeHandle(resizeBox.clientWidth-16,resizeBox.clientHeight-16);
   }, 500) as unknown as number; // TypeScript 类型断言
 }
 
@@ -215,7 +214,7 @@ input[type=search]::-webkit-search-cancel-button{
   overflow: hidden; /* 防止子元素内容撑开 */
   justify-content: center; /* 水平居中对齐内容 */
   align-items: center; /* 垂直居中对齐内容 */
-  padding: .5rem;
+  padding: 8px;
   background-color: rgb(26, 27, 30);
 }
 </style>
