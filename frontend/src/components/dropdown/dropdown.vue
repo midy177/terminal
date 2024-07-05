@@ -31,7 +31,7 @@ function dropClick(item: termx.SystemShell) {
 </script>
 
 <template>
-  <Dropdown :position="['bottom-end']">
+  <Dropdown :position="['bottom-end','bottom-start']">
     <Button
         type="text"
         size="small"
@@ -57,5 +57,11 @@ function dropClick(item: termx.SystemShell) {
 <style scoped lang="less">
 /deep/.devui-icon__container {
   display: block;
+}
+/deep/ .ant-dropdown-menu-title-content {
+  font-weight: bold;
+  font-size: 16px;
+  color: ghostwhite;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
 }
 </style>

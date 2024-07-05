@@ -741,9 +741,8 @@ export default defineComponent({
     border-radius: 50%;
 
     &:hover {
-      //stroke: #000;
       stroke: white;
-      background-color: #da7878;
+      background-color: rgba(214, 200, 200, 0.3);
       border-radius: 20%;
     }
   }

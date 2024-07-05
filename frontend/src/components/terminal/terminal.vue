@@ -92,8 +92,9 @@ function fitWithHeightWidth(width:number = 0,height:number = 0) {
   const helperRect = xtermHelperElement.getBoundingClientRect();
   // const rows = Math.floor(xtermRect.height / Math.round(helperRect.height));
   // const cols = Math.floor(xtermRect.width / Math.round(helperRect.width));
+  const cols = Math.floor(width / helperRect.width);
   const rows = Math.round(height / helperRect.height);
-  const cols = Math.round(width / helperRect.width);
+  console.log(helperRect.width,helperRect.height)
   if (Number.isFinite(rows) && Number.isFinite(cols)){
     state.term.resize(cols, rows);
     ResizePty(props.id,rows,cols).then();
@@ -223,7 +224,14 @@ onUnmounted( () => {
   align-items: center; /* 垂直居中对齐内容 */
   background-color: rgb(26, 27, 30);
 }
-///deep/.xterm .xterm-viewport {
-//  right: 3px;
-//}
+/deep/ .xterm .xterm-viewport::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  border-color: transparent;
+  //-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.13);
+  background-color: rgba(184, 184, 184, 0.1);
+  background-clip: padding-box;
+}
+/deep/ .xterm .xterm-viewport::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(224, 225, 227);
+}
 </style>

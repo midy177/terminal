@@ -22,8 +22,8 @@ func main() {
 	logicApp := logic.NewApp()
 	app := application.NewWithOptions(&options.App{
 		Title:     "terminal",
-		Width:     800,
-		Height:    600,
+		Width:     924,
+		Height:    520,
 		MinWidth:  800,
 		MinHeight: 600,
 		AssetServer: &assetserver.Options{

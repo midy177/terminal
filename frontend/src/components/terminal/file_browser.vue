@@ -295,7 +295,7 @@ defineExpose({
               sticky
               :scroll="{ y: '44vh' }"
               @resizeColumn="handleResizeColumn"
-              size="small"
+              size="middle"
           >
             <template #bodyCell="{ column, record }">
               <template v-if="column.key === 'name'">
@@ -390,6 +390,7 @@ defineExpose({
 }
 /deep/.ant-table {
   border-radius: .5rem;
+  overflow: hidden;
 }
 /deep/.ant-table-body {
   min-height: 44vh !important;
