@@ -92,13 +92,12 @@ function fitWithHeightWidth(width:number = 0,height:number = 0) {
   const helperRect = xtermHelperElement.getBoundingClientRect();
   // const rows = Math.floor(xtermRect.height / Math.round(helperRect.height));
   // const cols = Math.floor(xtermRect.width / Math.round(helperRect.width));
-  const rows = Math.floor(height / helperRect.height);
-  const cols = Math.floor(width / helperRect.width);
-  if (!Number.isFinite(rows) || !Number.isFinite(cols)){
-    return;
+  const rows = Math.round(height / helperRect.height);
+  const cols = Math.round(width / helperRect.width);
+  if (Number.isFinite(rows) && Number.isFinite(cols)){
+    state.term.resize(cols, rows);
+    ResizePty(props.id,rows,cols).then();
   }
-  state.term.resize(cols, rows);
-  ResizePty(props.id,rows,cols).then();
 }
 
 // Make the terminal fit all the window size
