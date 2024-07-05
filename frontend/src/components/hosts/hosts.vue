@@ -217,13 +217,13 @@ function getList(id:number) {
                   @dblclick="handleConnect(record)"
               >
                 <template #icon>
-                  <Tooltip placement="bottom" title="链接ssh">
+<!--                  <Tooltip placement="bottom" title="双击链接ssh">-->
                   <Icon name="icon-console">
                     <template #suffix>
                       <span style="color: #f2f3f5;">{{ record.label }}</span>
                     </template>
                   </Icon>
-                  </Tooltip>
+<!--                  </Tooltip>-->
                 </template>
               </Button>
             </template>
@@ -251,7 +251,7 @@ function getList(id:number) {
                     @click="handleConnect(record)"
                 >
                   <template #icon>
-                    <Tooltip placement="right" title="连接ssh">
+                    <Tooltip placement="bottom" title="连接ssh">
                       <Icon name="icon-connect"></Icon>
                     </Tooltip>
                   </template>
@@ -262,7 +262,7 @@ function getList(id:number) {
                     @click="handleEdit(record)"
                 >
                   <template #icon>
-                    <Tooltip placement="right" title="编辑">
+                    <Tooltip placement="bottom" title="编辑">
                       <Icon name="icon-edit"></Icon>
                     </Tooltip>
                   </template>
@@ -273,7 +273,7 @@ function getList(id:number) {
                       size="small"
                   >
                     <template #icon>
-                      <Tooltip placement="right" title="删除">
+                      <Tooltip placement="bottom" title="删除">
                         <Icon name="delete"></Icon>
                       </Tooltip>
                     </template>

@@ -2,7 +2,7 @@
 <module type="WEB_MODULE" version="4">
   <component name="Go" enabled="true">
     <buildTags>
-      <option name="os" value="darwin" />
+      <option name="os" value="windows" />
     </buildTags>
   </component>
   <component name="NewModuleRootManager">
