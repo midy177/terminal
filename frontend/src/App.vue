@@ -99,8 +99,8 @@ function eventResize() {
     const resizeBox = terminalLayoutRef.value;
     if (!resizeBox) return;
     // 计算行和列数
-    resizeHandle(resizeBox.clientWidth-16,resizeBox.clientHeight-16);
-  }, 500) as unknown as number; // TypeScript 类型断言
+    resizeHandle(resizeBox.clientWidth-20,resizeBox.clientHeight-16);
+  }, 300) as unknown as number; // TypeScript 类型断言
 }
 
 function addEvents() {
