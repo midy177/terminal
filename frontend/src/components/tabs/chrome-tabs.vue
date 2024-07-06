@@ -33,7 +33,7 @@
           </span>
           <span class="tabs-label" :class="{ 'no-close': !showTabCloseIcon(tab), 'no-icon': !tab.favicon }">
             <render-temp v-if="typeof renderLabel === 'function'" :render="renderLabel" :params="[tab, i]" />
-            <template v-else>{{ tab.label }}</template>
+            <template v-else>{{ tab.title }}</template>
           </span>
         </div>
       </div>
@@ -76,6 +76,8 @@ export type FaviconType = ((...args: unknown[]) => VNode) | ((...args: unknown[]
 export interface Tab {
   /** 显示名称 */
   label: string
+  /** 显示标题 */
+  title: string
   /** 唯一 key */
   key: string
   favicon?: FaviconType

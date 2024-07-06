@@ -31,6 +31,7 @@ function addLocalTab(data: termx.SystemShell) {
   CreateLocalPty(data).then(()=>{
     let newTab = {
       label: data.name,
+      title: data.name,
       key: key,
     }
     tabRef.value.addTab(newTab)
@@ -50,6 +51,7 @@ function handleOpenSshTerminal(id:number,label:string){
   CreateSshPty(tid, id,22,60).then((e)=>{
     let newTab = {
       label: label,
+      title: label,
       key: tid,
     }
     tabRef.value.addTab(newTab)
@@ -175,7 +177,7 @@ const shouldShowTerminal = (key: string) => {
               :key="item.key"
               :id="item.key"
               v-show="shouldShowTerminal(item.key)"
-              v-model:title="item.label"
+              v-model:title="item.title"
               :ref="(el: Element | ComponentPublicInstance | null)=> setTerminalRef(item.key,el)"
           />
       </div>
