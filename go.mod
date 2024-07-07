@@ -6,11 +6,11 @@ toolchain go1.22.3
 
 require (
 	entgo.io/ent v0.13.1
-	github.com/UserExistsError/conpty v0.1.3
 	github.com/creack/pty v1.1.21
 	github.com/inhies/go-bytesize v0.0.0-20220417184213-4913239db9cf
 	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/pkg/sftp v1.13.6
+	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 	github.com/trzsz/trzsz-go v1.1.7
 	github.com/wailsapp/wails/v2 v2.9.1
 	golang.org/x/crypto v0.24.0
@@ -21,6 +21,7 @@ require (
 
 require (
 	ariga.io/atlas v0.19.1-0.20240203083654-5948b60a8e43 // indirect
+	github.com/UserExistsError/conpty v0.1.3 // indirect
 	github.com/agext/levenshtein v1.2.1 // indirect
 	github.com/akavel/rsrc v0.10.2 // indirect
 	github.com/alexflint/go-scalar v1.2.0 // indirect

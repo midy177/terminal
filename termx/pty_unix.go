@@ -22,6 +22,11 @@ func (t *unixPty) Sftp() (*sftp.Client, error) {
 	return nil, errors.New("sftp pty not supported")
 }
 
+// CloseSftp close sftp client
+func (s *unixPty) CloseSftp() error {
+	return nil
+}
+
 func (t *unixPty) Resize(rows, cols int) error {
 	return pty.Setsize(t.pty, &pty.Winsize{
 		Rows: uint16(rows), Cols: uint16(cols),

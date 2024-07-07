@@ -10,4 +10,5 @@ type PtyX interface {
 	Write(p []byte) (n int, err error)
 	Close() error
 	Sftp() (*sftp.Client, error)
+	CloseSftp() error
 }

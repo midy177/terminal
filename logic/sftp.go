@@ -19,6 +19,14 @@ func (l *Logic) getSftpClient(id string) (*sftp.Client, error) {
 	return t.Sftp()
 }
 
+func (l *Logic) CloseSftpClient(id string) error {
+	t, ok := l.ptyMap.Load(id)
+	if !ok {
+		return errors.New("pty already released")
+	}
+	return t.CloseSftp()
+}
+
 type FileInfo struct {
 	Name     string `json:"name"`      // 文件的基本名称
 	FullPath string `json:"full_path"` // 完整路径
@@ -252,3 +260,38 @@ func downloadFile(sftpClient *sftp.Client, remoteFilePath, localFilePath string)
 	_, err = io.Copy(dstFile, srcFile)
 	return err
 }
+
+func calculateLocalTotalSize(localDir ...string) int64 {
+	var totalSize int64
+	for _, dir := range localDir {
+		_ = filepath.Walk(dir, func(localPath string, info os.FileInfo, err error) error {
+			if err == nil && !info.IsDir() {
+				totalSize += info.Size()
+			}
+			return nil
+		})
+	}
+	return totalSize
+}
+func calculateRemoteTotalSize(client *sftp.Client, remoteDir string) int64 {
+	var totalSize int64
+	walker := client.Walk(remoteDir)
+	for walker.Step() {
+		if err := walker.Err(); err == nil && !walker.Stat().IsDir() {
+			totalSize += walker.Stat().Size()
+		}
+	}
+	return totalSize
+}
+
+//type progressEvent struct {
+//	IsDownload bool
+//}
+//
+//func (r *progressEvent) Write(p []byte) (n int, err error) {
+//	//TODO implement me
+//	panic("implement me")
+//}
+//func (r *progressEvent) Finish() {
+//
+//}

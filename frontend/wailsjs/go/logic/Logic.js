@@ -14,6 +14,10 @@ export function ClosePty(arg1) {
   return window['go']['logic']['Logic']['ClosePty'](arg1);
 }
 
+export function CloseSftpClient(arg1) {
+  return window['go']['logic']['Logic']['CloseSftpClient'](arg1);
+}
+
 export function CreateLocalPty(arg1) {
   return window['go']['logic']['Logic']['CreateLocalPty'](arg1);
 }
@@ -48,6 +52,10 @@ export function GetKeyList(arg1) {
 
 export function GetLocalPtyList() {
   return window['go']['logic']['Logic']['GetLocalPtyList']();
+}
+
+export function OpenLink(arg1) {
+  return window['go']['logic']['Logic']['OpenLink'](arg1);
 }
 
 export function ResizePty(arg1, arg2, arg3) {

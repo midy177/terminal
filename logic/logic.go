@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"fmt"
+	"github.com/skratchdot/open-golang/open"
 	"io"
 	"log"
 	"os"
@@ -17,6 +18,11 @@ type Logic struct {
 	Ctx    context.Context
 	db     *ent.Client
 	ptyMap *syncmapx.Map[string, termx.PtyX]
+}
+
+// OpenLink opens the provided URL in the default web browser
+func (l *Logic) OpenLink(url string) error {
+	return open.Start(url)
 }
 
 // NewApp creates a new App application struct

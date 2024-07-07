@@ -35,6 +35,17 @@ func (s *sshSession) Sftp() (*sftp.Client, error) {
 	return s.sftp, nil
 }
 
+// CloseSftp close sftp client
+func (s *sshSession) CloseSftp() error {
+	if s.sftp != nil {
+		defer func() {
+			s.sftp = nil
+		}()
+		return s.sftp.Close()
+	}
+	return nil
+}
+
 func (s *sshSession) Resize(rows, cols int) error {
 	s.trzszFilter.SetTerminalColumns(int32(cols))
 	return s.session.WindowChange(rows, cols)

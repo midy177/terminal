@@ -4,7 +4,6 @@ package termx
 
 import (
 	"errors"
-	"github.com/UserExistsError/conpty"
 	"github.com/pkg/sftp"
 	"io"
 	"strings"
@@ -19,6 +18,11 @@ type windowsPty struct {
 func (t *windowsPty) Sftp() (*sftp.Client, error) {
 	//TODO implement me
 	return nil, errors.New("sftp pty not supported")
+}
+
+// CloseSftp close sftp client
+func (s *windowsPty) CloseSftp() error {
+	return nil
 }
 
 func (t *windowsPty) Resize(rows, cols int) error {

@@ -9,6 +9,8 @@ export function AddKey(arg1:logic.KeyEntry):Promise<void>;
 
 export function ClosePty(arg1:string):Promise<void>;
 
+export function CloseSftpClient(arg1:string):Promise<void>;
+
 export function CreateLocalPty(arg1:termx.SystemShell):Promise<void>;
 
 export function CreateSshPty(arg1:string,arg2:number,arg3:number,arg4:number):Promise<void>;
@@ -26,6 +28,8 @@ export function GetHosts(arg1:number):Promise<Array<logic.HostEntry>>;
 export function GetKeyList(arg1:boolean):Promise<Array<logic.KeyEntry>>;
 
 export function GetLocalPtyList():Promise<Array<termx.SystemShell>>;
+
+export function OpenLink(arg1:string):Promise<void>;
 
 export function ResizePty(arg1:string,arg2:number,arg3:number):Promise<void>;
 

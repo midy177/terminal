@@ -10,6 +10,7 @@ import Update_host from "../hosts/update_host.vue";
 import {logic} from "../../../wailsjs/go/models";
 import {reactive} from "vue";
 import {
+  CloseSftpClient, OpenLink,
   SftpDelete,
   SftpDir,
   SftpDownload, SftpHomeDir,
@@ -27,7 +28,8 @@ const initState = () => ({
   tid: '',
   visible: false,
   tableData: <Array<logic.FileInfo>>[],
-  currentDir: ''
+  currentDir: '',
+  loading: true
 })
 const state = reactive(initState())
 
@@ -76,14 +78,24 @@ function handleResizeColumn(w:number, col:ColumnType<any>) {
 }
 
 function closeModel(){
+  if (props.tid) {
+    CloseSftpClient(props.tid).then().catch(e=>{
+      notification.error({
+        message: '关闭sftp客户端失败',
+        description: e,
+        duration: null
+      });
+    });
+  }
   // reset reactive
   Object.assign(state, initState());
   state.visible = false
 }
 function openModel() {
   if (props.tid) {
+    state.visible = true;
+    state.loading = true;
     SftpHomeDir(props.tid).then((res: string)=>{
-      state.visible = true;
       state.currentDir = res;
       handleFoldList(state.currentDir);
     }).catch(e=>{
@@ -144,6 +156,7 @@ function handleUploadFold(){
 }
 function handleFoldList(dst: string) {
   if (props.tid) {
+    state.loading = true
     SftpDir(props.tid,dst).then((res:Array<logic.FileInfo>)=>{
       state.currentDir = dst;
       state.tableData = res;
@@ -153,6 +166,8 @@ function handleFoldList(dst: string) {
         description: '目标路径：' + dst + '错误信息：'+ e,
         duration: null
       });
+    }).finally(()=>{
+      state.loading = false
     })
   }
 }
@@ -244,6 +259,7 @@ defineExpose({
                 type="link"
                 size="small"
                 @click="handleBack"
+                :disabled="state.loading"
             >
               <template #icon>
                 <Icon  name="icon-go-back" color="#3DCCA6" >
@@ -259,6 +275,8 @@ defineExpose({
                 type="link"
                 size="small"
                 @click="handleUploadFile"
+                :disabled="state.loading"
+                title="多文件上传"
             >
               <template #icon>
                 <Icon name="icon-upload" color="#3DCCA6">
@@ -274,6 +292,8 @@ defineExpose({
                 type="link"
                 size="small"
                 @click="handleUploadFold"
+                :disabled="state.loading"
+                title="文件夹上传"
             >
               <template #icon>
                 <Icon  name="icon-upload" color="#3DCCA6" >
@@ -293,9 +313,10 @@ defineExpose({
               :columns="columns"
               :pagination="{ pageSize: 10 ,showSizeChanger: true}"
               sticky
-              :scroll="{ y: '44vh' }"
+              :scroll="{ y: '45vh' }"
               @resizeColumn="handleResizeColumn"
               size="middle"
+              :loading="state.loading"
           >
             <template #bodyCell="{ column, record }">
               <template v-if="column.key === 'name'">
@@ -304,6 +325,7 @@ defineExpose({
                     type="link"
                     size="small"
                     @dblclick="handleFoldList(record.full_path)"
+                    title="双击进入文件夹"
                 >
                   <template #icon>
                     <Icon  name="icon-open-folder-2" color="#3DCCA6" >
@@ -318,15 +340,14 @@ defineExpose({
                     type="link"
                     size="small"
                     @dblclick="handleDownload(record.full_path)"
+                    title="双击下载文件"
                 >
                   <template #icon>
-                    <Tooltip placement="bottom" title="点击下载">
                     <Icon name="icon-file">
                       <template #suffix>
                         <span style="color: #f2f3f5;">{{ record.name }}</span>
                       </template>
                     </Icon>
-                    </Tooltip>
                   </template>
                 </Button>
               </template>
@@ -338,9 +359,14 @@ defineExpose({
               </template>
               <template v-else-if="column.key === 'action'">
                 <Space :size="1">
-                  <Button type="text" ghost size="small" @click="handleDownload(record.full_path)">
+                  <Button
+                      type="text"
+                      ghost
+                      size="small"
+                      @click="handleDownload(record.full_path)"
+                  >
                     <template #icon>
-                      <Tooltip placement="bottom" title="点击下载">
+                      <Tooltip placement="bottom" title="下载">
                         <Icon name="icon-download" color="#f2f3f5"/>
                       </Tooltip>
                     </template>
@@ -366,6 +392,11 @@ defineExpose({
           </Table>
       </template>
       <template #footer>
+        <Button
+            type="link"
+            @click="OpenLink('https://trzsz.github.io/cn/')"
+            title="终端支持trzsz,点击打开安装和使用Trzsz教程"
+        >Trzsz</Button>
           <Button
               variant="solid"
               color="secondary"
