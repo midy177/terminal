@@ -15,7 +15,7 @@ const props= defineProps({
     type: Number,
     require: true,
   },
-  callback: {
+  onChange: {
     type: Function,
     require: true,
   }
@@ -109,9 +109,7 @@ function addHost(){
   AddFoldOrHost(state.formModel).then(()=>{
     message.success('添加主机或目录成功',1)
     closeModel();
-    if (props.callback) {
-      props.callback()
-    }
+    if (props.onChange) props.onChange()
   }).catch(e=>{
     notification.error({
       message: '添加主机或目录失败',

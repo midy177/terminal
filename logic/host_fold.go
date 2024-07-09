@@ -67,7 +67,7 @@ func (l *Logic) UpdFoldOrHost(h *HostEntry) error {
 		upd := l.db.Folders.
 			UpdateOneID(h.ID).
 			SetLabel(h.Label)
-		if h.FolderID > 0 {
+		if h.FolderID >= 0 {
 			upd.SetParentID(h.FolderID)
 		}
 		return upd.Exec(l.Ctx)
@@ -78,10 +78,10 @@ func (l *Logic) UpdFoldOrHost(h *HostEntry) error {
 			SetAddress(h.Address).
 			SetPort(h.Port).
 			SetPassword(h.Password)
-		if h.FolderID > 0 {
+		if h.FolderID >= 0 {
 			upd.SetFolderID(h.FolderID)
 		}
-		if h.KeyID > 0 {
+		if h.KeyID >= 0 {
 			upd.SetKeyID(h.KeyID)
 		}
 		return upd.Exec(l.Ctx)

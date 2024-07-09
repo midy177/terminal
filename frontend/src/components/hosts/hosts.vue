@@ -114,8 +114,8 @@ function handleConnect(record: logic.HostEntry) {
 }
 function handleEdit(args: logic.HostEntry) {
   if (modifyHostRef.value) {
-    modifyHostRef.value.openModel()
     modifyHostRef.value.setData(args)
+    modifyHostRef.value.openModel()
   }
 }
 function handleDelete(args: logic.HostEntry) {
@@ -165,7 +165,7 @@ function getList(id:number) {
     <template #title>
         <Row type="flex" class="header-bar">
           <Col flex="2.5rem">
-            <add_host :folder_id="state.currentDirId" :callback="reRender"/>
+            <add_host :folder_id="state.currentDirId" :on-change="reRender"/>
           </Col>
           <Col flex="auto">
             <Breadcrumb>
@@ -301,7 +301,7 @@ function getList(id:number) {
         </Button>
     </template>
   </Modal>
-  <update_host ref="modifyHostRef"/>
+  <update_host ref="modifyHostRef" :on-change="reRender"/>
 </template>
 
 <style scoped lang="less">

@@ -10,10 +10,10 @@ import {
 } from "ant-design-vue";
 const formRef = ref();
 const props= defineProps({
-  data: {
-    type: logic.HostEntry,
+  onChange: {
+    type: Function,
     require: true,
-  },
+  }
 })
 
 const initState = () => ({
@@ -37,12 +37,7 @@ const rules = {
 };
 
 function openModel() {
-  if (props.data) {
-    state.formModel = props.data
-  } else {
-    closeModel()
-  }
-  if (!props.data?.is_folder) {
+  if (!state.formModel?.is_folder) {
     state.title = '修改主机'
     getKeys()
   }
@@ -98,14 +93,15 @@ function setData(data: logic.HostEntry) {
 function onSubmit(){
   formRef.value.validate()
       .then(() => {
-        addHost();
+        updHost();
       });
 }
 
-function addHost(){
+function updHost(){
   UpdFoldOrHost(state.formModel).then(()=>{
     message.success('修改主机或目录成功',1)
     closeModel()
+    if (props.onChange) props.onChange()
   }).catch(e=>{
     notification.error({
       message: '添加主机或目录失败',
