@@ -68,7 +68,7 @@ func (l *Logic) UpdFoldOrHost(h *HostEntry) error {
 			UpdateOneID(h.ID).
 			SetLabel(h.Label)
 		if h.FolderID == 0 {
-			upd.SetNillableParentID(nil)
+			upd.ClearParentID()
 		} else {
 			upd.SetParentID(h.FolderID)
 		}
@@ -81,12 +81,12 @@ func (l *Logic) UpdFoldOrHost(h *HostEntry) error {
 			SetPort(h.Port).
 			SetPassword(h.Password)
 		if h.FolderID == 0 {
-			upd.SetNillableFolderID(nil)
+			upd.ClearFolderID()
 		} else {
 			upd.SetFolderID(h.FolderID)
 		}
 		if h.KeyID == 0 {
-			upd.SetNillableKeyID(nil)
+			upd.ClearKeyID()
 		} else {
 			upd.SetKeyID(h.KeyID)
 		}
@@ -198,7 +198,11 @@ func (l *Logic) GetKeyList(withContent bool) ([]KeyEntry, error) {
 	if err != nil {
 		return nil, err
 	}
-	var entries = make([]KeyEntry, 0, len(all))
+	var entries = make([]KeyEntry, 0, len(all)+1)
+	entries = append(entries, KeyEntry{
+		ID:    0,
+		Label: "空",
+	})
 	for _, e := range all {
 		entry := KeyEntry{
 			ID:    e.ID,
