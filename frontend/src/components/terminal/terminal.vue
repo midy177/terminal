@@ -215,7 +215,6 @@ onUnmounted( () => {
   max-width: 100%;
 }
 /deep/ .terminal {
-  //padding: 4px;
   height: 100%;
   width: 100%;
   max-height: 100%;
@@ -224,14 +223,14 @@ onUnmounted( () => {
   align-items: center; /* 垂直居中对齐内容 */
   background-color: rgb(26, 27, 30);
 }
-/deep/ .xterm .xterm-viewport::-webkit-scrollbar-thumb {
-  border-radius: 10px;
-  border-color: transparent;
-  //-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.13);
-  background-color: rgba(184, 184, 184, 0.1);
-  background-clip: padding-box;
-}
-/deep/ .xterm .xterm-viewport::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(224, 225, 227);
-}
+///deep/ .xterm .xterm-viewport::-webkit-scrollbar-thumb {
+//  border-radius: 10px;
+//  border-color: transparent;
+//  //-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.13);
+//  background-color: rgba(184, 184, 184, 0.1);
+//  background-clip: padding-box;
+//}
+///deep/ .xterm .xterm-viewport::-webkit-scrollbar-thumb:hover {
+//  background-color: rgb(224, 225, 227);
+//}
 </style>
