@@ -15,6 +15,12 @@ const props = defineProps({
 const fitAddon = new FitAddon();
 const state = reactive({
   term: null as unknown as Terminal,
+  width: 0,
+  height: 0,
+  helperRect:{
+    width: 0,
+    height: 0
+  }
 });
 const currentRef = ref<VNodeRef | null>(null);
 // 赋值动态ref到变量
@@ -64,6 +70,9 @@ function NewTerminal(){
   state.term.onTitleChange((title)=>{
     emit('update:title', title);
   })
+  // state.term.onResize((size) => {
+  //   ResizePty(props.id,size.rows,size.cols).then();
+  // })
 }
 
 const emit = defineEmits(['update:title']);
@@ -74,38 +83,48 @@ interface ColsRows {
 }
 
 function getColsRows() {
-  fitWithHeightWidth()
+  // fitWithHeightWidth()
   return <ColsRows>{
     cols: state.term.cols,
     rows :state.term.rows
   }
 }
 
-function fitWithHeightWidth(width:number = 0,height:number = 0) {
+function fitWithHeightWidth(width:number = state.width,height:number = state.height) {
   if (width == 0 || height == 0) return;
-  if (!currentRef.value) return;
-  const xtermElement = currentRef.value;
-  if (xtermElement.style.display == 'none') return;
-  // const xtermRect = xtermElement.getBoundingClientRect();
-  const xtermHelperElement = xtermElement.querySelector('.xterm-helper-textarea');
-  if (!xtermHelperElement) return;
-  const helperRect = xtermHelperElement.getBoundingClientRect();
-  // const rows = Math.floor(xtermRect.height / Math.round(helperRect.height));
-  // const cols = Math.floor(xtermRect.width / Math.round(helperRect.width));
-  const cols = Math.floor(width / helperRect.width);
-  const rows = Math.round(height / helperRect.height);
-  console.log(helperRect.width,helperRect.height)
+  if (width == state.width && height == state.height) return;
+  state.width = width;
+  state.height = height;
+  if (state.helperRect.width == 0 || state.helperRect.height == 0) {
+    // console.log('getHelperRect');
+    if (!currentRef.value) return;
+    const xtermElement = currentRef.value;
+    if (xtermElement.style.display == 'none') return;
+    // const xtermRect = xtermElement.getBoundingClientRect();
+    const xtermHelperElement = xtermElement.querySelector('.xterm-helper-textarea');
+    if (!xtermHelperElement) return;
+    const helperRect = xtermHelperElement.getBoundingClientRect();
+    state.helperRect.height =helperRect.height;
+    state.helperRect.width = helperRect.width;
+  }
+  // console.log('window size change');
+  const cols = Math.floor(width / state.helperRect.width);
+  const rows = Math.round(height / state.helperRect.height);
   if (Number.isFinite(rows) && Number.isFinite(cols)){
-    state.term.resize(cols, rows);
-    ResizePty(props.id,rows,cols).then();
+    ResizePty(props.id,rows,cols).then(()=>{
+      state.term.resize(cols, rows);
+    });
   }
 }
 
 // Make the terminal fit all the window size
 function fitTerminal() {
-    fitAddon.fit();
+  fitAddon.fit();
+  // getHelperRect().then(()=>{
+    fitWithHeightWidth();
     // Todo 从后端读取数据，通过调用func写入后端
-    ResizePty(props.id,state.term.rows,state.term.cols).then();
+    // ResizePty(props.id,state.term.rows,state.term.cols).then();
+  // });
 }
 // Write data from pty into the terminal
 function writeToTerminal(data: string | Uint8Array | ArrayBuffer | Blob) {
@@ -178,9 +197,14 @@ function handleSelectToClipboardOrClipboardToTerm() {
   }
 }
 
+function focusTerminal(){
+  state.term.focus()
+}
+
 defineExpose({
   fitWithHeightWidth,
   getColsRows,
+  focusTerminal,
 })
 
 
