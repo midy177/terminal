@@ -121,9 +121,9 @@ function fitWithHeightWidth(width:number = state.width,height:number = state.hei
 function fitTerminal() {
   fitAddon.fit();
   // getHelperRect().then(()=>{
-    fitWithHeightWidth();
+  //   fitWithHeightWidth();
     // Todo 从后端读取数据，通过调用func写入后端
-    // ResizePty(props.id,state.term.rows,state.term.cols).then();
+    ResizePty(props.id,state.term.rows,state.term.cols).then();
   // });
 }
 // Write data from pty into the terminal
