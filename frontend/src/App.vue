@@ -101,7 +101,7 @@ function eventResize() {
     const resizeBox = terminalLayoutRef.value;
     if (!resizeBox) return;
     // 计算行和列数
-    resizeHandle(resizeBox.clientWidth-16,resizeBox.clientHeight-16);
+    resizeHandle(resizeBox.clientWidth-24,resizeBox.clientHeight-16);
   }, 300) as unknown as number; // TypeScript 类型断言
 }
 
