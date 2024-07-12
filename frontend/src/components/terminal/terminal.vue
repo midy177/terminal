@@ -109,7 +109,7 @@ function fitWithHeightWidth(width:number = state.width,height:number = state.hei
   }
   // console.log('window size change');
   const cols = Math.floor(width / state.helperRect.width);
-  const rows = Math.round(height / state.helperRect.height);
+  const rows = Math.floor(height / state.helperRect.height);
   if (Number.isFinite(rows) && Number.isFinite(cols)){
     ResizePty(props.id,rows,cols).then(()=>{
       state.term.resize(cols, rows);
