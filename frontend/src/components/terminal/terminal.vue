@@ -17,6 +17,8 @@ const state = reactive({
   term: null as unknown as Terminal,
   width: 0,
   height: 0,
+  cols: 0,
+  rows: 0,
   helperRect:{
     width: 0,
     height: 0
@@ -92,9 +94,6 @@ function getColsRows() {
 
 function fitWithHeightWidth(width:number = state.width,height:number = state.height) {
   if (width == 0 || height == 0) return;
-  if (width == state.width && height == state.height) return;
-  state.width = width;
-  state.height = height;
   if (state.helperRect.width == 0 || state.helperRect.height == 0) {
     // console.log('getHelperRect');
     if (!currentRef.value) return;
@@ -110,6 +109,11 @@ function fitWithHeightWidth(width:number = state.width,height:number = state.hei
   // console.log('window size change');
   const cols = Math.floor(width / state.helperRect.width);
   const rows = Math.floor(height / state.helperRect.height);
+  if (width == state.width && height == state.height && state.cols == cols && state.rows == rows) return;
+  state.cols = cols;
+  state.rows = rows;
+  state.width = width;
+  state.height = height;
   if (Number.isFinite(rows) && Number.isFinite(cols)){
     ResizePty(props.id,rows,cols).then(()=>{
       state.term.resize(cols, rows);
