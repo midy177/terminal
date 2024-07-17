@@ -77,7 +77,7 @@ func main() {
 			ProgramName:         "terminal-console",
 		},
 	})
-	go startPprof()
+	//go startPprof()
 	err := app.Run()
 	if err != nil {
 		println("Error:", err.Error())
