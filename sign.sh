@@ -13,6 +13,7 @@ wails build clearn
 #fi
 
 cd build/bin
+rm -rf *.app
 rm *.dmg
 create-dmg --volname terminal \
            --window-pos 200 120 \
