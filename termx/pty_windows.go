@@ -3,7 +3,9 @@
 package termx
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"github.com/UserExistsError/conpty"
 	"github.com/pkg/sftp"
 	"io"
@@ -65,8 +67,23 @@ func NewPTY(s *SystemShell) (PtyX, error) {
 	if err != nil {
 		return nil, err
 	}
+	closed := &atomic.Bool{}
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Println("recovered from ", r)
+			}
+		}()
+		exitCode, err := wPty.Wait(context.Background())
+		if err != nil {
+			fmt.Printf("conpty is exiting with exitCode: %v err: %s\n", exitCode, err)
+		}
+		closed.Store(true)
+		_ = wPty.Close()
+	}()
+
 	return &windowsPty{
 		pty:    wPty,
-		closed: &atomic.Bool{},
+		closed: closed,
 	}, nil
 }

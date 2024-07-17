@@ -4,6 +4,7 @@ package termx
 
 import (
 	"errors"
+	"fmt"
 	"github.com/creack/pty"
 	"github.com/pkg/sftp"
 	"io"
@@ -38,6 +39,8 @@ func (t *unixPty) Read(p []byte) (n int, err error) {
 	if t.closed.Load() {
 		return 0, io.EOF
 	}
+	//defer t.pty.SetDeadline(time.Now().Add(time.Second * 60))
+
 	return t.pty.Read(p)
 }
 
@@ -66,8 +69,22 @@ func NewPTY(s *SystemShell) (PtyX, error) {
 	}
 	// Start the command with a pty.
 	uPty, err := pty.Start(c)
+	closed := &atomic.Bool{}
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Println("recovered from ", r)
+			}
+		}()
+		err = c.Wait()
+		if err != nil {
+			fmt.Printf("pty shell exited: %s\n", err)
+		}
+		_ = uPty.Close()
+		closed.Store(true)
+	}()
 	return &unixPty{
 		pty:    uPty,
-		closed: &atomic.Bool{},
+		closed: closed,
 	}, err
 }

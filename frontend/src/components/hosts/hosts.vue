@@ -214,7 +214,7 @@ function getList(id:number) {
                   v-else
                   type="link"
                   size="small"
-                  @dblclick="handleConnect(record)"
+                  @dblclick="handleConnect(record as logic.HostEntry)"
               >
                 <template #icon>
 <!--                  <Tooltip placement="bottom" title="双击链接ssh">-->
@@ -248,7 +248,7 @@ function getList(id:number) {
                     v-else
                     type="link"
                     size="small"
-                    @click="handleConnect(record)"
+                    @click="handleConnect(record as logic.HostEntry)"
                 >
                   <template #icon>
                     <Tooltip placement="bottom" title="连接ssh">
@@ -259,7 +259,7 @@ function getList(id:number) {
                 <Button
                     type="link"
                     size="small"
-                    @click="handleEdit(record)"
+                    @click="handleEdit(record as logic.HostEntry)"
                 >
                   <template #icon>
                     <Tooltip placement="bottom" title="编辑">
@@ -283,7 +283,7 @@ function getList(id:number) {
                         type="link"
                         size="small"
                         danger
-                        @click="handleDelete(record)"
+                        @click="handleDelete(record as logic.HostEntry)"
                     >确认</Button>
                   </template>
                 </Popover>

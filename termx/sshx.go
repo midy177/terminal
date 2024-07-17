@@ -148,6 +148,24 @@ func NewSshPTY(username, password, address string, port uint, privateKey []byte,
 		fmt.Printf("Failed to start SSH shell: %s\n", err)
 		return nil, err
 	}
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Println("recovered from ", r)
+			}
+		}()
+		err = session.Wait()
+		if err != nil {
+			fmt.Printf("SSH shell exited: %s\n", err)
+		}
+		_ = sshClient.Close()
+		_ = session.Close()
+		_ = clientIn.Close()
+		_ = stdinPipe.Close()
+		_ = stdoutPipe.Close()
+		_ = clientOut.Close()
+	}()
+
 	return &sshSession{
 		client:      sshClient,
 		session:     session,

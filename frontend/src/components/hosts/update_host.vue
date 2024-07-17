@@ -8,6 +8,7 @@ import {
   Switch, InputNumber, Select, SelectOption,
   Popover, Row, Col, message, notification,
 } from "ant-design-vue";
+import {Rule} from "ant-design-vue/es/form";
 const formRef = ref();
 const props= defineProps({
   onChange: {
@@ -27,7 +28,7 @@ const initState = () => ({
 
 const state = reactive(initState())
 
-const rules = {
+const rules: Record<string, Rule[]> = {
   label: [{ required: true, min: 1, max: 64, message: '标签需不小于1个字符，不大于6个字符', trigger: 'blur' }],
   username: [{ required: true, message: '用户信息不能为空', trigger: 'blur' }],
   address: [{ required: true, message: '地址不能为空', trigger: 'blur' }],

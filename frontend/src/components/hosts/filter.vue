@@ -8,8 +8,8 @@ const props = defineProps({
 const emit = defineEmits(['change'])
 const innerValue = ref(props.value)
 
-const onChange = (value: string) => {
-  emit('change', value)
+const onChange = (event: Event) => {
+  emit('change', (event.target as HTMLInputElement).value)
 }
 
 watch(

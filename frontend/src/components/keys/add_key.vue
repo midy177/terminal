@@ -5,6 +5,7 @@ import {AddKey} from "../../../wailsjs/go/logic/Logic";
 import {
   Modal, Input, Button, FormItem, Textarea, Form, message, notification,
 } from "ant-design-vue";
+import {Rule} from "ant-design-vue/es/form";
 
 const formRef = ref();
 const props = defineProps({
@@ -23,7 +24,7 @@ const initState = () => ({
 
 const state = reactive(initState())
 
-const rules = {
+const rules: Record<string, Rule[]> = {
   label: [{ required: true, min: 1, max: 64, message: '标签需要不小于3个字符，不大于16个字符', trigger: 'blur' }],
   content: [{ required: true, message: '私钥信息不能为空', trigger: 'blur' }],
 };

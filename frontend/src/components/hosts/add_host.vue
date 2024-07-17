@@ -9,6 +9,7 @@ import {
   Switch, InputNumber, Select, SelectOption,
   Row, Col, Button, Popover, Tooltip, notification, message,
 } from "ant-design-vue";
+import {Rule} from "ant-design-vue/es/form";
 const formRef = ref();
 const props= defineProps({
   folder_id: {
@@ -39,7 +40,7 @@ const initState = () => ({
 
 const state = reactive(initState())
 
-const rules = {
+const rules: Record<string, Rule[]>  = {
   label: [{ required: true, min: 1, max: 64, message: '用户名需不小于3个字符，不大于6个字符', trigger: 'blur' }],
   username: [{ required: true, message: '用户信息不能为空', trigger: 'blur' }],
   address: [{ required: true, message: '地址不能为空', trigger: 'blur' }],

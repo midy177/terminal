@@ -117,6 +117,8 @@ function fitWithHeightWidth(width:number = state.width,height:number = state.hei
   if (Number.isFinite(rows) && Number.isFinite(cols)){
     ResizePty(props.id,rows,cols).then(()=>{
       state.term.resize(cols, rows);
+    }).catch(e=>{
+      console.error(e);
     });
   }
 }
@@ -127,7 +129,9 @@ function fitTerminal() {
   // getHelperRect().then(()=>{
   //   fitWithHeightWidth();
     // Todo 从后端读取数据，通过调用func写入后端
-    ResizePty(props.id,state.term.rows,state.term.cols).then();
+    ResizePty(props.id,state.term.rows,state.term.cols).catch(e=>{
+      console.error(e);
+    });
   // });
 }
 // Write data from pty into the terminal
@@ -142,7 +146,9 @@ function writeToTerminal(data: string | Uint8Array | ArrayBuffer | Blob) {
 function writeToPty(data: string | Uint8Array | ArrayBuffer | Blob) {
   toUint8Array(data).then(res=>{
     // Todo 通过调用func写入后端
-    WriteToPty(props.id,Array.from(res)).then()
+    WriteToPty(props.id,Array.from(res)).catch(e=>{
+      console.error(e);
+    });
   })
 }
 
@@ -155,7 +161,7 @@ function ptyStoutListener(){
 function initShell() {
   NewTerminal();
   // Todo 请求pty或者ssh
-  ptyStoutListener()
+  ptyStoutListener();
 }
 
 async function toUint8Array(input: string | Uint8Array | ArrayBuffer | Blob): Promise<Uint8Array> {
@@ -222,8 +228,11 @@ onMounted(()=>{
   });
 })
 onUnmounted( () => {
-  ClosePty(props.id).then().catch();
+  ClosePty(props.id).catch(e=>{
+    console.error(e);
+  });
   EventsOff(props.id);
+  state.term.dispose();
 })
 </script>
 
