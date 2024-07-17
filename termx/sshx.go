@@ -3,11 +3,11 @@ package termx
 import (
 	"fmt"
 	"github.com/pkg/sftp"
-	"github.com/trzsz/trzsz-go/trzsz"
 	"golang.org/x/crypto/ssh"
 	"io"
 	"os"
 	"sync/atomic"
+	"terminal/pkg/trzsz"
 	"time"
 )
 
@@ -53,6 +53,7 @@ func (s *sshSession) Resize(rows, cols int) error {
 
 func (s *sshSession) Read(p []byte) (n int, err error) {
 	if s.closed.Load() {
+		fmt.Printf("%s%s\n\r", "SSH connection closed: ", err)
 		return 0, io.EOF
 	}
 	or, err := s.stdout.Read(p)
@@ -67,6 +68,7 @@ func (s *sshSession) Read(p []byte) (n int, err error) {
 
 func (s *sshSession) Write(p []byte) (n int, err error) {
 	if s.closed.Load() {
+		fmt.Printf("%s%s\n\r", "SSH connection closed: ", err)
 		return 0, io.EOF
 	}
 	return s.stdin.Write(p)
@@ -153,14 +155,18 @@ func NewSshPTY(username, password, address string, port uint, privateKey []byte,
 		err = session.Wait()
 		if err != nil {
 			fmt.Printf("SSH shell exited: %s\n", err)
+		} else {
+			fmt.Printf("SSH shell exited\n")
 		}
+
 		if closed.CompareAndSwap(false, true) {
-			_ = sshClient.Close()
 			_ = session.Close()
 			_ = clientIn.Close()
 			_ = stdinPipe.Close()
 			_ = stdoutPipe.Close()
 			_ = clientOut.Close()
+			_ = serverIn.Close()
+			_ = sshClient.Close()
 		}
 	}()
 
@@ -177,12 +183,13 @@ func NewSshPTY(username, password, address string, port uint, privateKey []byte,
 					return
 				}
 			}()
-			_ = sshClient.Close()
 			_ = session.Close()
 			_ = clientIn.Close()
 			_ = stdinPipe.Close()
 			_ = stdoutPipe.Close()
 			_ = clientOut.Close()
+			_ = serverIn.Close()
+			_ = sshClient.Close()
 		},
 		closed: closed,
 	}, nil

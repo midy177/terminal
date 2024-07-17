@@ -71,9 +71,12 @@ function openFileBrowser(){
 }
 
 function closePty(tab: Tab,key: string,i: number){
-  ClosePty(key).then().catch();
-  EventsOff(key);
-  state.termRefMap.delete(key);
+  ClosePty(key).finally(()=>{
+    tabRef.value.removeTab(i);
+    EventsOff(key);
+    state.termRefMap.delete(key);
+  });
+
 }
 function setTerminalRef(tabKey: string,el: Element | ComponentPublicInstance | null) {
   if (el) {
