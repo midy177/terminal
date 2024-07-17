@@ -1,4 +1,5 @@
 #!/bin/sh
+rm -rf build/bin/*.app
 wails build clearn
 #  Script.sh
 #  sign
@@ -13,7 +14,6 @@ wails build clearn
 #fi
 
 cd build/bin
-rm -rf *.app
 rm *.dmg
 create-dmg --volname terminal \
            --window-pos 200 120 \
