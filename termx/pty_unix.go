@@ -24,7 +24,7 @@ func (t *unixPty) Sftp() (*sftp.Client, error) {
 }
 
 // CloseSftp close sftp client
-func (s *unixPty) CloseSftp() error {
+func (t *unixPty) CloseSftp() error {
 	return nil
 }
 
@@ -71,17 +71,13 @@ func NewPTY(s *SystemShell) (PtyX, error) {
 	uPty, err := pty.Start(c)
 	closed := &atomic.Bool{}
 	go func() {
-		defer func() {
-			if r := recover(); r != nil {
-				fmt.Println("recovered from ", r)
-			}
-		}()
 		err = c.Wait()
 		if err != nil {
 			fmt.Printf("pty shell exited: %s\n", err)
 		}
-		_ = uPty.Close()
-		closed.Store(true)
+		if closed.CompareAndSwap(false, true) {
+			_ = uPty.Close()
+		}
 	}()
 	return &unixPty{
 		pty:    uPty,

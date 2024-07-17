@@ -72,9 +72,6 @@ function NewTerminal(){
   state.term.onTitleChange((title)=>{
     emit('update:title', title);
   })
-  // state.term.onResize((size) => {
-  //   ResizePty(props.id,size.rows,size.cols).then();
-  // })
 }
 
 const emit = defineEmits(['update:title']);
@@ -232,7 +229,7 @@ onUnmounted( () => {
     console.error(e);
   });
   EventsOff(props.id);
-  state.term.dispose();
+  // state.term.dispose();
 })
 </script>
 

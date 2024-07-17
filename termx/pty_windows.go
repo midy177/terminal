@@ -24,7 +24,7 @@ func (t *windowsPty) Sftp() (*sftp.Client, error) {
 }
 
 // CloseSftp close sftp client
-func (s *windowsPty) CloseSftp() error {
+func (t *windowsPty) CloseSftp() error {
 	return nil
 }
 
@@ -69,17 +69,15 @@ func NewPTY(s *SystemShell) (PtyX, error) {
 	}
 	closed := &atomic.Bool{}
 	go func() {
-		defer func() {
-			if r := recover(); r != nil {
-				fmt.Println("recovered from ", r)
-			}
-		}()
 		exitCode, err := wPty.Wait(context.Background())
 		if err != nil {
-			fmt.Printf("conpty is exiting with exitCode: %v err: %s\n", exitCode, err)
+			fmt.Printf("conpty is exiting with err: %s\n", err)
+		} else {
+			fmt.Println("conpty is exiting with exitCode: ", exitCode)
 		}
-		closed.Store(true)
-		_ = wPty.Close()
+		if closed.CompareAndSwap(false, true) {
+			_ = wPty.Close()
+		}
 	}()
 
 	return &windowsPty{
