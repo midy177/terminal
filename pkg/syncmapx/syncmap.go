@@ -19,34 +19,46 @@ func New[K any, V any]() *Map[K, V] {
 
 // Load will load data from the Map.
 func (m *Map[K, V]) Load(I K) (V, bool) {
-	var result V
-
 	data, ok := m.ds.Load(I)
-
-	result, _ = data.(V)
-
+	if !ok {
+		var res V
+		return res, false
+	}
+	result, ok := data.(V)
+	if !ok {
+		var res V
+		return res, false
+	}
 	return result, ok
 }
 
 // LoadOrStore will load or store data from the Map.
 func (m *Map[K, V]) LoadOrStore(I K, J V) (V, bool) {
-	var result V
-
 	data, ok := m.ds.LoadOrStore(I, J)
-
-	result, _ = data.(V)
-
+	if !ok {
+		var res V
+		return res, false
+	}
+	result, ok := data.(V)
+	if !ok {
+		var res V
+		return res, false
+	}
 	return result, ok
 }
 
 // LoadAndDelete will load and delete data from the Map.
 func (m *Map[K, V]) LoadAndDelete(I K) (V, bool) {
-	var result V
-
 	data, ok := m.ds.LoadAndDelete(I)
-
-	result, _ = data.(V)
-
+	if !ok {
+		var res V
+		return res, false
+	}
+	result, ok := data.(V)
+	if !ok {
+		var res V
+		return res, false
+	}
 	return result, ok
 }
 
@@ -63,12 +75,14 @@ func (m *Map[K, V]) Store(I K, J V) {
 // Range will iterate over the data in the Map and apply the func on it.
 func (m *Map[K, V]) Range(L func(I K, J V) bool) {
 	m.ds.Range(func(A, B any) bool {
-		var C K
-		var D V
-
-		C, _ = A.(K)
-		D, _ = B.(V)
-
+		C, ok := A.(K)
+		if !ok {
+			return true
+		}
+		D, ok := B.(V)
+		if !ok {
+			return true
+		}
 		return L(C, D)
 	})
 }

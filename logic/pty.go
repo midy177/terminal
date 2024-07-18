@@ -62,7 +62,7 @@ func (l *Logic) ClosePty(id string) error {
 	if !ok {
 		return errors.New("pty already released")
 	}
-	return t.Close()
+	return t.(termx.PtyX).Close()
 }
 
 // ResizePty 重置终端大小
