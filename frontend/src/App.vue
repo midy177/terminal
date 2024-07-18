@@ -22,20 +22,23 @@ const state = reactive({
   termRefMap: new Map<string, Element | ComponentPublicInstance | null>(),
   resizeObserver: <ResizeObserver | null>null,
   tickTimer: <number | null>null,
+  width: 0,
+  height: 0,
 })
 
 function addLocalTab(data: termx.SystemShell) {
   const hide = message.loading('打开本地终端中...', 0);
-  let key = nanoid()
-  data.id = key
+  const tid = nanoid()
+  data.id = tid
   CreateLocalPty(data).then(()=>{
     let newTab = {
       label: data.name,
       title: data.name,
-      key: key,
+      key: tid,
     }
-    tabRef.value.addTab(newTab)
-    state.tab = key
+    tabRef.value.addTab(newTab);
+    state.tab = tid;
+    resizeHandle(tid);
   }).catch(e=>{
     notification.error({
       message: '创建本地终端失败',
@@ -47,15 +50,16 @@ function addLocalTab(data: termx.SystemShell) {
 
 function handleOpenSshTerminal(id:number,label:string){
   const hide = message.loading('连接到ssh服务器中...', 0);
-  let tid = nanoid()
+  const tid = nanoid()
   CreateSshPty(tid, id,22,60).then((e)=>{
     let newTab = {
       label: label,
       title: label,
       key: tid,
     }
-    tabRef.value.addTab(newTab)
-    state.tab = tid
+    tabRef.value.addTab(newTab);
+    state.tab = tid;
+    resizeHandle(tid);
   }).catch(e=>{
     notification.error({
       message: '创建ssh连接失败',
@@ -75,8 +79,6 @@ function closePty(tab: Tab,key: string,i: number){
     EventsOff(key);
     state.termRefMap.delete(key);
   });
-  // tabRef.value.removeTab(i);
-
 }
 function setTerminalRef(tabKey: string,el: Element | ComponentPublicInstance | null) {
   if (el) {
@@ -84,18 +86,14 @@ function setTerminalRef(tabKey: string,el: Element | ComponentPublicInstance | n
   }
 }
 
-function resizeTerminal(newKey: string) {
-  let newRef = state.termRefMap.get(newKey)
-  if (newRef) {
-    (newRef as InstanceType<typeof Terminal>).fitWithHeightWidth()
-  }
-}
-
-function resizeHandle(width: number, height: number) {
-  let currTermRef = state.termRefMap.get(state.tab)
-  if (currTermRef) {
-    (currTermRef as InstanceType<typeof Terminal>).fitWithHeightWidth(width,height)
-  }
+function resizeHandle(tabKey?: string) {
+  setTimeout(() => {
+    if (!tabKey) tabKey = state.tab;
+    const currTermRef = state.termRefMap.get(tabKey)
+    if (currTermRef) {
+      (currTermRef as InstanceType<typeof Terminal>).fitWithHeightWidth(state.width, state.height)
+    }
+  }, 300)
 }
 
 function eventResize() {
@@ -103,22 +101,26 @@ function eventResize() {
   state.tickTimer = setTimeout(() => {
     const resizeBox = terminalLayoutRef.value;
     if (!resizeBox) return;
+    const currentWidth = resizeBox.clientWidth-24;
+    const currentHeight = resizeBox.clientHeight-16;
+    if (currentWidth <= 0 && currentHeight <=0) return;
+    if (state.width == currentWidth && state.height == currentHeight) return;
+    state.width = currentWidth;
+    state.height = currentHeight;
     // 计算行和列数
-    resizeHandle(resizeBox.clientWidth-24,resizeBox.clientHeight-16);
-  }, 300) as unknown as number; // TypeScript 类型断言
+    resizeHandle();
+  }, 100) as unknown as number; // TypeScript 类型断言
 }
 
 function addEvents() {
   removeEvents();
   const resizeBox = terminalLayoutRef.value;
   if (!resizeBox) return;
-  // addEventListener('resize',eventResize)
   state.resizeObserver = new ResizeObserver(eventResize);
   state.resizeObserver.observe(resizeBox);
 }
 
 function removeEvents() {
-  // removeEventListener('resize',eventResize)
   const resizeBox = terminalLayoutRef.value;
   if (resizeBox && state.resizeObserver) {
     state.resizeObserver.unobserve(resizeBox);
@@ -139,9 +141,8 @@ onUnmounted(()=>{
 watch(
     () => state.tab,
     (newVal, oldVal) => {
-      eventResize();
-    },
-    // {immediate: true}
+      resizeHandle(newVal);
+    }
 );
 
 const shouldShowTerminal = (key: string) => {

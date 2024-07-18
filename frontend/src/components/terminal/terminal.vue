@@ -5,6 +5,7 @@ import "./xterm.css";
 import {ComponentPublicInstance, nextTick, onMounted, onUnmounted, reactive, ref, VNodeRef} from 'vue';
 import {ClosePty, ResizePty, WriteToPty} from "../../../wailsjs/go/logic/Logic";
 import {EventsOff, EventsOn} from "../../../wailsjs/runtime";
+import {IRenderDimensions} from "xterm/src/browser/renderer/shared/Types";
 
 const props = defineProps({
   id: {
@@ -18,11 +19,7 @@ const state = reactive({
   width: 0,
   height: 0,
   cols: 0,
-  rows: 0,
-  helperRect:{
-    width: 0,
-    height: 0
-  }
+  rows: 0
 });
 const currentRef = ref<VNodeRef | null>(null);
 // 赋值动态ref到变量
@@ -72,6 +69,11 @@ function NewTerminal(){
   state.term.onTitleChange((title)=>{
     emit('update:title', title);
   })
+  state.term.onResize(size=>{
+    ResizePty(props.id,size.rows,size.cols).catch(e=>{
+      console.error(e);
+    });
+  })
 }
 
 const emit = defineEmits(['update:title']);
@@ -91,32 +93,21 @@ function getColsRows() {
 
 function fitWithHeightWidth(width:number = state.width,height:number = state.height) {
   if (width == 0 || height == 0) return;
-  if (state.helperRect.width == 0 || state.helperRect.height == 0) {
-    // console.log('getHelperRect');
-    if (!currentRef.value) return;
-    const xtermElement = currentRef.value;
-    if (xtermElement.style.display == 'none') return;
-    // const xtermRect = xtermElement.getBoundingClientRect();
-    const xtermHelperElement = xtermElement.querySelector('.xterm-helper-textarea');
-    if (!xtermHelperElement) return;
-    const helperRect = xtermHelperElement.getBoundingClientRect();
-    state.helperRect.height =helperRect.height;
-    state.helperRect.width = helperRect.width;
-  }
-  // console.log('window size change');
-  const cols = Math.floor(width / state.helperRect.width);
-  const rows = Math.floor(height / state.helperRect.height);
+  const core =  (state.term as any)._core;
+  const dims: IRenderDimensions = core._renderService.dimensions;
+  if (dims.css.cell.width === 0 || dims.css.cell.height === 0) return;
+  const cols = Math.floor(width / dims.css.cell.width);
+  const rows = Math.floor(height / dims.css.cell.height);
   if (width == state.width && height == state.height && state.cols == cols && state.rows == rows) return;
   state.cols = cols;
   state.rows = rows;
   state.width = width;
   state.height = height;
   if (Number.isFinite(rows) && Number.isFinite(cols)){
-    ResizePty(props.id,rows,cols).then(()=>{
-      state.term.resize(cols, rows);
-    }).catch(e=>{
-      console.error(e);
-    });
+    state.term.resize(cols, rows);
+    // ResizePty(props.id,rows,cols).catch(e=>{
+    //   console.error(e);
+    // });
   }
 }
 
@@ -221,7 +212,8 @@ onMounted(()=>{
     state.term.onData(writeToPty);
     state.term.onBinary(writeToPty);
     // 初次渲染时调整大小
-    fitTerminal();
+    fitAddon.fit();
+    // fitTerminal();
   });
 })
 onUnmounted( () => {
