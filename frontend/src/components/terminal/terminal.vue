@@ -7,6 +7,7 @@ import {ClosePty, GetStats, ResizePty, WriteToPty} from "../../../wailsjs/go/log
 import {EventsOff, EventsOn} from "../../../wailsjs/runtime";
 import {IRenderDimensions} from "xterm/src/browser/renderer/shared/Types";
 import {DropEvent} from "vue-devui/dragdrop-new";
+import {TrzszAddon, TrzszFilter} from "trzsz";
 
 const props = defineProps({
   id: {
@@ -14,6 +15,13 @@ const props = defineProps({
     required: true
   },
 });
+const trzszFilter = new TrzszFilter({
+  // 将服务器的输出转发给终端进行显示，当用户在服务器上执行 trz / tsz 命令时，输出则会被接管。
+  writeToTerminal: (data) => writeToTerminal(data),
+  // 将服务器的输出转发给终端进行显示，当用户在服务器上执行 trz / tsz 命令时，输出则会被接管。
+  sendToServer: (data) => writeToPty(data),
+});
+
 const fitAddon = new FitAddon();
 const state = reactive({
   term: null as unknown as Terminal,
@@ -106,6 +114,7 @@ function fitWithHeightWidth(width:number = state.width,height:number = state.hei
   state.height = height;
   if (Number.isFinite(rows) && Number.isFinite(cols)){
     state.term.resize(cols, rows);
+    trzszFilter.setTerminalColumns(cols);
     // ResizePty(props.id,rows,cols).catch(e=>{
     //   console.error(e);
     // });
@@ -133,24 +142,25 @@ function writeToTerminal(data: string | Uint8Array | ArrayBuffer | Blob) {
 
 // Write data from the terminal to the pty
 function writeToPty(data: string | Uint8Array | ArrayBuffer | Blob) {
-  toUint8Array(data).then(res=>{
+  toUint8Array(data).then(resp=>{
     // Todo 通过调用func写入后端
-    WriteToPty(props.id,Array.from(res)).catch(e=>{
+    WriteToPty(props.id,Array.from(resp)).catch(e=>{
       console.error(e);
     });
   })
 }
 
-function ptyStoutListener(){
-  EventsOn(props.id,(res: string)=>{
-    writeToTerminal(res);
+function ptyStdoutListener(){
+  EventsOn(props.id,(resp: string)=>{
+    trzszFilter.processServerOutput(resp);
+    // writeToTerminal(resp);
   })
 }
 
 function initShell() {
   NewTerminal();
   // Todo 请求pty或者ssh
-  ptyStoutListener();
+  ptyStdoutListener();
 }
 
 async function toUint8Array(input: string | Uint8Array | ArrayBuffer | Blob): Promise<Uint8Array> {
@@ -206,38 +216,38 @@ defineExpose({
   focusTerminal,
 })
 
-
-onMounted(()=>{
-  nextTick(() => {
-    initShell();
-    state.term.onData(writeToPty);
-    state.term.onBinary(writeToPty);
-    // 初次渲染时调整大小
-    fitAddon.fit();
-    // fitTerminal();
-    GetStats(props.id).then(resp=>{
-      console.log(resp)
-    }).catch(e=>{
-      console.log(e)
-    })
-  });
-})
-
 function onDragover(event: DragEvent){
   event.preventDefault();
 }
 
 function onDrop(event: DragEvent){
   event.preventDefault();
-  const files = event.dataTransfer?.files;
-  if (files && files.length > 0) {
-    for (let i = 0; i < files.length; i++) {
-      console.log(files[i]);
-      console.log(`File name: ${files[i].name}`);
-      console.log(`File path: ${files[i].webkitRelativePath || files[i].name}`);
-    }
+  if (event?.dataTransfer?.items && event?.dataTransfer?.items?.length > 0) {
+    trzszFilter.uploadFiles(event.dataTransfer.items)
+        .then(() => console.log("upload success"))
+        .catch((err) => console.log(err));
   }
 }
+
+onMounted(()=>{
+  nextTick(() => {
+    initShell();
+    // state.term.onData(writeToPty);
+    // state.term.onBinary(writeToPty);
+    state.term.onData((data) => trzszFilter.processTerminalInput(data));
+    state.term.onBinary((data) => trzszFilter.processBinaryInput(data));
+    // 初次渲染时调整大小
+    fitAddon.fit();
+    trzszFilter.setTerminalColumns(state.term.cols);
+    // fitTerminal();
+    // 获取监控信息
+    // GetStats(props.id).then(resp=>{
+    //   console.log(resp)
+    // }).catch(e=>{
+    //   console.log(e)
+    // })
+  });
+})
 
 onUnmounted( () => {
   ClosePty(props.id).catch(e=>{
@@ -253,9 +263,9 @@ onUnmounted( () => {
         :ref="setItemRef"
         class="xterm-layout"
         @contextmenu.prevent="rightMouseDown"
+        @dragover="onDragover"
+        @drop="onDrop"
     />
-<!--  @dragover="onDragover"-->
-<!--  @drop="onDrop"-->
 </template>
 
 <style scoped lang="less">
