@@ -147,7 +147,10 @@ func NewSshPTY(username, password, address string, port uint, privateKey []byte,
 	stdoutPipe, clientOut := io.Pipe()
 	// 设置trzsz
 	trzszFilter := trzsz.NewTrzszFilter(clientIn, clientOut, serverIn, serverOut,
-		trzsz.TrzszOptions{TerminalColumns: int32(width)})
+		trzsz.TrzszOptions{
+			TerminalColumns: int32(width),
+			EnableZmodem:    true,
+		})
 	// 启动一个 shell 会话
 	err = session.Shell()
 	if err != nil {
