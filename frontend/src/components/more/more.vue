@@ -6,18 +6,22 @@ import {
 import {
   Quit, WindowCenter,
   WindowFullscreen, WindowIsFullscreen, WindowIsMinimised,
-  WindowMinimise, WindowToggleMaximise, WindowUnfullscreen, WindowUnminimise
+  WindowMinimise, WindowSetAlwaysOnTop, WindowToggleMaximise,
+  WindowUnfullscreen, WindowUnminimise
 } from "../../../wailsjs/runtime";
-import {reactive} from "vue";
+import {onMounted, reactive} from "vue";
+import {IsRunAsAdmin, OsGoos, RunAsAdmin} from "../../../wailsjs/go/logic/Logic";
 const props = defineProps({
   fileBrowser: {
     type: Function,
   }
 })
 const state = reactive({
+  goos: '',
   isMax: false,
   isFull: true,
-  isMin: false,
+  isRunAsAdmin: false,
+  alwaysOnTop: false,
 })
 function toggleMin(){
   WindowIsMinimised().then((res:boolean)=>{
@@ -33,6 +37,11 @@ function toggleMin(){
       duration: null
     });
   })
+}
+
+function toggleMax(){
+  state.isMax = !state.isMax
+  WindowToggleMaximise();
 }
 
 function openFileBrowser() {
@@ -54,6 +63,21 @@ function toggleFull(){
     });
   })
 }
+
+function SetAlwaysOnTop() {
+  state.alwaysOnTop = !state.alwaysOnTop
+  WindowSetAlwaysOnTop(state.alwaysOnTop)
+}
+
+onMounted(()=>{
+  IsRunAsAdmin().then(resp=>{
+    state.isRunAsAdmin = resp
+  });
+  WindowSetAlwaysOnTop(state.alwaysOnTop);
+  OsGoos().then(resp=>{
+    state.goos = resp
+  })
+})
 </script>
 
 <template>
@@ -68,23 +92,37 @@ function toggleFull(){
     </Button>
     <template #overlay>
       <Menu>
+        <MenuItem :key="-1" @click="SetAlwaysOnTop">
+          <template #icon>
+            <Icon name="icon-group-submit" color="#f2f3f5" size="1rem">
+            </Icon>
+          </template>
+         {{ state.alwaysOnTop ? '取消置顶':'窗口置顶' }}
+        </MenuItem>
+        <MenuItem v-if="!state.isRunAsAdmin" :key="0" @click="RunAsAdmin">
+          <template #icon>
+            <Icon name="icon-op-mine" color="#f2f3f5" size="1rem">
+            </Icon>
+          </template>
+          管理员运行
+        </MenuItem>
         <MenuItem :key="1" @click="openFileBrowser">
           <template #icon>
-            <Icon name="icon-folder" color="#f2f3f5" size="1rem">
+            <Icon name="icon-folder-2" color="#f2f3f5" size="1rem">
             </Icon>
           </template>
           管理文件
         </MenuItem>
-        <MenuItem :key="2" @click="WindowToggleMaximise">
+        <MenuItem :key="2" @click="toggleMax">
           <template #icon>
-            <Icon name="icon-maxmize" color="#f2f3f5" size="1rem">
+            <Icon :name="state.isMax ? 'icon-minimize':'icon-maxmize'" color="#f2f3f5" size="1rem">
             </Icon>
           </template>
-          最大化切换
+          {{ state.isMax ? '取消最大化':'窗口最大化' }}
         </MenuItem>
         <MenuItem :key="3" @click="WindowCenter">
           <template #icon>
-            <Icon name="icon-text-align-center" color="#f2f3f5" size="1rem">
+            <Icon name="icon-location" color="#f2f3f5" size="1rem">
             </Icon>
           </template>
           窗口居中
@@ -94,9 +132,9 @@ function toggleFull(){
             <Icon name="icon-minimize" color="#f2f3f5" size="1rem">
             </Icon>
           </template>
-          {{state.isMin ? '取消最小化': '最小化'}}
+          最小化
         </MenuItem>
-        <MenuItem :key="5" @click="toggleFull">
+        <MenuItem :key="5" @click="toggleFull" v-if="state.goos != 'darwin'">
           <template #icon>
             <Icon name="icon-ue-expand" color="#f2f3f5" size="1rem">
             </Icon>
@@ -105,7 +143,7 @@ function toggleFull(){
         </MenuItem>
         <MenuItem :key="6" @click="Quit()">
           <template #icon>
-            <Icon name="icon-exit" color="#f2f3f5" size="1rem">
+            <Icon name="icon-op-exit-2" color="#f2f3f5" size="1rem">
             </Icon>
           </template>
           退出

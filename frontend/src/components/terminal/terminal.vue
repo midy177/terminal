@@ -3,7 +3,7 @@ import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import "./xterm.css";
 import {ComponentPublicInstance, nextTick, onMounted, onUnmounted, reactive, ref, VNodeRef} from 'vue';
-import {ClosePty, ResizePty, WriteToPty} from "../../../wailsjs/go/logic/Logic";
+import {ClosePty, GetStats, ResizePty, WriteToPty} from "../../../wailsjs/go/logic/Logic";
 import {EventsOff, EventsOn} from "../../../wailsjs/runtime";
 import {IRenderDimensions} from "xterm/src/browser/renderer/shared/Types";
 
@@ -214,6 +214,11 @@ onMounted(()=>{
     // 初次渲染时调整大小
     fitAddon.fit();
     // fitTerminal();
+    GetStats(props.id).then(resp=>{
+      console.log(resp)
+    }).catch(e=>{
+      console.log(e)
+    })
   });
 })
 onUnmounted( () => {

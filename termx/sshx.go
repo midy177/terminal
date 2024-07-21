@@ -7,7 +7,7 @@ import (
 	"io"
 	"os"
 	"sync/atomic"
-	"terminal/pkg/trzsz"
+	"terminal/lib/trzsz"
 	"time"
 )
 
@@ -21,6 +21,10 @@ type sshSession struct {
 	trzszFilter *trzsz.TrzszFilter
 	closed      *atomic.Bool
 	clear       func()
+}
+
+func (s *sshSession) Ssh() (*ssh.Client, error) {
+	return s.client, nil
 }
 
 // Sftp create sftp client

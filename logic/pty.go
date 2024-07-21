@@ -3,8 +3,12 @@ package logic
 import (
 	"context"
 	"errors"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
+	wailsrt "github.com/wailsapp/wails/v2/pkg/runtime"
 	"log"
+	"os"
+	"runtime"
+	"terminal/lib/api"
+	"terminal/lib/privilege"
 	"terminal/termx"
 )
 
@@ -58,6 +62,7 @@ func (l *Logic) CreateSshPty(tid string, id, rows, cols int) error {
 
 // ClosePty 关闭pty
 func (l *Logic) ClosePty(id string) error {
+	l.statMap.Delete(id)
 	t, ok := l.ptyMap.LoadAndDelete(id)
 	if !ok {
 		return errors.New("pty already released")
@@ -104,10 +109,53 @@ func (l *Logic) eventEmitLoop(id string) error {
 				break
 			}
 			if read > 0 {
-				runtime.EventsEmit(ctx, id, string(buf[:read]))
+				wailsrt.EventsEmit(ctx, id, string(buf[:read]))
 			}
 		}
-		runtime.EventsOff(ctx, id)
+		wailsrt.EventsOff(ctx, id)
 	}(t, l.Ctx, clearFun)
 	return nil
+}
+
+func (l *Logic) GetStats(id string) (*api.Stat, error) {
+	stat, ok := l.statMap.Load(id)
+	if !ok {
+		stat = api.NewStats()
+		l.statMap.Store(id, stat)
+	}
+	client, ok := l.ptyMap.Load(id)
+	if !ok {
+		return nil, errors.New("pty already released")
+	}
+	sshClient, err := client.Ssh()
+	if err != nil {
+		return nil, err
+	}
+	err = stat.GetAllStats(sshClient)
+	if err != nil {
+		return nil, err
+	}
+	return stat, nil
+}
+
+func (l *Logic) IsRunAsAdmin() bool {
+	p := privilege.New()
+	return p.IsAdmin()
+}
+
+func (l *Logic) RunAsAdmin() error {
+	p := privilege.New()
+	if p.IsAdmin() {
+		return errors.New("already run as admin")
+	}
+	err := p.Elevate()
+	if err != nil {
+		return err
+	}
+	os.Exit(0)
+	return nil
+}
+
+func (l *Logic) OsGoos() string {
+	return runtime.GOOS
 }

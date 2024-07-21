@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/creack/pty"
 	"github.com/pkg/sftp"
+	"golang.org/x/crypto/ssh"
 	"io"
 	"os"
 	"os/exec"
@@ -16,6 +17,11 @@ import (
 type unixPty struct {
 	pty    *os.File
 	closed *atomic.Bool
+}
+
+func (t *unixPty) Ssh() (*ssh.Client, error) {
+	//TODO implement me
+	return nil, errors.New("creack pty not supported")
 }
 
 func (t *unixPty) Sftp() (*sftp.Client, error) {

@@ -9,15 +9,17 @@ import (
 	"os"
 	"path/filepath"
 	"terminal/ent"
-	"terminal/pkg/syncmapx"
+	"terminal/lib/api"
+	"terminal/lib/syncmapx"
 	"terminal/termx"
 )
 
 // Logic struct
 type Logic struct {
-	Ctx    context.Context
-	db     *ent.Client
-	ptyMap *syncmapx.Map[string, termx.PtyX]
+	Ctx     context.Context
+	db      *ent.Client
+	ptyMap  *syncmapx.Map[string, termx.PtyX]
+	statMap *syncmapx.Map[string, *api.Stat]
 }
 
 // OpenLink opens the provided URL in the default web browser
@@ -28,7 +30,8 @@ func (l *Logic) OpenLink(url string) error {
 // NewApp creates a new App application struct
 func NewApp() *Logic {
 	l := &Logic{
-		ptyMap: syncmapx.New[string, termx.PtyX](),
+		ptyMap:  syncmapx.New[string, termx.PtyX](),
+		statMap: syncmapx.New[string, *api.Stat](),
 	}
 	sqliteFilePath := getSqliteFilePath()
 	//moveDBFile(sqliteFilePath)

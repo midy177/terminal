@@ -54,12 +54,28 @@ export function GetLocalPtyList() {
   return window['go']['logic']['Logic']['GetLocalPtyList']();
 }
 
+export function GetStats(arg1) {
+  return window['go']['logic']['Logic']['GetStats'](arg1);
+}
+
+export function IsRunAsAdmin() {
+  return window['go']['logic']['Logic']['IsRunAsAdmin']();
+}
+
 export function OpenLink(arg1) {
   return window['go']['logic']['Logic']['OpenLink'](arg1);
 }
 
+export function OsGoos() {
+  return window['go']['logic']['Logic']['OsGoos']();
+}
+
 export function ResizePty(arg1, arg2, arg3) {
   return window['go']['logic']['Logic']['ResizePty'](arg1, arg2, arg3);
+}
+
+export function RunAsAdmin() {
+  return window['go']['logic']['Logic']['RunAsAdmin']();
 }
 
 export function SftpDelete(arg1, arg2) {

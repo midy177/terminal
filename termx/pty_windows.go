@@ -6,47 +6,52 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/UserExistsError/conpty"
 	"github.com/pkg/sftp"
+	"golang.org/x/crypto/ssh"
 	"io"
 	"strings"
 	"sync/atomic"
 )
 
-type windowsPty struct {
+type windowPty struct {
 	pty    *conpty.ConPty
 	closed *atomic.Bool
 }
 
-func (t *windowsPty) Sftp() (*sftp.Client, error) {
+func (t *windowPty) Ssh() (*ssh.Client, error) {
+	//TODO implement me
+	return nil, errors.New("window conpty not supported")
+}
+
+func (t *windowPty) Sftp() (*sftp.Client, error) {
 	//TODO implement me
 	return nil, errors.New("sftp pty not supported")
 }
 
 // CloseSftp close sftp client
-func (t *windowsPty) CloseSftp() error {
+func (t *windowPty) CloseSftp() error {
 	return nil
 }
 
-func (t *windowsPty) Resize(rows, cols int) error {
+func (t *windowPty) Resize(rows, cols int) error {
 	return t.pty.Resize(cols, rows)
 }
 
-func (t *windowsPty) Read(p []byte) (n int, err error) {
+func (t *windowPty) Read(p []byte) (n int, err error) {
 	if t.closed.Load() {
 		return 0, io.EOF
 	}
 	return t.pty.Read(p)
 }
 
-func (t *windowsPty) Write(p []byte) (n int, err error) {
+func (t *windowPty) Write(p []byte) (n int, err error) {
 	if t.closed.Load() {
 		return 0, io.EOF
 	}
 	return t.pty.Write(p)
 }
 
-func (t *windowsPty) Close() error {
+func (t *windowPty) Close() error {
 	if t.closed.CompareAndSwap(false, true) {
 		return t.pty.Close()
 	}
@@ -80,7 +85,7 @@ func NewPTY(s *SystemShell) (PtyX, error) {
 		}
 	}()
 
-	return &windowsPty{
+	return &windowPty{
 		pty:    wPty,
 		closed: closed,
 	}, nil

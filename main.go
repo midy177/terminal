@@ -52,6 +52,8 @@ func main() {
 			WebviewUserDataPath:               "",
 			WebviewBrowserPath:                "",
 			Theme:                             windows.Dark,
+			ResizeDebounceMS:                  100,
+			WebviewGpuIsDisabled:              false,
 		},
 		Mac: &mac.Options{
 			TitleBar: &mac.TitleBar{

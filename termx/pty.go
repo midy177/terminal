@@ -2,6 +2,7 @@ package termx
 
 import (
 	"github.com/pkg/sftp"
+	"golang.org/x/crypto/ssh"
 )
 
 type PtyX interface {
@@ -11,4 +12,5 @@ type PtyX interface {
 	Close() error
 	Sftp() (*sftp.Client, error)
 	CloseSftp() error
+	Ssh() (*ssh.Client, error)
 }
