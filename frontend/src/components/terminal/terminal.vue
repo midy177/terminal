@@ -6,6 +6,7 @@ import {ComponentPublicInstance, nextTick, onMounted, onUnmounted, reactive, ref
 import {ClosePty, GetStats, ResizePty, WriteToPty} from "../../../wailsjs/go/logic/Logic";
 import {EventsOff, EventsOn} from "../../../wailsjs/runtime";
 import {IRenderDimensions} from "xterm/src/browser/renderer/shared/Types";
+import {DropEvent} from "vue-devui/dragdrop-new";
 
 const props = defineProps({
   id: {
@@ -221,6 +222,23 @@ onMounted(()=>{
     })
   });
 })
+
+function onDragover(event: DragEvent){
+  event.preventDefault();
+}
+
+function onDrop(event: DragEvent){
+  event.preventDefault();
+  const files = event.dataTransfer?.files;
+  if (files && files.length > 0) {
+    for (let i = 0; i < files.length; i++) {
+      console.log(files[i]);
+      console.log(`File name: ${files[i].name}`);
+      console.log(`File path: ${files[i].webkitRelativePath || files[i].name}`);
+    }
+  }
+}
+
 onUnmounted( () => {
   ClosePty(props.id).catch(e=>{
     console.error(e);
@@ -231,10 +249,13 @@ onUnmounted( () => {
 </script>
 
 <template>
-    <div :ref="setItemRef"
-       class="xterm-layout"
-       @contextmenu.prevent="rightMouseDown"
+    <div
+        :ref="setItemRef"
+        class="xterm-layout"
+        @contextmenu.prevent="rightMouseDown"
     />
+<!--  @dragover="onDragover"-->
+<!--  @drop="onDrop"-->
 </template>
 
 <style scoped lang="less">
