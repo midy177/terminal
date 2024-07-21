@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/exec"
 	"sync/atomic"
+	"time"
 )
 
 type unixPty struct {
@@ -46,7 +47,6 @@ func (t *unixPty) Read(p []byte) (n int, err error) {
 		return 0, io.EOF
 	}
 	//defer t.pty.SetDeadline(time.Now().Add(time.Second * 60))
-
 	return t.pty.Read(p)
 }
 
@@ -59,6 +59,7 @@ func (t *unixPty) Write(p []byte) (n int, err error) {
 
 func (t *unixPty) Close() error {
 	if t.closed.CompareAndSwap(false, true) {
+		_ = t.pty.SetReadDeadline(time.Now().Add(time.Second * 15))
 		return t.pty.Close()
 	}
 	return nil

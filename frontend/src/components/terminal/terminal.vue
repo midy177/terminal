@@ -15,12 +15,6 @@ const props = defineProps({
     required: true
   },
 });
-const trzszFilter = new TrzszFilter({
-  // 将服务器的输出转发给终端进行显示，当用户在服务器上执行 trz / tsz 命令时，输出则会被接管。
-  writeToTerminal: (data) => writeToTerminal(data),
-  // 将服务器的输出转发给终端进行显示，当用户在服务器上执行 trz / tsz 命令时，输出则会被接管。
-  sendToServer: (data) => writeToPty(data),
-});
 
 const fitAddon = new FitAddon();
 const state = reactive({
@@ -54,7 +48,7 @@ function NewTerminal(){
     allowTransparency: true,
     allowProposedApi: true,
     overviewRulerWidth: 8,
-    scrollback: 5000
+    scrollback: 10000
   });
   state.term.loadAddon(fitAddon);
   state.term.open(currentRef.value);
@@ -62,16 +56,16 @@ function NewTerminal(){
     if (e.key === '\x03') {
       const copiedText = state.term.getSelection();
       if (copiedText.length > 0) {
+        e.domEvent.preventDefault();
         navigator.clipboard.writeText(copiedText).then(() => {
           state.term.clearSelection();
         });
-        e.domEvent.preventDefault();
       }
     } else if (e.key === '\x16') {
       const clipText = await navigator.clipboard.readText();
       if (clipText.length > 0) {
-        writeToPty(clipText.replace(/\r\n/g, "\n"));
         e.domEvent.preventDefault();
+        writeToPty(clipText.replace(/\r\n/g, "\n"));
       }
     }
   })
@@ -93,7 +87,6 @@ interface ColsRows {
 }
 
 function getColsRows() {
-  // fitWithHeightWidth()
   return <ColsRows>{
     cols: state.term.cols,
     rows :state.term.rows
@@ -114,7 +107,6 @@ function fitWithHeightWidth(width:number = state.width,height:number = state.hei
   state.height = height;
   if (Number.isFinite(rows) && Number.isFinite(cols)){
     state.term.resize(cols, rows);
-    trzszFilter.setTerminalColumns(cols);
     // ResizePty(props.id,rows,cols).catch(e=>{
     //   console.error(e);
     // });
@@ -152,8 +144,8 @@ function writeToPty(data: string | Uint8Array | ArrayBuffer | Blob) {
 
 function ptyStdoutListener(){
   EventsOn(props.id,(resp: string)=>{
-    trzszFilter.processServerOutput(resp);
-    // writeToTerminal(resp);
+    // trzszFilter.processServerOutput(resp);
+    writeToTerminal(resp);
   })
 }
 
@@ -223,23 +215,17 @@ function onDragover(event: DragEvent){
 function onDrop(event: DragEvent){
   event.preventDefault();
   if (event?.dataTransfer?.items && event?.dataTransfer?.items?.length > 0) {
-    trzszFilter.uploadFiles(event.dataTransfer.items)
-        .then(() => console.log("upload success"))
-        .catch((err) => console.log(err));
+    state.term.write('tsz');
   }
 }
 
 onMounted(()=>{
   nextTick(() => {
     initShell();
-    // state.term.onData(writeToPty);
-    // state.term.onBinary(writeToPty);
-    state.term.onData((data) => trzszFilter.processTerminalInput(data));
-    state.term.onBinary((data) => trzszFilter.processBinaryInput(data));
+    state.term.onData(writeToPty);
+    state.term.onBinary(writeToPty);
     // 初次渲染时调整大小
-    fitAddon.fit();
-    trzszFilter.setTerminalColumns(state.term.cols);
-    // fitTerminal();
+    // fitAddon.fit();
     // 获取监控信息
     // GetStats(props.id).then(resp=>{
     //   console.log(resp)
@@ -254,7 +240,6 @@ onUnmounted( () => {
     console.error(e);
   });
   EventsOff(props.id);
-  // state.term.dispose();
 })
 </script>
 

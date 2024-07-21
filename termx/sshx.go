@@ -7,20 +7,21 @@ import (
 	"io"
 	"os"
 	"sync/atomic"
-	//"terminal/lib/trzsz"
+	"terminal/lib/trzsz"
+
 	"time"
 )
 
 type sshSession struct {
-	client  *ssh.Client
-	session *ssh.Session
-	stdin   io.WriteCloser
-	stdout  io.Reader
-	stderr  io.Reader
-	sftp    *sftp.Client
-	//trzszFilter *trzsz.TrzszFilter
-	closed *atomic.Bool
-	clear  func()
+	client      *ssh.Client
+	session     *ssh.Session
+	stdin       io.WriteCloser
+	stdout      io.Reader
+	stderr      io.Reader
+	sftp        *sftp.Client
+	trzszFilter *trzsz.TrzszFilter
+	closed      *atomic.Bool
+	clear       func()
 }
 
 func (s *sshSession) Ssh() (*ssh.Client, error) {
@@ -51,7 +52,7 @@ func (s *sshSession) CloseSftp() error {
 }
 
 func (s *sshSession) Resize(rows, cols int) error {
-	//s.trzszFilter.SetTerminalColumns(int32(cols))
+	s.trzszFilter.SetTerminalColumns(int32(cols))
 	return s.session.WindowChange(rows, cols)
 }
 
@@ -143,14 +144,14 @@ func NewSshPTY(username, password, address string, port uint, privateKey []byte,
 	if err != nil {
 		return nil, err
 	}
-	//clientIn, stdinPipe := io.Pipe() // You can treat stdinPipe as session.StdinPipe()
-	//stdoutPipe, clientOut := io.Pipe()
+	clientIn, stdinPipe := io.Pipe() // You can treat stdinPipe as session.StdinPipe()
+	stdoutPipe, clientOut := io.Pipe()
 	// 设置trzsz
-	//trzszFilter := trzsz.NewTrzszFilter(clientIn, clientOut, serverIn, serverOut,
-	//	trzsz.TrzszOptions{
-	//		TerminalColumns: int32(width),
-	//		EnableZmodem:    true,
-	//	})
+	trzszFilter := trzsz.NewTrzszFilter(clientIn, clientOut, serverIn, serverOut,
+		trzsz.TrzszOptions{
+			TerminalColumns: int32(width),
+			EnableZmodem:    true,
+		})
 	// 启动一个 shell 会话
 	err = session.Shell()
 	if err != nil {
@@ -168,10 +169,10 @@ func NewSshPTY(username, password, address string, port uint, privateKey []byte,
 
 		if closed.CompareAndSwap(false, true) {
 			_ = session.Close()
-			//_ = clientIn.Close()
-			//_ = stdinPipe.Close()
-			//_ = stdoutPipe.Close()
-			//_ = clientOut.Close()
+			_ = clientIn.Close()
+			_ = stdinPipe.Close()
+			_ = stdoutPipe.Close()
+			_ = clientOut.Close()
 			_ = serverIn.Close()
 			_ = sshClient.Close()
 		}
@@ -180,12 +181,12 @@ func NewSshPTY(username, password, address string, port uint, privateKey []byte,
 	return &sshSession{
 		client:  sshClient,
 		session: session,
-		//stdin:       stdinPipe,
-		//stdout:      stdoutPipe,
-		stdin:  serverIn,
-		stdout: serverOut,
-		stderr: eb,
-		//trzszFilter: trzszFilter,
+		stdin:   stdinPipe,
+		stdout:  stdoutPipe,
+		//stdin:  serverIn,
+		//stdout: serverOut,
+		stderr:      eb,
+		trzszFilter: trzszFilter,
 		clear: func() {
 			defer func() {
 				if r := recover(); r != nil {
@@ -193,10 +194,10 @@ func NewSshPTY(username, password, address string, port uint, privateKey []byte,
 				}
 			}()
 			_ = session.Close()
-			//_ = clientIn.Close()
-			//_ = stdinPipe.Close()
-			//_ = stdoutPipe.Close()
-			//_ = clientOut.Close()
+			_ = clientIn.Close()
+			_ = stdinPipe.Close()
+			_ = stdoutPipe.Close()
+			_ = clientOut.Close()
 			_ = serverIn.Close()
 			_ = sshClient.Close()
 		},
