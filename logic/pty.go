@@ -9,20 +9,20 @@ import (
 	"runtime"
 	"terminal/lib/api"
 	"terminal/lib/privilege"
-	"terminal/termx"
+	termx2 "terminal/lib/termx"
 )
 
 // GetLocalPtyList 获取本机支持的shell列表
-func (l *Logic) GetLocalPtyList() []termx.SystemShell {
-	return termx.GetShells()
+func (l *Logic) GetLocalPtyList() []termx2.SystemShell {
+	return termx2.GetShells()
 }
 
 // CreateLocalPty 创建本地pty
-func (l *Logic) CreateLocalPty(t *termx.SystemShell) error {
+func (l *Logic) CreateLocalPty(t *termx2.SystemShell) error {
 	if _, ok := l.ptyMap.Load(t.ID); ok {
 		return errors.New("already exists")
 	}
-	tPty, err := termx.NewPTY(t)
+	tPty, err := termx2.NewPTY(t)
 	if err != nil {
 		return err
 	}
@@ -45,7 +45,7 @@ func (l *Logic) CreateSshPty(tid string, id, rows, cols int) error {
 		pKey = key.Content
 	}
 
-	term, err := termx.NewSshPTY(one.Username,
+	term, err := termx2.NewSshPTY(one.Username,
 		one.Password,
 		one.Address,
 		one.Port,
@@ -67,7 +67,7 @@ func (l *Logic) ClosePty(id string) error {
 	if !ok {
 		return errors.New("pty already released")
 	}
-	return t.(termx.PtyX).Close()
+	return t.(termx2.PtyX).Close()
 }
 
 // ResizePty 重置终端大小
@@ -99,7 +99,7 @@ func (l *Logic) eventEmitLoop(id string) error {
 		_ = t.Close()
 		l.ptyMap.Delete(id)
 	}
-	go func(cPty termx.PtyX, ctx context.Context, f func()) {
+	go func(cPty termx2.PtyX, ctx context.Context, f func()) {
 		defer f()
 		var buf = make([]byte, 32*1024)
 		for {

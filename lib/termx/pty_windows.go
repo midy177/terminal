@@ -14,46 +14,47 @@ import (
 	"sync/atomic"
 )
 
-type windowPty struct {
+type windowsPty struct {
 	pty    *conpty.ConPty
 	closed *atomic.Bool
 }
 
-func (t *windowPty) Ssh() (*ssh.Client, error) {
+func (t *windowsPty) Ssh() (*ssh.Client, error) {
 	//TODO implement me
 	return nil, errors.New("window conpty not supported")
 }
 
-func (t *windowPty) Sftp() (*sftp.Client, error) {
+func (t *windowsPty) Sftp() (*sftp.Client, error) {
 	//TODO implement me
 	return nil, errors.New("sftp pty not supported")
 }
 
 // CloseSftp close sftp client
-func (t *windowPty) CloseSftp() error {
+func (t *windowsPty) CloseSftp() error {
 	return nil
 }
 
-func (t *windowPty) Resize(rows, cols int) error {
+func (t *windowsPty) Resize(rows, cols int) error {
 	return t.pty.Resize(cols, rows)
 }
 
-func (t *windowPty) Read(p []byte) (n int, err error) {
+func (t *windowsPty) Read(p []byte) (n int, err error) {
 	if t.closed.Load() {
 		return 0, io.EOF
 	}
 	return t.pty.Read(p)
 }
 
-func (t *windowPty) Write(p []byte) (n int, err error) {
+func (t *windowsPty) Write(p []byte) (n int, err error) {
 	if t.closed.Load() {
 		return 0, io.EOF
 	}
 	return t.pty.Write(p)
 }
 
-func (t *windowPty) Close() error {
+func (t *windowsPty) Close() error {
 	if t.closed.CompareAndSwap(false, true) {
+
 		return t.pty.Close()
 	}
 	return nil
@@ -86,7 +87,7 @@ func NewPTY(s *SystemShell) (PtyX, error) {
 		}
 	}()
 
-	return &windowPty{
+	return &windowsPty{
 		pty:    wPty,
 		closed: closed,
 	}, nil

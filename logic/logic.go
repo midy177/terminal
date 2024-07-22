@@ -11,7 +11,7 @@ import (
 	"terminal/ent"
 	"terminal/lib/api"
 	"terminal/lib/syncmapx"
-	"terminal/termx"
+	"terminal/lib/termx"
 )
 
 // Logic struct

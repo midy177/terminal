@@ -58,8 +58,7 @@ func (t *unixPty) Write(p []byte) (n int, err error) {
 
 func (t *unixPty) Close() error {
 	if t.closed.CompareAndSwap(false, true) {
-		_ = t.cmd.Process.Kill()
-		return t.pty.Close()
+		return errors.Join(t.cmd.Process.Kill(), t.pty.Close())
 	}
 	return nil
 }
