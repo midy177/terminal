@@ -87,17 +87,21 @@ func main() {
 	}
 }
 
-func startPprof() {
+func startPprof() (func(), bool) {
 	enablePprof := flag.Bool("pprof", false, "enable pprof")
 	flag.Parse()
 	if *enablePprof {
 		fmt.Println("starting pprof")
 		f, _ := os.OpenFile("cpu.pprof", os.O_CREATE|os.O_RDWR, 0644)
-		defer f.Close()
 		err := pprof.StartCPUProfile(f)
 		if err != nil {
 			log.Fatal(err)
 		}
-		defer pprof.StopCPUProfile()
+		cancel := func() {
+			_ = f.Close()
+			pprof.StopCPUProfile()
+		}
+		return cancel, true
 	}
+	return nil, false
 }
