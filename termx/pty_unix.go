@@ -18,7 +18,6 @@ type unixPty struct {
 	cmd    *exec.Cmd
 	pty    *os.File
 	closed *atomic.Bool
-	//cancel func()
 }
 
 func (t *unixPty) Ssh() (*ssh.Client, error) {
@@ -69,8 +68,6 @@ func NewPTY(s *SystemShell) (PtyX, error) {
 	env := os.Environ()
 	env = append(env, s.Env...)
 	c := exec.Command(s.Command, s.Args...)
-	//ctx, cancel := context.WithCancel(context.Background())
-	//c := exec.CommandContext(ctx, s.Command, s.Args...)
 	c.Env = env
 
 	if s.Cwd != "" {
@@ -85,11 +82,7 @@ func NewPTY(s *SystemShell) (PtyX, error) {
 			fmt.Printf("pty shell exited: %s\n", err)
 		}
 		if closed.CompareAndSwap(false, true) {
-			//cancel()
 			_ = uPty.Close()
-			if sf, ok := c.Stdout.(*os.File); ok {
-				_ = sf.Close()
-			}
 		}
 	}()
 
@@ -97,6 +90,5 @@ func NewPTY(s *SystemShell) (PtyX, error) {
 		cmd:    c,
 		pty:    uPty,
 		closed: closed,
-		//cancel: cancel,
 	}, err
 }
