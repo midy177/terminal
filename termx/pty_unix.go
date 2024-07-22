@@ -12,10 +12,11 @@ import (
 	"os"
 	"os/exec"
 	"sync/atomic"
-	"time"
 )
 
 type unixPty struct {
+	//out    io.ReadCloser
+	//stop   chan struct{}
 	pty    *os.File
 	closed *atomic.Bool
 }
@@ -46,7 +47,7 @@ func (t *unixPty) Read(p []byte) (n int, err error) {
 	if t.closed.Load() {
 		return 0, io.EOF
 	}
-	//defer t.pty.SetDeadline(time.Now().Add(time.Second * 60))
+	//return t.out.Read(p)
 	return t.pty.Read(p)
 }
 
@@ -59,7 +60,7 @@ func (t *unixPty) Write(p []byte) (n int, err error) {
 
 func (t *unixPty) Close() error {
 	if t.closed.CompareAndSwap(false, true) {
-		_ = t.pty.SetReadDeadline(time.Now().Add(time.Second * 15))
+		//close(t.stop)
 		return t.pty.Close()
 	}
 	return nil
@@ -86,7 +87,38 @@ func NewPTY(s *SystemShell) (PtyX, error) {
 			_ = uPty.Close()
 		}
 	}()
+	// Signal channel to indicate when to stop reading
+	//stop := make(chan struct{})
+	//outPipe, inPipe := io.Pipe()
+	//go func() {
+	//	buf := make([]byte, 1024)
+	//	for {
+	//		select {
+	//		case <-stop:
+	//			fmt.Println("Stop signal received, stopping read loop")
+	//			_ = inPipe.CloseWithError(io.EOF)
+	//			return
+	//		default:
+	//			n, err := uPty.Read(buf)
+	//			if err == io.EOF {
+	//				fmt.Println("Reached EOF, stopping read loop")
+	//				_ = inPipe.CloseWithError(err)
+	//				return
+	//			}
+	//			if err != nil {
+	//				fmt.Println("Read error:", err)
+	//				_ = inPipe.CloseWithError(err)
+	//				return
+	//			}
+	//			if n > 0 {
+	//				_, _ = inPipe.Write(buf[:n])
+	//			}
+	//		}
+	//	}
+	//}()
 	return &unixPty{
+		//out:    outPipe,
+		//stop:   stop,
 		pty:    uPty,
 		closed: closed,
 	}, err
