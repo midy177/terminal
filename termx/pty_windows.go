@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/UserExistsError/conpty"
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
 	"io"

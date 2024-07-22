@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import { Terminal } from "xterm";
-import { FitAddon } from "xterm-addon-fit";
+// import { FitAddon } from "xterm-addon-fit";
 import "./xterm.css";
 import {ComponentPublicInstance, nextTick, onMounted, onUnmounted, reactive, ref, VNodeRef} from 'vue';
 import {ClosePty, GetStats, ResizePty, WriteToPty} from "../../../wailsjs/go/logic/Logic";
 import {EventsOff, EventsOn} from "../../../wailsjs/runtime";
 import {IRenderDimensions} from "xterm/src/browser/renderer/shared/Types";
-import {DropEvent} from "vue-devui/dragdrop-new";
-import {TrzszAddon, TrzszFilter} from "trzsz";
 
 const props = defineProps({
   id: {
@@ -16,7 +14,7 @@ const props = defineProps({
   },
 });
 
-const fitAddon = new FitAddon();
+// const fitAddon = new FitAddon();
 const state = reactive({
   term: null as unknown as Terminal,
   width: 0,
@@ -43,39 +41,36 @@ function NewTerminal(){
     fontWeight: 'bold',
     fontSize: 18,
     cursorBlink: true,
+    convertEol: true, // 确保换行符被正确处理
     disableStdin: false,
     cursorStyle: 'bar',
     allowTransparency: true,
     allowProposedApi: true,
     overviewRulerWidth: 8,
-    scrollback: 10000
+    scrollback: 10000,
   });
-  state.term.loadAddon(fitAddon);
   state.term.open(currentRef.value);
-  state.term.onKey(async (e) => {
-    if (e.key === '\x03') {
-      const copiedText = state.term.getSelection();
-      if (copiedText.length > 0) {
-        e.domEvent.preventDefault();
-        navigator.clipboard.writeText(copiedText).then(() => {
-          state.term.clearSelection();
-        });
-      }
-    } else if (e.key === '\x16') {
-      const clipText = await navigator.clipboard.readText();
-      if (clipText.length > 0) {
-        e.domEvent.preventDefault();
-        writeToPty(clipText.replace(/\r\n/g, "\n"));
-      }
-    }
-  })
   state.term.onTitleChange((title)=>{
     emit('update:title', title);
   })
   state.term.onResize(size=>{
-    ResizePty(props.id,size.rows,size.cols).catch(e=>{
-      console.error(e);
+    ResizePty(props.id,size.rows,size.cols).catch(event=>{
+      console.error(event);
     });
+  })
+  state.term.attachCustomKeyEventHandler(event => {
+    if (event.ctrlKey && event.key === 'v') {
+      return false; // 阻止默认行为
+    } else if (event.ctrlKey && event.key === 'c') {
+      const copiedText = state.term.getSelection();
+      if (copiedText.length > 0) {
+        navigator.clipboard.writeText(copiedText).then(() => {
+          state.term.clearSelection();
+        });
+        return false; // 阻止默认行为
+      }
+    }
+    return true;
   })
 }
 
@@ -113,17 +108,6 @@ function fitWithHeightWidth(width:number = state.width,height:number = state.hei
   }
 }
 
-// Make the terminal fit all the window size
-function fitTerminal() {
-  fitAddon.fit();
-  // getHelperRect().then(()=>{
-  //   fitWithHeightWidth();
-    // Todo 从后端读取数据，通过调用func写入后端
-    ResizePty(props.id,state.term.rows,state.term.cols).catch(e=>{
-      console.error(e);
-    });
-  // });
-}
 // Write data from pty into the terminal
 function writeToTerminal(data: string | Uint8Array | ArrayBuffer | Blob) {
   toUint8Array(data).then(res=>{
@@ -189,7 +173,7 @@ function handleSelectToClipboardOrClipboardToTerm() {
     } else {
       navigator.clipboard.readText().then(clipText => {
         if (clipText.length>0){
-          writeToPty(clipText.replace(/\r\n/g, "\n"));
+          writeToPty(clipText.replace(/\r\n/g, "\r"));
         }
       })
     }
@@ -215,7 +199,7 @@ function onDragover(event: DragEvent){
 function onDrop(event: DragEvent){
   event.preventDefault();
   if (event?.dataTransfer?.items && event?.dataTransfer?.items?.length > 0) {
-    state.term.write('tsz');
+    writeToPty('tsz\r');
   }
 }
 
