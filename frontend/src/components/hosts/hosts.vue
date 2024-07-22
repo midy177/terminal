@@ -81,7 +81,7 @@ function handleResizeColumn(w:any, col:any) {
 
 function closeModel(){
   // reset reactive
-  Object.assign(state, initState());
+  // Object.assign(state, initState());
   state.visible = false
 }
 function openModel() {
