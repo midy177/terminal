@@ -199,7 +199,7 @@ function onDragover(event: DragEvent){
 function onDrop(event: DragEvent){
   event.preventDefault();
   if (event?.dataTransfer?.items && event?.dataTransfer?.items?.length > 0) {
-    writeToPty('tsz\r');
+    writeToPty('trz\r');
   }
 }
 
