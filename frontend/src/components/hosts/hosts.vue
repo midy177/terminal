@@ -161,6 +161,7 @@ function getList(id:number) {
       :maskClosable="false"
       :mask="true"
       :maskStyle="{borderRadius: '.5rem',backgroundColor: 'var(--d2h-dark-empty-placeholder-bg-color)'}"
+      :footer="null"
   >
     <template #title>
         <Row type="flex" class="header-bar">
@@ -182,6 +183,17 @@ function getList(id:number) {
               </BreadcrumbItem>
           </Breadcrumb>
           </Col>
+          <Col>
+            <Button
+                danger
+                block
+                ghost
+                size="small"
+                @click="closeModel"
+            >
+              关闭
+            </Button>
+          </Col>
         </Row>
     </template>
         <Table
@@ -190,7 +202,7 @@ function getList(id:number) {
             :columns="columns"
             :pagination="{ pageSize: 10 ,showSizeChanger: true}"
             sticky
-            :scroll="{ y: '44vh' }"
+            :scroll="{ y: '50vh' }"
             @resizeColumn="handleResizeColumn"
             size="middle"
         >
@@ -291,15 +303,15 @@ function getList(id:number) {
             </template>
           </template>
         </Table>
-    <template #footer>
-        <Button
-            type="primary"
-            ghost
-            @click="closeModel"
-        >
-          关闭
-        </Button>
-    </template>
+<!--    <template #footer>-->
+<!--        <Button-->
+<!--            type="primary"-->
+<!--            ghost-->
+<!--            @click="closeModel"-->
+<!--        >-->
+<!--          关闭-->
+<!--        </Button>-->
+<!--    </template>-->
   </Modal>
   <update_host ref="modifyHostRef" :on-change="reRender"/>
 </template>
@@ -319,7 +331,7 @@ function getList(id:number) {
   overflow: hidden;
 }
 /deep/.ant-table-body {
-  min-height: 44vh !important;
+  min-height: 50vh !important;
 }
 /deep/.devui-icon__container {
   display: block;

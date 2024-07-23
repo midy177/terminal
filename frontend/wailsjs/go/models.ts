@@ -180,7 +180,7 @@ export namespace logic {
 	    }
 	}
 	export class KeyEntry {
-	    id?: number;
+	    id: number;
 	    label?: string;
 	    content?: string;
 	

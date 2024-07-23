@@ -235,10 +235,11 @@ defineExpose({
         :maskClosable="false"
         :mask="true"
         :maskStyle="{borderRadius: '.5rem',backgroundColor: 'var(--d2h-dark-empty-placeholder-bg-color)'}"
+        :footer="null"
     >
       <template #title>
         <Row :gutter="10" class="header-bar">
-          <Col :span="12">
+          <Col :span="8">
             <Popover :content="state.currentDir" trigger="hover" style="background-color: #7693f5; color: #fff">
               <Button
                   type="link"
@@ -257,6 +258,7 @@ defineExpose({
           <Col :span="4">
             <Button
                 type="link"
+                block
                 size="small"
                 @click="handleBack"
                 :disabled="state.loading"
@@ -273,6 +275,7 @@ defineExpose({
           <Col :span="4">
             <Button
                 type="link"
+                block
                 size="small"
                 @click="handleUploadFile"
                 :disabled="state.loading"
@@ -290,6 +293,7 @@ defineExpose({
           <Col :span="4">
             <Button
                 type="link"
+                block
                 size="small"
                 @click="handleUploadFold"
                 :disabled="state.loading"
@@ -304,6 +308,26 @@ defineExpose({
               </template>
             </Button>
           </Col>
+          <Col>
+            <Button
+                type="link"
+                block
+                size="small"
+                @click="OpenLink('https://trzsz.github.io/cn/')"
+                title="终端支持trzsz,点击打开安装和使用Trzsz教程"
+            >Trzsz</Button>
+          </Col>
+          <Col>
+            <Button
+                danger
+                block
+                ghost
+                size="small"
+                @click="closeModel"
+            >
+              关闭
+            </Button>
+          </Col>
         </Row>
       </template>
       <template #default>
@@ -313,7 +337,7 @@ defineExpose({
               :columns="columns"
               :pagination="{ pageSize: 10 ,showSizeChanger: true}"
               sticky
-              :scroll="{ y: '45vh' }"
+              :scroll="{ y: '50vh' }"
               @resizeColumn="handleResizeColumn"
               size="middle"
               :loading="state.loading"
@@ -391,20 +415,6 @@ defineExpose({
             </template>
           </Table>
       </template>
-      <template #footer>
-        <Button
-            type="link"
-            @click="OpenLink('https://trzsz.github.io/cn/')"
-            title="终端支持trzsz,点击打开安装和使用Trzsz教程"
-        >Trzsz</Button>
-          <Button
-              variant="solid"
-              color="secondary"
-              @click="closeModel"
-          >
-            关闭
-          </Button>
-      </template>
     </Modal>
     <update_host ref="modifyHostRef"/>
 </template>
@@ -424,7 +434,7 @@ defineExpose({
   overflow: hidden;
 }
 /deep/.ant-table-body {
-  min-height: 44vh !important;
+  min-height: 50vh !important;
 }
 /deep/.devui-icon__container {
   display: block;

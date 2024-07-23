@@ -6,7 +6,7 @@ import Add_key from "../keys/add_key.vue";
 import {
   Button, Modal, Form, FormItem, Input, InputPassword,
   Switch, InputNumber, Select, SelectOption,
-  Popover, Row, Col, message, notification,
+  Popover, Row, Col, message, notification, FormItemRest,
 } from "ant-design-vue";
 import {Rule} from "ant-design-vue/es/form";
 const formRef = ref();
@@ -167,39 +167,41 @@ defineExpose({
               <Switch v-model:checked="state.useKey" checked-children="是" un-checked-children="否"/>
             </Popover>
           </template>
-          <Row :gutter="8" style="width: 98%;">
-            <Col :span="18" style="flex: 1;">
-              <Select
-                  v-model:value="state.formModel.key_id"
-                  placeholder="请选择私钥"
-                  allowClear
-              >
-
-                <SelectOption
-                    v-for="(item, index) in state.keyList"
-                    :key="index"
-                    :value="item.id"
+          <FormItemRest>
+            <Row :gutter="8" style="width: 98%;">
+              <Col :span="18" style="flex: 1;">
+                <Select
+                    v-model:value="state.formModel.key_id"
+                    placeholder="请选择私钥"
+                    allowClear
                 >
-                  <Row justify="space-between">
-                    <Col>{{item.label}}</Col>
-                    <Col>
-                      <Button v-if="state.formModel.key_id !== item.id"
-                              type="text"
-                              danger
-                              size="small"
-                              @click="delKey(<number>item.id)"
-                      >
-                        删除
-                      </Button>
-                    </Col>
-                  </Row>
-                </SelectOption>
-              </Select>
-            </Col>
-            <Col :span="4">
-              <add_key :on-success="getKeys"/>
-            </Col>
-          </Row>
+
+                  <SelectOption
+                      v-for="(item, index) in state.keyList"
+                      :key="index"
+                      :value="item.id"
+                  >
+                    <Row justify="space-between">
+                      <Col>{{item.label}}</Col>
+                      <Col>
+                        <Button v-if="state.formModel.key_id !== item.id && item.id !== 0"
+                                type="text"
+                                danger
+                                size="small"
+                                @click="delKey(<number>item.id)"
+                        >
+                          删除
+                        </Button>
+                      </Col>
+                    </Row>
+                  </SelectOption>
+                </Select>
+              </Col>
+              <Col :span="4">
+                <add_key :on-success="getKeys"/>
+              </Col>
+            </Row>
+          </FormItemRest>
         </FormItem>
         <FormItem v-else name="password">
           <template #label>
@@ -207,7 +209,9 @@ defineExpose({
               <Switch v-model:checked="state.useKey" checked-children="是" un-checked-children="否"/>
             </Popover>
           </template>
-          <InputPassword v-model:value="state.formModel.password" show-password placeholder="请输入ssh密码"/>
+          <FormItemRest>
+            <InputPassword v-model:value="state.formModel.password" show-password placeholder="请输入ssh密码"/>
+          </FormItemRest>
         </FormItem>
       </template>
     </Form>

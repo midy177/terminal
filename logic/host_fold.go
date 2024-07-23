@@ -185,7 +185,7 @@ func (l *Logic) GetFoldsAndHosts(parentId int) ([]HostEntry, error) {
 
 type KeyEntry struct {
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID int `json:"id"`
 	// 标记
 	Label string `json:"label,omitempty"`
 	// 私钥信息
