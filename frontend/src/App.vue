@@ -93,7 +93,17 @@ function resizeHandle(tabKey?: string) {
     if (currTermRef) {
       (currTermRef as InstanceType<typeof Terminal>).fitWithHeightWidth(state.width, state.height)
     }
-  }, 300)
+  }, 100)
+}
+
+function focusHandle(tabKey?: string) {
+  setTimeout(() => {
+    if (!tabKey) tabKey = state.tab;
+    const currTermRef = state.termRefMap.get(tabKey)
+    if (currTermRef) {
+      (currTermRef as InstanceType<typeof Terminal>).focusTerminal();
+    }
+  }, 100)
 }
 
 function eventResize() {
@@ -142,6 +152,7 @@ watch(
     () => state.tab,
     (newVal, oldVal) => {
       resizeHandle(newVal);
+      focusHandle(newVal);
     }
 );
 
@@ -175,7 +186,8 @@ const shouldShowTerminal = (key: string) => {
         </Space>
     </template>
   </terminal-tabs>
-      <div ref="terminalLayoutRef" class="terminal-layout" v-show="state.tabs.length>0">
+      <div ref="terminalLayoutRef" :style="{backgroundColor: state.tabs.length>0 ? 'rgb(26, 27, 30)': 'transparent'}" class="terminal-layout">
+<!--        v-show="state.tabs.length>0"-->
           <terminal
               v-for="item in state.tabs"
               :key="item.key"
@@ -183,6 +195,8 @@ const shouldShowTerminal = (key: string) => {
               v-show="shouldShowTerminal(item.key)"
               v-model:title="item.title"
               :ref="(el: Element | ComponentPublicInstance | null)=> setTerminalRef(item.key,el)"
+              :width="state.width"
+              :height="state.height"
           />
       </div>
   <FileBrowser ref="fileBrowserRef" :tid="state.tab"></FileBrowser>
@@ -221,6 +235,6 @@ input[type=search]::-webkit-search-cancel-button{
   justify-content: center; /* 水平居中对齐内容 */
   align-items: center; /* 垂直居中对齐内容 */
   padding: 8px;
-  background-color: rgb(26, 27, 30);
+  //background-color: rgb(26, 27, 30);
 }
 </style>

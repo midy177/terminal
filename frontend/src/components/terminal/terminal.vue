@@ -12,13 +12,19 @@ const props = defineProps({
     type: String,
     required: true
   },
+  width: {
+    type: Number,
+    required: true
+  },
+  height: {
+    type: Number,
+    required: true
+  }
 });
 
 // const fitAddon = new FitAddon();
 const state = reactive({
   term: null as unknown as Terminal,
-  width: 0,
-  height: 0,
   cols: 0,
   rows: 0
 });
@@ -88,18 +94,16 @@ function getColsRows() {
   }
 }
 
-function fitWithHeightWidth(width:number = state.width,height:number = state.height) {
+function fitWithHeightWidth(width:number = props.width,height:number = props.height) {
   if (width == 0 || height == 0) return;
   const core =  (state.term as any)._core;
   const dims: IRenderDimensions = core._renderService.dimensions;
   if (dims.css.cell.width === 0 || dims.css.cell.height === 0) return;
   const cols = Math.floor(width / dims.css.cell.width);
   const rows = Math.floor(height / dims.css.cell.height);
-  if (width == state.width && height == state.height && state.cols == cols && state.rows == rows) return;
+  if (state.cols == cols && state.rows == rows) return;
   state.cols = cols;
   state.rows = rows;
-  state.width = width;
-  state.height = height;
   if (Number.isFinite(rows) && Number.isFinite(cols)){
     state.term.resize(cols, rows);
     // ResizePty(props.id,rows,cols).catch(e=>{
@@ -208,14 +212,7 @@ onMounted(()=>{
     initShell();
     state.term.onData(writeToPty);
     state.term.onBinary(writeToPty);
-    // 初次渲染时调整大小
-    // fitAddon.fit();
-    // 获取监控信息
-    // GetStats(props.id).then(resp=>{
-    //   console.log(resp)
-    // }).catch(e=>{
-    //   console.log(e)
-    // })
+    fitWithHeightWidth();
   });
 })
 

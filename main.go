@@ -52,7 +52,7 @@ func main() {
 			WebviewUserDataPath:               "",
 			WebviewBrowserPath:                "",
 			Theme:                             windows.Dark,
-			ResizeDebounceMS:                  100,
+			ResizeDebounceMS:                  10,
 			WebviewGpuIsDisabled:              false,
 		},
 		Mac: &mac.Options{
