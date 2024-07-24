@@ -14,11 +14,14 @@ func TestTerm(t *testing.T) {
 	termState, _ := terminal.MakeRaw(termFD)
 	defer terminal.Restore(termFD, termState)
 	termWidth, termHeight, _ := term.GetSize(termFD)
-	cPty, err := NewSshPTY("milesight",
+	cPty, err := NewSshPTY(&SshInfo{
+		"milesight",
 		"CpE*!Vy4g6B@",
 		"192.168.5.135",
 		22, nil,
-		termHeight, termWidth)
+		termHeight,
+		termWidth,
+	})
 	if err != nil {
 		log.Fatal(err)
 	}

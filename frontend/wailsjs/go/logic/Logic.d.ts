@@ -16,6 +16,8 @@ export function CreateLocalPty(arg1:termx.SystemShell):Promise<void>;
 
 export function CreateSshPty(arg1:string,arg2:number,arg3:number,arg4:number):Promise<void>;
 
+export function CreateSshPtyWithJumper(arg1:string,arg2:number,arg3:number,arg4:number,arg5:number):Promise<void>;
+
 export function DelFoldOrHost(arg1:number,arg2:boolean):Promise<void>;
 
 export function DelKey(arg1:number):Promise<void>;

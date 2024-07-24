@@ -45,19 +45,72 @@ func (l *Logic) CreateSshPty(tid string, id, rows, cols int) error {
 		pKey = key.Content
 	}
 
-	term, err := termx2.NewSshPTY(one.Username,
-		one.Password,
-		one.Address,
-		one.Port,
-		pKey,
-		rows,
-		cols,
-	)
+	term, err := termx2.NewSshPTY(&termx2.SshInfo{
+		Username:   one.Username,
+		Password:   one.Password,
+		Address:    one.Address,
+		Port:       one.Port,
+		PrivateKey: pKey,
+		Height:     rows,
+		Width:      cols,
+	})
 	if err != nil {
 		return err
 	}
 	l.ptyMap.Store(tid, term)
 	return l.eventEmitLoop(tid)
+}
+
+// CreateSshPtyWithJumper 创建ssh pty with jumper
+func (l *Logic) CreateSshPtyWithJumper(id string, tid, jid, rows, cols int) error {
+	target, err := l.db.Hosts.Get(l.Ctx, tid)
+	if err != nil {
+		return err
+	}
+	var tKey []byte
+	if target.KeyID > 0 {
+		key, err := target.QueryKey().Only(l.Ctx)
+		if err != nil {
+			return err
+		}
+		tKey = key.Content
+	}
+
+	jumper, err := l.db.Hosts.Get(l.Ctx, jid)
+	if err != nil {
+		return err
+	}
+	var jKey []byte
+	if jumper.KeyID > 0 {
+		key, err := jumper.QueryKey().Only(l.Ctx)
+		if err != nil {
+			return err
+		}
+		jKey = key.Content
+	}
+
+	term, err := termx2.NewSshPtyWithJumper(&termx2.SshInfo{
+		Username:   target.Username,
+		Password:   target.Password,
+		Address:    target.Address,
+		Port:       target.Port,
+		PrivateKey: tKey,
+		Height:     rows,
+		Width:      cols,
+	}, &termx2.SshInfo{
+		Username:   jumper.Username,
+		Password:   jumper.Password,
+		Address:    jumper.Address,
+		Port:       jumper.Port,
+		PrivateKey: jKey,
+		Height:     rows,
+		Width:      cols,
+	})
+	if err != nil {
+		return err
+	}
+	l.ptyMap.Store(id, term)
+	return l.eventEmitLoop(id)
 }
 
 // ClosePty 关闭pty

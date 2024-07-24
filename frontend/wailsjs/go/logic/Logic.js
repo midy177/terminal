@@ -26,6 +26,10 @@ export function CreateSshPty(arg1, arg2, arg3, arg4) {
   return window['go']['logic']['Logic']['CreateSshPty'](arg1, arg2, arg3, arg4);
 }
 
+export function CreateSshPtyWithJumper(arg1, arg2, arg3, arg4, arg5) {
+  return window['go']['logic']['Logic']['CreateSshPtyWithJumper'](arg1, arg2, arg3, arg4, arg5);
+}
+
 export function DelFoldOrHost(arg1, arg2) {
   return window['go']['logic']['Logic']['DelFoldOrHost'](arg1, arg2);
 }

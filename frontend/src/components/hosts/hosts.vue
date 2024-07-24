@@ -6,15 +6,19 @@ import {logic} from "../../../wailsjs/go/models";
 import {DelFoldOrHost, GetFoldsAndHosts} from '../../../wailsjs/go/logic/Logic';
 import Update_host from "./update_host.vue";
 import {
-  Modal, Space, Table, Breadcrumb,
+  Modal,  Space, Table, Breadcrumb, Popconfirm,
   BreadcrumbItem,
-  TableProps, Row, Col, Button, Popover, Tooltip, message, notification,
+  TableProps, Row, Col, Button, Popover, Tooltip, message, notification, SelectOption, Select,
 } from 'ant-design-vue';
 import { HomeFilled } from '@ant-design/icons-vue';
 const modifyHostRef = ref();
 const props = defineProps({
   openSshTerminal: {
     type: Function as PropType<(id:number,label:string) => void>,
+    required: true
+  },
+  openSshTerminalWithJumper: {
+    type: Function as PropType<(tid:number,jid: number,label:string) => void>,
     required: true
   }
 })
@@ -29,7 +33,8 @@ const initState = () => ({
   breadcrumbSource: <Array<breadcrumbItem>>[{
     id: 0,
     name: 'Home'
-  }]
+  }],
+  jumperId: <number|null>null,
 })
 
 const state = reactive(initState())
@@ -63,7 +68,7 @@ const columns: TableProps['columns'] = [
     title: '端口',
     dataIndex: 'port',
     key: 'port',
-    width: 60,
+    width: 50,
     resizable: true,
     ellipsis: true,
   },
@@ -83,6 +88,7 @@ function closeModel(){
   // reset reactive
   // Object.assign(state, initState());
   state.visible = false
+  state.jumperId = null
 }
 function openModel() {
   getList(state.currentDirId)
@@ -112,6 +118,16 @@ function handleConnect(record: logic.HostEntry) {
   if (props.openSshTerminal) props.openSshTerminal(record.id,record.label)
   closeModel()
 }
+
+function handleConnectWithJumper(record: logic.HostEntry) {
+  if (state.jumperId === null) {
+    message.warn('未选择跳板机')
+    return
+  }
+  if (props.openSshTerminalWithJumper) props.openSshTerminalWithJumper(record.id,state.jumperId,record.label)
+  closeModel()
+}
+
 function handleEdit(args: logic.HostEntry) {
   if (modifyHostRef.value) {
     modifyHostRef.value.setData(args)
@@ -256,18 +272,59 @@ function getList(id:number) {
                     </Tooltip>
                   </template>
                 </Button>
-                <Button
-                    v-else
-                    type="link"
-                    size="small"
-                    @click="handleConnect(record as logic.HostEntry)"
-                >
-                  <template #icon>
-                    <Tooltip placement="bottom" title="连接ssh">
-                      <Icon name="icon-connect"></Icon>
-                    </Tooltip>
-                  </template>
-                </Button>
+                <template v-else>
+                  <Button
+                      type="link"
+                      size="small"
+                      @click="handleConnect(record as logic.HostEntry)"
+                  >
+                    <template #icon>
+                      <Tooltip placement="bottom" title="建立连接">
+                        <Icon name="icon-connect"></Icon>
+                      </Tooltip>
+                    </template>
+                  </Button>
+                  <Popover :title=null trigger="click">
+                    <template #content>
+                      <Space :size="2">
+                      <Select
+                            v-model:value="<number>state.jumperId"
+                            placeholder="请选择私钥"
+                            allowClear
+                            style="min-width: 20vw;max-width: 100vw;"
+                        >
+                          <template v-for="(item, index) in state.tableData" :key="index">
+                            <SelectOption
+                                v-if="!item.is_folder && item.id !== record.id"
+                                :key="index"
+                                :value="item.id"
+                            >
+                              {{item.label}}
+                            </SelectOption>
+                          </template>
+                        </Select>
+                      <Tooltip placement="bottom" title="跳板连接">
+                        <Button
+                            @click="handleConnectWithJumper(record as logic.HostEntry)"
+                        >
+                          连接
+                        </Button>
+                      </Tooltip>
+                      </Space>
+                    </template>
+                    <Button
+                        type="link"
+                        size="small"
+                    >
+                      <template #icon>
+                        <Tooltip placement="bottom" title="跳板连接">
+                          <Icon name="icon-go-pipeline"></Icon>
+                        </Tooltip>
+                      </template>
+                    </Button>
+<!--                     @confirm="handleConnectWithJumper(record as logic.HostEntry)"-->
+                  </Popover>
+                </template>
                 <Button
                     type="link"
                     size="small"

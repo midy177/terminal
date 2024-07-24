@@ -7,7 +7,7 @@ const tabRef = ref();
 const fileBrowserRef = ref();
 const  terminalLayoutRef = ref();
 import Dropdown  from "./components/dropdown/dropdown.vue";
-import {ClosePty, CreateLocalPty, CreateSshPty, ResizePty} from "../wailsjs/go/logic/Logic";
+import {ClosePty, CreateLocalPty, CreateSshPty, CreateSshPtyWithJumper, ResizePty} from "../wailsjs/go/logic/Logic";
 import Hosts from "./components/hosts/hosts.vue";
 import {termx} from "../wailsjs/go/models";
 import More from "./components/more/more.vue";
@@ -68,6 +68,28 @@ function handleOpenSshTerminal(id:number,label:string){
     })
   }).finally(hide)
 }
+
+function handleOpenSshTerminalWithJumper(tid:number,jid:number,label:string){
+  const hide = message.loading('连接到ssh服务器中...', 0);
+  const id = nanoid()
+  CreateSshPtyWithJumper(id, tid, jid,22,60).then((e)=>{
+    let newTab = {
+      label: label,
+      title: label,
+      key: id,
+    }
+    tabRef.value.addTab(newTab);
+    state.tab = id;
+    resizeHandle(id);
+  }).catch(e=>{
+    notification.error({
+      message: '创建ssh连接失败',
+      description: e,
+      duration: null
+    })
+  }).finally(hide)
+}
+
 function openFileBrowser(){
   if (fileBrowserRef.value) {
     fileBrowserRef.value.openModel()
@@ -181,7 +203,10 @@ const shouldShowTerminal = (key: string) => {
     <template v-slot:end>
         <Space :size="1">
 <!--        <dropdown :at-click="addLocalTab"/>-->
-          <hosts :open-ssh-terminal="handleOpenSshTerminal"/>
+          <hosts
+              :open-ssh-terminal="handleOpenSshTerminal"
+              :open-ssh-terminal-with-jumper="handleOpenSshTerminalWithJumper"
+          />
           <more :file-browser="openFileBrowser"/>
         </Space>
     </template>
