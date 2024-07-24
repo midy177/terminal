@@ -291,7 +291,7 @@ function getList(id:number) {
                             v-model:value="<number>state.jumperId"
                             placeholder="请选择跳班机"
                             allowClear
-                            style="min-width: 20vw;max-width: 100vw;"
+                            style="width: auto;min-width: 20vw;max-width: 100vw;"
                         >
                           <template v-for="(item, index) in state.tableData" :key="index">
                             <SelectOption
@@ -302,6 +302,22 @@ function getList(id:number) {
                               {{item.label}}
                             </SelectOption>
                           </template>
+<!--                        <template #suffixIcon>-->
+<!--                          <Tooltip placement="bottom" title="跳板连接">-->
+<!--                            <Button-->
+<!--                                size="small"-->
+<!--                                type="link"-->
+<!--                                @click="handleConnectWithJumper(record as logic.HostEntry)"-->
+<!--                            >-->
+<!--                              连接-->
+<!--                            </Button>-->
+<!--                            <Icon-->
+<!--                                style="cursor: pointer;"-->
+<!--                                @click="handleConnectWithJumper(record as logic.HostEntry)"-->
+<!--                                name="icon-go-pipeline"-->
+<!--                            />-->
+<!--                          </Tooltip>-->
+<!--                        </template>-->
                         </Select>
                       <Tooltip placement="bottom" title="跳板连接">
                         <Button
