@@ -289,7 +289,7 @@ function getList(id:number) {
                       <Space :size="2">
                       <Select
                             v-model:value="<number>state.jumperId"
-                            placeholder="请选择私钥"
+                            placeholder="请选择跳班机"
                             allowClear
                             style="min-width: 20vw;max-width: 100vw;"
                         >
