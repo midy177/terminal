@@ -34,7 +34,7 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "label", Type: field.TypeString, Unique: true},
 		{Name: "username", Type: field.TypeString},
-		{Name: "address", Type: field.TypeString, Unique: true},
+		{Name: "address", Type: field.TypeString},
 		{Name: "port", Type: field.TypeUint, Default: 22},
 		{Name: "password", Type: field.TypeString, Nullable: true},
 		{Name: "folder_id", Type: field.TypeInt, Nullable: true},
@@ -57,6 +57,13 @@ var (
 				Columns:    []*schema.Column{HostsColumns[7]},
 				RefColumns: []*schema.Column{KeysColumns[0]},
 				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "hosts_label_address",
+				Unique:  true,
+				Columns: []*schema.Column{HostsColumns[1], HostsColumns[3]},
 			},
 		},
 	}

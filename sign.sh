@@ -1,6 +1,6 @@
 #!/bin/sh
 rm -rf build/bin/*.app
-wails build clearn
+wails build clearn -tags=jsoniter
 #  Script.sh
 #  sign
 #path=$(cd "$(dirname "$0")";pwd)

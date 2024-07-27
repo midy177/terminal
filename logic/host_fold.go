@@ -2,10 +2,18 @@ package logic
 
 import (
 	"errors"
+	jsoniter "github.com/json-iterator/go"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"os"
+	"path/filepath"
+	"strconv"
+	"terminal/ent"
 	"terminal/ent/folders"
 	"terminal/ent/hosts"
 	"terminal/ent/keys"
 	"terminal/ent/predicate"
+	"terminal/lib/utils"
+	"time"
 )
 
 type HostEntry struct {
@@ -246,4 +254,132 @@ func (l *Logic) DelKey(id int) error {
 	return l.db.Keys.
 		DeleteOneID(id).
 		Exec(l.Ctx)
+}
+
+type MigrateData struct {
+	Hosts []*ent.Hosts `json:"hosts"`
+	Keys  []*ent.Keys  `json:"keys"`
+}
+
+// ExportData 导出数据
+func (l *Logic) ExportData() (string, error) {
+	allHosts, err := l.db.Hosts.Query().All(l.Ctx)
+	if err != nil {
+		return "", err
+	}
+	allKeys, err := l.db.Keys.Query().All(l.Ctx)
+	if err != nil {
+		return "", err
+	}
+	var migrateData = MigrateData{
+		Hosts: allHosts,
+		Keys:  allKeys,
+	}
+	b, err := jsoniter.Marshal(migrateData)
+	if err != nil {
+		return "", err
+	}
+	encBytes, err := utils.AesEncryptByGCM(b)
+	if err != nil {
+		return "", err
+	}
+	dstDir, err := runtime.OpenDirectoryDialog(l.Ctx, runtime.OpenDialogOptions{
+		Title:           "备份文件目标存储路径",
+		ShowHiddenFiles: true,
+	})
+	if err != nil {
+		return "", err
+	}
+	dstFilename := filepath.Join(dstDir, time.Now().Format("20060102150405")+"_terminal.backup")
+	f, err := os.Create(dstFilename)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+	_, err = f.Write(encBytes)
+	return dstFilename, err
+}
+
+// ImportData 导入数据
+func (l *Logic) ImportData() error {
+	runtime.EventsEmit(l.Ctx, "import_data_event", "开始导入")
+	defer runtime.EventsOff(l.Ctx, "import_data_event")
+	dstFilename, err := runtime.OpenFileDialog(l.Ctx, runtime.OpenDialogOptions{
+		Title: "读取备份文件",
+	})
+	if err != nil {
+		return err
+	}
+	fBytes, err := os.ReadFile(dstFilename)
+	if err != nil {
+		return err
+	}
+	decBytes, err := utils.AesDecryptByGCM(fBytes)
+	if err != nil {
+		return err
+	}
+	var data MigrateData
+	err = jsoniter.Unmarshal(decBytes, &data)
+	if err != nil {
+		return err
+	}
+	if len(data.Keys) > 0 {
+		for _, k := range data.Keys {
+			exist, err := l.db.Keys.Query().Where(keys.LabelEQ(k.Label)).Exist(l.Ctx)
+			if err != nil {
+				runtime.EventsEmit(l.Ctx, "import_data_event", "导入Key错误: "+err.Error())
+				time.Sleep(time.Second * 3)
+			}
+			if exist {
+				runtime.EventsEmit(l.Ctx, "import_data_event", "标签: "+k.Label+" 的密钥配置已经存在!")
+				time.Sleep(time.Second)
+				continue
+			}
+			err = l.db.Keys.
+				Create().
+				SetLabel(k.Label).
+				SetContent(k.Content).
+				Exec(l.Ctx)
+			if err != nil {
+				runtime.EventsEmit(l.Ctx, "import_data_event", "导入Key错误: "+err.Error())
+				time.Sleep(time.Second)
+			}
+		}
+	}
+	if len(data.Hosts) == 0 {
+		runtime.EventsEmit(l.Ctx, "import_data_event", "需要导入的主机列表为空")
+		return nil
+	}
+	dirName := strconv.FormatInt(time.Now().Unix(), 10) + "_导入"
+	dir, err := l.db.Folders.
+		Create().
+		SetLabel(dirName).Save(l.Ctx)
+	if err != nil {
+		return err
+	}
+	for _, h := range data.Hosts {
+		exist, err := l.db.Hosts.Query().Where(hosts.LabelEQ(h.Label), hosts.Address(h.Address)).Exist(l.Ctx)
+		if err != nil {
+			runtime.EventsEmit(l.Ctx, "import_data_event", "导入Host错误: "+err.Error())
+			time.Sleep(time.Second)
+			continue
+		}
+		if exist {
+			runtime.EventsEmit(l.Ctx, "import_data_event", "标签: "+h.Label+" 地址: "+h.Address+" 的主机配置已经存在!")
+			time.Sleep(time.Second)
+			continue
+		}
+		err = l.db.Hosts.Create().
+			SetLabel(h.Label).
+			SetUsername(h.Username).
+			SetAddress(h.Address).
+			SetPort(h.Port).
+			SetFolderID(dir.ID).
+			Exec(l.Ctx)
+		if err != nil {
+			runtime.EventsEmit(l.Ctx, "import_data_event", "导入Host错误: "+err.Error())
+			time.Sleep(time.Second)
+		}
+	}
+	return nil
 }

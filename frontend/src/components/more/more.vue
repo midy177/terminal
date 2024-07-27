@@ -4,13 +4,15 @@ import {
   Dropdown, Button, Menu, MenuItem, Tooltip, notification
 } from "ant-design-vue";
 import {
+  EventsOff,
+  EventsOn,
   Quit, WindowCenter,
   WindowFullscreen, WindowIsFullscreen, WindowIsMinimised,
   WindowMinimise, WindowSetAlwaysOnTop, WindowToggleMaximise,
   WindowUnfullscreen, WindowUnminimise
 } from "../../../wailsjs/runtime";
 import {onMounted, reactive} from "vue";
-import {IsRunAsAdmin, OsGoos, RunAsAdmin} from "../../../wailsjs/go/logic/Logic";
+import {ExportData, ImportData, IsRunAsAdmin, OsGoos, RunAsAdmin} from "../../../wailsjs/go/logic/Logic";
 const props = defineProps({
   fileBrowser: {
     type: Function,
@@ -67,6 +69,51 @@ function toggleFull(){
 function SetAlwaysOnTop() {
   state.alwaysOnTop = !state.alwaysOnTop
   WindowSetAlwaysOnTop(state.alwaysOnTop)
+}
+
+function ExportConfig(){
+  ExportData().then((resp: string)=>{
+    notification.info({
+      message: '导出成功',
+      description: '导出文件：'+ resp,
+      duration: null
+    });
+  }).catch(err=>{
+    notification.error({
+      message: '导出失败',
+      description: '错误信息：'+ err,
+      duration: null
+    });
+  })
+}
+
+function ImportConfig(){
+  const key = 'import_data_event';
+  EventsOn(key,resp => {
+        notification.info({
+          key: key,
+          message: '导入中',
+          description: resp,
+          duration: null
+        });
+  });
+  ImportData().then(()=>{
+    notification.info({
+      key: key,
+      message: '✅导入完成',
+      description: '导入完成，如果配置存在则不会导入,如果使用了key,需要手动重新关联!',
+      duration: null
+    });
+  }).catch(err=>{
+    notification.error({
+      key: key,
+      message: '导入错误',
+      description: err,
+      duration: null
+    });
+  }).finally(()=>{
+    EventsOff(key)
+  })
 }
 
 onMounted(()=>{
@@ -141,7 +188,21 @@ onMounted(()=>{
           </template>
           {{ state.isFull ? '全屏':'取消全屏' }}
         </MenuItem>
-        <MenuItem :key="6" @click="Quit()">
+        <MenuItem :key="6" @click="ExportConfig">
+          <template #icon>
+            <Icon name="icon-export" color="#f2f3f5" size="1rem">
+            </Icon>
+          </template>
+          导出ssh配置
+        </MenuItem>
+        <MenuItem :key="7" @click="ImportConfig">
+          <template #icon>
+            <Icon name="icon-import" color="#f2f3f5" size="1rem">
+            </Icon>
+          </template>
+          导入ssh配置
+        </MenuItem>
+        <MenuItem :key="8" @click="Quit()">
           <template #icon>
             <Icon name="icon-op-exit-2" color="#f2f3f5" size="1rem">
             </Icon>

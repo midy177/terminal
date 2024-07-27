@@ -22,6 +22,8 @@ export function DelFoldOrHost(arg1:number,arg2:boolean):Promise<void>;
 
 export function DelKey(arg1:number):Promise<void>;
 
+export function ExportData():Promise<string>;
+
 export function GetFolds():Promise<Array<logic.HostEntry>>;
 
 export function GetFoldsAndHosts(arg1:number):Promise<Array<logic.HostEntry>>;
@@ -33,6 +35,8 @@ export function GetKeyList(arg1:boolean):Promise<Array<logic.KeyEntry>>;
 export function GetLocalPtyList():Promise<Array<termx.SystemShell>>;
 
 export function GetStats(arg1:string):Promise<api.Stat>;
+
+export function ImportData():Promise<void>;
 
 export function IsRunAsAdmin():Promise<boolean>;
 

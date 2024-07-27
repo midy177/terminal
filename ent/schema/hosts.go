@@ -6,6 +6,7 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 )
 
 // Hosts holds the schema definition for the Host entity.
@@ -25,7 +26,6 @@ func (Hosts) Fields() []ent.Field {
 			Comment("用户名"),
 		field.String("address").
 			NotEmpty().
-			Unique().
 			Comment("地址"),
 		field.Uint("port").
 			Default(22).
@@ -59,5 +59,14 @@ func (Hosts) Edges() []ent.Edge {
 func (Hosts) Annotations() []schema.Annotation {
 	return []schema.Annotation{
 		entsql.Annotation{Table: "hosts"},
+	}
+}
+
+// Indexes of the Order.
+func (Hosts) Indexes() []ent.Index {
+	return []ent.Index{
+		// Create a unique index on user_id and product_id.
+		index.Fields("label", "address").
+			Unique(),
 	}
 }

@@ -38,6 +38,10 @@ export function DelKey(arg1) {
   return window['go']['logic']['Logic']['DelKey'](arg1);
 }
 
+export function ExportData() {
+  return window['go']['logic']['Logic']['ExportData']();
+}
+
 export function GetFolds() {
   return window['go']['logic']['Logic']['GetFolds']();
 }
@@ -60,6 +64,10 @@ export function GetLocalPtyList() {
 
 export function GetStats(arg1) {
   return window['go']['logic']['Logic']['GetStats'](arg1);
+}
+
+export function ImportData() {
+  return window['go']['logic']['Logic']['ImportData']();
 }
 
 export function IsRunAsAdmin() {
