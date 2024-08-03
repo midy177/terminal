@@ -24,3 +24,5 @@ create-dmg --volname terminal \
            --app-drop-link  600 185 \
            terminal_setup.dmg \
            terminal.app
+
+# wails build clearn -nsis -tags=jsoniter

@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 )
 
+// getSftpClient 获取sftp实例
 func (l *Logic) getSftpClient(id string) (*sftp.Client, error) {
 	t, ok := l.ptyMap.Load(id)
 	if !ok {
@@ -19,6 +20,7 @@ func (l *Logic) getSftpClient(id string) (*sftp.Client, error) {
 	return t.Sftp()
 }
 
+// CloseSftpClient 关闭sftp实例
 func (l *Logic) CloseSftpClient(id string) error {
 	t, ok := l.ptyMap.Load(id)
 	if !ok {
@@ -36,6 +38,7 @@ type FileInfo struct {
 	IsDir    bool   `json:"is_dir"`    // abbreviation for Mode().IsDir()
 }
 
+// SftpHomeDir 获取sftp Home路径
 func (l *Logic) SftpHomeDir(id string) (string, error) {
 	sftpCli, err := l.getSftpClient(id)
 	if err != nil {
@@ -44,6 +47,7 @@ func (l *Logic) SftpHomeDir(id string) (string, error) {
 	return sftpCli.Getwd()
 }
 
+// SftpDir sftp获取文件夹列表
 func (l *Logic) SftpDir(id string, dstDir string) ([]FileInfo, error) {
 	sftpCli, err := l.getSftpClient(id)
 	if err != nil {
@@ -74,6 +78,7 @@ func (l *Logic) SftpDir(id string, dstDir string) ([]FileInfo, error) {
 	return files, nil
 }
 
+// SftpUploadDirectory sftp上传文件夹
 func (l *Logic) SftpUploadDirectory(id string, dstDir string) error {
 	sftpCli, err := l.getSftpClient(id)
 	if err != nil {
@@ -105,6 +110,7 @@ func (l *Logic) SftpUploadDirectory(id string, dstDir string) error {
 	return uploadDirectory(sftpCli, srcDir, dstDir)
 }
 
+// SftpUploadMultipleFiles sftp上传多文件
 func (l *Logic) SftpUploadMultipleFiles(id string, dstDir string) error {
 	sftpCli, err := l.getSftpClient(id)
 	if err != nil {
@@ -141,6 +147,7 @@ func (l *Logic) SftpUploadMultipleFiles(id string, dstDir string) error {
 	return nil
 }
 
+// SftpDownload sftp下载文件/文件夹
 func (l *Logic) SftpDownload(id string, dst string) error {
 	sftpCli, err := l.getSftpClient(id)
 	if err != nil {
@@ -166,6 +173,8 @@ func (l *Logic) SftpDownload(id string, dst string) error {
 		return downloadFile(sftpCli, dst, localFilePath)
 	}
 }
+
+// SftpDelete sftp删除文件/文件夹
 func (l *Logic) SftpDelete(id string, dst string) error {
 	sftpCli, err := l.getSftpClient(id)
 	if err != nil {
@@ -173,6 +182,7 @@ func (l *Logic) SftpDelete(id string, dst string) error {
 	}
 	return sftpCli.Remove(dst)
 }
+
 func uploadDirectory(sftpClient *sftp.Client, localPath string, remotePath string) error {
 	localFiles, err := os.ReadDir(localPath)
 	if err != nil {

@@ -202,7 +202,6 @@ const shouldShowTerminal = (key: string) => {
     </template>
     <template v-slot:end>
         <Space :size="1">
-<!--        <dropdown :at-click="addLocalTab"/>-->
           <hosts
               :open-ssh-terminal="handleOpenSshTerminal"
               :open-ssh-terminal-with-jumper="handleOpenSshTerminalWithJumper"
@@ -212,7 +211,6 @@ const shouldShowTerminal = (key: string) => {
     </template>
   </terminal-tabs>
       <div ref="terminalLayoutRef" :style="{backgroundColor: state.tabs.length>0 ? 'rgb(26, 27, 30)': 'transparent'}" class="terminal-layout">
-<!--        v-show="state.tabs.length>0"-->
           <terminal
               v-for="item in state.tabs"
               :key="item.key"

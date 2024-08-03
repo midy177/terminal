@@ -87,6 +87,7 @@ func main() {
 	}
 }
 
+// startPprof
 func startPprof() (func(), bool) {
 	enablePprof := flag.Bool("pprof", false, "enable pprof")
 	flag.Parse()
