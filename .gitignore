@@ -4,3 +4,4 @@ frontend/dist
 .idea
 terminal.db
 frontend/node_modules
+/test/

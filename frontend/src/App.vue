@@ -24,6 +24,7 @@ const state = reactive({
   tickTimer: <number | null>null,
   width: 0,
   height: 0,
+  enableMarquee: false,
 })
 
 function addLocalTab(data: termx.SystemShell) {
@@ -210,7 +211,11 @@ const shouldShowTerminal = (key: string) => {
         </Space>
     </template>
   </terminal-tabs>
-      <div ref="terminalLayoutRef" :style="{backgroundColor: state.tabs.length>0 ? 'rgb(26, 27, 30)': 'transparent'}" class="terminal-layout">
+      <div
+          ref="terminalLayoutRef"
+          :style="{backgroundColor: state.tabs.length>0 ? 'rgb(26, 27, 30)': 'transparent'}"
+          class="terminal-layout"
+      >
           <terminal
               v-for="item in state.tabs"
               :key="item.key"

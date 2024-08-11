@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { Terminal } from "xterm";
-// import { FitAddon } from "xterm-addon-fit";
 import "./xterm.css";
 import {ComponentPublicInstance, nextTick, onMounted, onUnmounted, reactive, ref, VNodeRef} from 'vue';
 import {ClosePty, GetStats, ResizePty, WriteToPty} from "../../../wailsjs/go/logic/Logic";
 import {EventsOff, EventsOn} from "../../../wailsjs/runtime";
 import {IRenderDimensions} from "xterm/src/browser/renderer/shared/Types";
+import {message} from "ant-design-vue";
 
 const props = defineProps({
   id: {
@@ -106,9 +106,6 @@ function fitWithHeightWidth(width:number = props.width,height:number = props.hei
   state.rows = rows;
   if (Number.isFinite(rows) && Number.isFinite(cols)){
     state.term.resize(cols, rows);
-    // ResizePty(props.id,rows,cols).catch(e=>{
-    //   console.error(e);
-    // });
   }
 }
 
@@ -132,14 +129,12 @@ function writeToPty(data: string | Uint8Array | ArrayBuffer | Blob) {
 
 function ptyStdoutListener(){
   EventsOn(props.id,(resp: string)=>{
-    // trzszFilter.processServerOutput(resp);
     writeToTerminal(resp);
   })
 }
 
 function initShell() {
   NewTerminal();
-  // Todo 请求pty或者ssh
   ptyStdoutListener();
 }
 
@@ -217,8 +212,8 @@ onMounted(()=>{
 })
 
 onUnmounted( () => {
-  ClosePty(props.id).catch(e=>{
-    console.error(e);
+  ClosePty(props.id).catch(err=>{
+    message.error(err);
   });
   EventsOff(props.id);
 })
@@ -251,14 +246,4 @@ onUnmounted( () => {
   align-items: center; /* 垂直居中对齐内容 */
   background-color: rgb(26, 27, 30);
 }
-///deep/ .xterm .xterm-viewport::-webkit-scrollbar-thumb {
-//  border-radius: 10px;
-//  border-color: transparent;
-//  //-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.13);
-//  background-color: rgba(184, 184, 184, 0.1);
-//  background-clip: padding-box;
-//}
-///deep/ .xterm .xterm-viewport::-webkit-scrollbar-thumb:hover {
-//  background-color: rgb(224, 225, 227);
-//}
 </style>
