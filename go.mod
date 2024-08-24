@@ -83,5 +83,3 @@ require (
 	golang.org/x/net v0.25.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-// replace github.com/wailsapp/wails/v2 v2.8.2 => /Users/medy/go/lib/mod

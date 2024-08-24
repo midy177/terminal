@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { Terminal } from "xterm";
+import { Terminal } from '@xterm/xterm';
 import "./xterm.css";
 import {ComponentPublicInstance, nextTick, onMounted, onUnmounted, reactive, ref, VNodeRef} from 'vue';
 import {ClosePty, GetStats, ResizePty, WriteToPty} from "../../../wailsjs/go/logic/Logic";
 import {EventsOff, EventsOn} from "../../../wailsjs/runtime";
-import {IRenderDimensions} from "xterm/src/browser/renderer/shared/Types";
+import {IRenderDimensions} from "@xterm/xterm/src/browser/renderer/shared/Types";
 import {message} from "ant-design-vue";
 
 const props = defineProps({
