@@ -1,6 +1,6 @@
 #!/bin/sh
 rm -rf build/bin/*.app
-wails build clearn -tags=jsoniter
+wails build clearn -tags=sonic
 #  Script.sh
 #  sign
 #path=$(cd "$(dirname "$0")";pwd)
@@ -12,6 +12,8 @@ wails build clearn -tags=jsoniter
 #if [[ $is_sign  = "y" ]]; then
 #  spctl --verbose=4 --assess --type execute build/bin/terminal.app
 #fi
+
+# wails dev -tags=sonic
 
 cd build/bin
 rm *.dmg

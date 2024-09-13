@@ -1,8 +1,8 @@
-//go:build jsoniter
-// +build jsoniter
+//go:build sonic
+// +build sonic
 
 package main
 
-import jsoniter "github.com/json-iterator/go"
+import "github.com/bytedance/sonic"
 
-var json = jsoniter.ConfigCompatibleWithStandardLibrary
+var json = sonic.ConfigDefault
