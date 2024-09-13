@@ -21,8 +21,8 @@ type Header struct {
 }
 
 type Recorder struct {
-	File      *os.File
-	Timestamp int
+	File *os.File
+	Time time.Time
 }
 
 func (recorder *Recorder) Close() {
@@ -31,7 +31,7 @@ func (recorder *Recorder) Close() {
 	}
 }
 
-func (recorder *Recorder) WriteHeader(header *Header) (err error) {
+func (recorder *Recorder) setHeader(header *Header) (err error) {
 	var p []byte
 
 	if p, err = sonic.Marshal(header); err != nil {
@@ -45,31 +45,27 @@ func (recorder *Recorder) WriteHeader(header *Header) (err error) {
 		return err
 	}
 
-	recorder.Timestamp = header.Timestamp
+	recorder.Time = time.Unix(int64(header.Timestamp), 0)
 
 	return
 }
 
-func (recorder *Recorder) WriteData(data string) (err error) {
-	now := int(time.Now().UnixNano())
-
-	delta := float64(now-recorder.Timestamp*1000*1000*1000) / 1000 / 1000 / 1000
+func (recorder *Recorder) Write(p []byte) (n int, err error) {
+	delta := time.Since(recorder.Time).Seconds()
 
 	row := make([]interface{}, 0)
 	row = append(row, delta)
 	row = append(row, "o")
-	row = append(row, data)
+	row = append(row, string(p))
 
 	var s []byte
 	if s, err = sonic.Marshal(row); err != nil {
 		return
 	}
-	if _, err := recorder.File.Write(s); err != nil {
-		return err
+	if n, err = recorder.File.Write(s); err != nil {
+		return
 	}
-	if _, err := recorder.File.Write([]byte("\n")); err != nil {
-		return err
-	}
+	_, err = recorder.File.Write([]byte("\n"))
 	return
 }
 
@@ -103,7 +99,7 @@ func NewRecorder(recordingPath, term string, h int, w int) (recorder *Recorder, 
 		Timestamp: int(time.Now().Unix()),
 	}
 
-	if err := recorder.WriteHeader(header); err != nil {
+	if err := recorder.setHeader(header); err != nil {
 		return nil, err
 	}
 
