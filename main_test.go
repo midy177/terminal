@@ -5,7 +5,9 @@ import (
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
+	"strings"
 	"terminal/ent"
+	"terminal/lib/utils"
 	"testing"
 )
 
@@ -31,4 +33,26 @@ func TestName(t *testing.T) {
 	for _, v := range all {
 		fmt.Println(v)
 	}
+}
+
+func TestLogger(t *testing.T) {
+	logFilter, err := utils.NewLogFilter("ssh_session.log")
+	if err != nil {
+		log.Fatalf("无法创建日志过滤器: %v", err)
+	}
+	defer logFilter.Close()
+
+	// 这里应该是你的 SSH 会话输出
+	input := `
+常规输出
+rz waiting to receive.
+文件传输数据...
+文件传输数据...
+50% complete
+文件传输数据...
+100% complete
+Transfer complete
+更多常规输出
+`
+	logFilter.ProcessOutput(strings.NewReader(input))
 }

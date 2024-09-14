@@ -5,6 +5,7 @@ go 1.22
 require (
 	entgo.io/ent v0.13.1
 	github.com/UserExistsError/conpty v0.1.4
+	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d
 	github.com/atotto/clipboard v0.1.4
 	github.com/bytedance/sonic v1.12.2
 	github.com/charmbracelet/lipgloss v0.12.1
