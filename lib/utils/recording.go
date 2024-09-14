@@ -70,15 +70,8 @@ func (recorder *Recorder) Write(p []byte) (n int, err error) {
 }
 
 func NewRecorder(recordingPath string) (*Recorder, error) {
-	parentDirectory := GetParentDirectory(recordingPath)
 	if FileExists(recordingPath) {
-		if err := os.RemoveAll(recordingPath); err != nil {
-			return nil, err
-		}
-	}
-
-	if err := os.MkdirAll(parentDirectory, 0777); err != nil {
-		return nil, err
+		return nil, os.ErrExist
 	}
 
 	var file *os.File
