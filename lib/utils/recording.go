@@ -3,6 +3,7 @@ package utils
 import (
 	"github.com/bytedance/sonic"
 	"os"
+	"sync/atomic"
 	"time"
 )
 
@@ -21,11 +22,21 @@ type Header struct {
 }
 
 type Recorder struct {
-	File *os.File
-	Time time.Time
+	File    *os.File
+	Time    time.Time
+	Enabled *atomic.Bool
+}
+
+func (recorder *Recorder) Enable() {
+	recorder.Enabled.Store(true)
+}
+func (recorder *Recorder) Disable() {
+	recorder.Enabled.Store(false)
+	recorder.Close()
 }
 
 func (recorder *Recorder) Close() {
+	recorder.Enabled.Store(false)
 	if recorder.File != nil {
 		_ = recorder.File.Close()
 	}
@@ -69,8 +80,10 @@ func (recorder *Recorder) Write(p []byte) (n int, err error) {
 	return
 }
 
-func NewRecorder(recordingPath, term string, h int, w int) (recorder *Recorder, err error) {
-	recorder = &Recorder{}
+func NewRecorder(recordingPath string) (recorder *Recorder, err error) {
+	recorder = &Recorder{
+		Enabled: &atomic.Bool{},
+	}
 	parentDirectory := GetParentDirectory(recordingPath)
 	if FileExists(parentDirectory) {
 		if err := os.RemoveAll(parentDirectory); err != nil {
@@ -88,14 +101,15 @@ func NewRecorder(recordingPath, term string, h int, w int) (recorder *Recorder, 
 		return nil, err
 	}
 
+	recorder.Enabled.Store(true)
 	recorder.File = file
 
 	header := &Header{
 		Title:     "",
 		Version:   2,
-		Height:    h,
-		Width:     w,
-		Env:       Env{Shell: "/bin/bash", Term: term},
+		Height:    40,
+		Width:     80,
+		Env:       Env{Shell: "/bin/bash", Term: "xterm-256color"},
 		Timestamp: int(time.Now().Unix()),
 	}
 

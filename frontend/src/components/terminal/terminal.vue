@@ -129,6 +129,7 @@ function writeToPty(data: string | Uint8Array | ArrayBuffer | Blob) {
 
 function ptyStdoutListener(){
   EventsOn(props.id,(resp: string)=>{
+    console.log(resp);
     writeToTerminal(resp);
   })
 }
