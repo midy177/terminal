@@ -62,10 +62,6 @@ export function GetLocalPtyList() {
   return window['go']['logic']['Logic']['GetLocalPtyList']();
 }
 
-export function GetStats(arg1) {
-  return window['go']['logic']['Logic']['GetStats'](arg1);
-}
-
 export function ImportData() {
   return window['go']['logic']['Logic']['ImportData']();
 }
@@ -112,6 +108,14 @@ export function SftpUploadDirectory(arg1, arg2) {
 
 export function SftpUploadMultipleFiles(arg1, arg2) {
   return window['go']['logic']['Logic']['SftpUploadMultipleFiles'](arg1, arg2);
+}
+
+export function StartRec(arg1) {
+  return window['go']['logic']['Logic']['StartRec'](arg1);
+}
+
+export function StopRec(arg1) {
+  return window['go']['logic']['Logic']['StopRec'](arg1);
 }
 
 export function UpdFoldOrHost(arg1) {

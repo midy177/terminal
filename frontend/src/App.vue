@@ -161,6 +161,15 @@ function removeEvents() {
   if (state.tickTimer) clearTimeout(state.tickTimer);
 }
 
+function recordingCurrentTab() {
+  if (state.tab) {
+    const currTermRef = state.termRefMap.get(state.tab)
+    if (currTermRef) {
+      (currTermRef as InstanceType<typeof Terminal>).startRecording();
+    }
+  }
+}
+
 onMounted(()=>{
   nextTick(()=>{
     message.config({top: '40%'});
@@ -207,7 +216,7 @@ const shouldShowTerminal = (key: string) => {
               :open-ssh-terminal="handleOpenSshTerminal"
               :open-ssh-terminal-with-jumper="handleOpenSshTerminalWithJumper"
           />
-          <more :file-browser="openFileBrowser"/>
+          <more :file-browser="openFileBrowser" :start-recording="recordingCurrentTab"/>
         </Space>
     </template>
   </terminal-tabs>

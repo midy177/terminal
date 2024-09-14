@@ -16,6 +16,10 @@ import {ExportData, ImportData, IsRunAsAdmin, OsGoos, RunAsAdmin} from "../../..
 const props = defineProps({
   fileBrowser: {
     type: Function,
+  },
+  startRecording: {
+    type: Function,
+    required: true,
   }
 })
 const state = reactive({
@@ -116,6 +120,12 @@ function ImportConfig(){
   })
 }
 
+function RecordCurrentTab() {
+  if (props.startRecording) {
+    props.startRecording()
+  }
+}
+
 onMounted(()=>{
   IsRunAsAdmin().then(resp=>{
     state.isRunAsAdmin = resp
@@ -139,6 +149,13 @@ onMounted(()=>{
     </Button>
     <template #overlay>
       <Menu>
+        <MenuItem :key="-2" @click="RecordCurrentTab">
+          <template #icon>
+            <Icon name="icon-group-submit" color="#f2f3f5" size="1rem">
+            </Icon>
+          </template>
+          录制当前tab
+        </MenuItem>
         <MenuItem :key="-1" @click="SetAlwaysOnTop">
           <template #icon>
             <Icon name="icon-group-submit" color="#f2f3f5" size="1rem">

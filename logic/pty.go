@@ -3,13 +3,17 @@ package logic
 import (
 	"context"
 	"errors"
+	"github.com/sqweek/dialog"
 	wailsrt "github.com/wailsapp/wails/v2/pkg/runtime"
 	"log"
 	"os"
+	"path/filepath"
 	"runtime"
-	"terminal/lib/api"
+	"sync/atomic"
 	"terminal/lib/privilege"
 	termx2 "terminal/lib/termx"
+	"terminal/lib/utils"
+	"time"
 )
 
 // GetLocalPtyList 获取本机支持的shell列表
@@ -19,14 +23,19 @@ func (l *Logic) GetLocalPtyList() []termx2.SystemShell {
 
 // CreateLocalPty 创建本地pty
 func (l *Logic) CreateLocalPty(t *termx2.SystemShell) error {
-	if _, ok := l.ptyMap.Load(t.ID); ok {
-		return errors.New("already exists")
+	if _, ok := l.Sessions.Load(t.ID); ok {
+		return errors.New("已经存在连接")
 	}
 	tPty, err := termx2.NewPTY(t)
 	if err != nil {
 		return err
 	}
-	l.ptyMap.Store(t.ID, tPty)
+	enabledRec := atomic.Bool{}
+	enabledRec.Store(false)
+	l.Sessions.Store(t.ID, &Session{
+		Pty:        tPty,
+		EnabledRec: &enabledRec,
+	})
 	return l.eventEmitLoop(t.ID)
 }
 
@@ -57,7 +66,12 @@ func (l *Logic) CreateSshPty(tid string, id, rows, cols int) error {
 	if err != nil {
 		return err
 	}
-	l.ptyMap.Store(tid, term)
+	enabledRec := atomic.Bool{}
+	enabledRec.Store(false)
+	l.Sessions.Store(tid, &Session{
+		Pty:        term,
+		EnabledRec: &enabledRec,
+	})
 	return l.eventEmitLoop(tid)
 }
 
@@ -109,60 +123,68 @@ func (l *Logic) CreateSshPtyWithJumper(id string, tid, jid, rows, cols int) erro
 	if err != nil {
 		return err
 	}
-	l.ptyMap.Store(id, term)
+	enabledRec := atomic.Bool{}
+	enabledRec.Store(false)
+	l.Sessions.Store(id, &Session{
+		Pty:        term,
+		EnabledRec: &enabledRec,
+	})
 	return l.eventEmitLoop(id)
 }
 
 // ClosePty 关闭pty
 func (l *Logic) ClosePty(id string) error {
-	l.statMap.Delete(id)
-	t, ok := l.ptyMap.LoadAndDelete(id)
+	l.Sessions.Delete(id)
+	t, ok := l.Sessions.LoadAndDelete(id)
 	if !ok {
-		return errors.New("pty already released")
+		return errors.New("连接已经被释放")
 	}
-	return t.Close()
+	return t.Pty.Close()
 }
 
 // ResizePty 重置终端大小
 func (l *Logic) ResizePty(id string, rows, cols int) error {
-	t, ok := l.ptyMap.Load(id)
+	t, ok := l.Sessions.Load(id)
 	if !ok {
-		return errors.New("pty already released")
+		return errors.New("连接已经被释放")
 	}
-	return t.Resize(rows, cols)
+	return t.Pty.Resize(rows, cols)
 }
 
 // WriteToPty 数据写入pty
 func (l *Logic) WriteToPty(id string, data []byte) error {
-	t, ok := l.ptyMap.Load(id)
+	t, ok := l.Sessions.Load(id)
 	if !ok {
-		return errors.New("pty already released")
+		return errors.New("连接已经被释放")
 	}
-	_, err := t.Write(data)
+	_, err := t.Pty.Write(data)
 	return err
 }
 
 // 推送终端信息到前端
 func (l *Logic) eventEmitLoop(id string) error {
-	t, ok := l.ptyMap.Load(id)
+	t, ok := l.Sessions.Load(id)
 	if !ok {
-		return errors.New("pty already released")
+		return errors.New("连接已经被释放")
 	}
 	clearFun := func() {
-		_ = t.Close()
-		l.ptyMap.Delete(id)
+		_ = t.Pty.Close()
+		l.Sessions.Delete(id)
 	}
-	go func(cPty termx2.PtyX, ctx context.Context, f func()) {
+	go func(sess *Session, ctx context.Context, f func()) {
 		defer f()
 		var buf = make([]byte, 32*1024)
 		for {
-			read, err := cPty.Read(buf)
+			read, err := sess.Pty.Read(buf)
 			if err != nil {
-				log.Printf("error reading from pty: %v\n", err)
+				log.Printf("从pty读取数据失败: %v\n", err)
 				break
 			}
 			if read > 0 {
 				wailsrt.EventsEmit(ctx, id, string(buf[:read]))
+				if sess.EnabledRec.Load() {
+					_, _ = sess.Rec.Write(buf[:read])
+				}
 			}
 		}
 		wailsrt.EventsOff(ctx, id)
@@ -170,26 +192,78 @@ func (l *Logic) eventEmitLoop(id string) error {
 	return nil
 }
 
-func (l *Logic) GetStats(id string) (*api.Stat, error) {
-	stat, ok := l.statMap.Load(id)
+func (l *Logic) StartRec(id string) (string, error) {
+	sess, ok := l.Sessions.Load(id)
 	if !ok {
-		stat = api.NewStats()
-		l.statMap.Store(id, stat)
+		return "", errors.New("没有创建录屏或连接已经释放")
 	}
-	client, ok := l.ptyMap.Load(id)
-	if !ok {
-		return nil, errors.New("pty already released")
+	if sess.Rec != nil {
+		return "", errors.New("录屏已经在进行中")
 	}
-	sshClient, err := client.Ssh()
+	if sess.EnabledRec.Load() {
+		return "", errors.New("已经开启录屏")
+	}
+
+	//srcDir, err := os.UserHomeDir()
+	//if err != nil {
+	//	return "", err
+	//}
+	// 打开文件夹选择对话框
+	folderPath, err := dialog.Directory().Title("选择录屏文件存档文件夹").Browse()
 	if err != nil {
-		return nil, err
+		if errors.Is(err, dialog.ErrCancelled) {
+			return "", errors.New("用户取消了选择")
+		}
+		return "", errors.New("打开文件夹对话框出错: " + err.Error())
 	}
-	err = stat.GetAllStats(sshClient)
+
+	// terminal_recording
+	filename := filepath.Join(folderPath, id+"_"+time.Now().Format("20060102150405")+".cast")
+
+	sess.Rec, err = utils.NewRecorder(filename)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	return stat, nil
+	sess.EnabledRec.Store(true)
+	return filename, nil
 }
+
+func (l *Logic) StopRec(id string) error {
+	sess, ok := l.Sessions.Load(id)
+	if !ok {
+		return errors.New("连接已经被关闭")
+	}
+	if sess.EnabledRec.Load() {
+		sess.EnabledRec.Store(false)
+	}
+	if sess.Rec == nil {
+		return errors.New("没有创建录屏")
+	}
+	sess.Rec.Close()
+	sess.Rec = nil
+	return nil
+}
+
+//func (l *Logic) GetStats(id string) (*api.Stat, error) {
+//	sess, ok := l.Sessions.Load(id)
+//	if ok && sess.stat != nil { {
+//		stat = api.NewStats()
+//		l.Sessions.Store(id, stat)
+//	}
+//	client, ok := l.ptyMap.Load(id)
+//	if !ok {
+//		return nil, errors.New("pty already released")
+//	}
+//	sshClient, err := client.Ssh()
+//	if err != nil {
+//		return nil, err
+//	}
+//	err = stat.GetAllStats(sshClient)
+//	if err != nil {
+//		return nil, err
+//	}
+//	return stat, nil
+//}
 
 func (l *Logic) IsRunAsAdmin() bool {
 	p := privilege.New()
@@ -199,7 +273,7 @@ func (l *Logic) IsRunAsAdmin() bool {
 func (l *Logic) RunAsAdmin() error {
 	p := privilege.New()
 	if p.IsAdmin() {
-		return errors.New("already run as admin")
+		return errors.New("已经是管理员")
 	}
 	err := p.Elevate()
 	if err != nil {

@@ -13,20 +13,20 @@ import (
 
 // getSftpClient 获取sftp实例
 func (l *Logic) getSftpClient(id string) (*sftp.Client, error) {
-	t, ok := l.ptyMap.Load(id)
+	t, ok := l.Sessions.Load(id)
 	if !ok {
 		return nil, errors.New("pty already released")
 	}
-	return t.Sftp()
+	return t.Pty.Sftp()
 }
 
 // CloseSftpClient 关闭sftp实例
 func (l *Logic) CloseSftpClient(id string) error {
-	t, ok := l.ptyMap.Load(id)
+	t, ok := l.Sessions.Load(id)
 	if !ok {
 		return errors.New("pty already released")
 	}
-	return t.CloseSftp()
+	return t.Pty.CloseSftp()
 }
 
 type FileInfo struct {

@@ -2,10 +2,11 @@
 import { Terminal } from '@xterm/xterm';
 import "./xterm.css";
 import {ComponentPublicInstance, nextTick, onMounted, onUnmounted, reactive, ref, VNodeRef} from 'vue';
-import {ClosePty, GetStats, ResizePty, WriteToPty} from "../../../wailsjs/go/logic/Logic";
+import {ClosePty, ResizePty, StartRec, WriteToPty} from "../../../wailsjs/go/logic/Logic";
 import {EventsOff, EventsOn} from "../../../wailsjs/runtime";
 import {IRenderDimensions} from "@xterm/xterm/src/browser/renderer/shared/Types";
 import {message} from "ant-design-vue";
+import Recording from "./recording.vue";
 
 const props = defineProps({
   id: {
@@ -26,7 +27,9 @@ const props = defineProps({
 const state = reactive({
   term: null as unknown as Terminal,
   cols: 0,
-  rows: 0
+  rows: 0,
+  recording: false,
+  recordingFile: ''
 });
 const currentRef = ref<VNodeRef | null>(null);
 // 赋值动态ref到变量
@@ -60,8 +63,8 @@ function NewTerminal(){
     emit('update:title', title);
   })
   state.term.onResize(size=>{
-    ResizePty(props.id,size.rows,size.cols).catch(event=>{
-      console.error(event);
+    ResizePty(props.id,size.rows,size.cols).catch(err=>{
+      message.error(err);
     });
   })
   state.term.attachCustomKeyEventHandler(event => {
@@ -122,7 +125,7 @@ function writeToPty(data: string | Uint8Array | ArrayBuffer | Blob) {
   toUint8Array(data).then(resp=>{
     // Todo 通过调用func写入后端
     WriteToPty(props.id,Array.from(resp)).catch(e=>{
-      console.error(e);
+      message.error(e);
     });
   })
 }
@@ -190,6 +193,7 @@ defineExpose({
   fitWithHeightWidth,
   getColsRows,
   focusTerminal,
+  startRecording
 })
 
 function onDragover(event: DragEvent){
@@ -201,6 +205,21 @@ function onDrop(event: DragEvent){
   if (event?.dataTransfer?.items && event?.dataTransfer?.items?.length > 0) {
     writeToPty('trz\r');
   }
+}
+
+function startRecording(){
+  StartRec(props.id).then(res => {
+    state.recording = true;
+    state.recordingFile = res;
+    message.success('开始录制');
+  }).catch(err=>{
+    message.error(err);
+  });
+}
+
+function stopRecording(){
+  state.recording = false;
+  state.recordingFile = '';
 }
 
 onMounted(()=>{
@@ -228,6 +247,7 @@ onUnmounted( () => {
         @dragover="onDragover"
         @drop="onDrop"
     />
+  <recording v-if="state.recording" :id="props.id" :filename="state.recordingFile" :stop-recording="stopRecording"/>
 </template>
 
 <style scoped lang="less">

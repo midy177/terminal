@@ -3,6 +3,7 @@ package logic
 import (
 	"errors"
 	jsoniter "github.com/json-iterator/go"
+	"github.com/sqweek/dialog"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"os"
 	"path/filepath"
@@ -283,13 +284,21 @@ func (l *Logic) ExportData() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	dstDir, err := runtime.OpenDirectoryDialog(l.Ctx, runtime.OpenDialogOptions{
-		Title:           "备份文件目标存储路径",
-		ShowHiddenFiles: true,
-	})
+	//dstDir, err := runtime.OpenDirectoryDialog(l.Ctx, runtime.OpenDialogOptions{
+	//	Title:           "备份文件目标存储路径",
+	//	ShowHiddenFiles: true,
+	//})
+	//if err != nil {
+	//	return "", err
+	//}
+	dstDir, err := dialog.Directory().Title("备份文件目标存储路径").Browse()
 	if err != nil {
-		return "", err
+		if errors.Is(err, dialog.ErrCancelled) {
+			return "", errors.New("用户取消了选择")
+		}
+		return "", errors.New("打开文件夹对话框出错: " + err.Error())
 	}
+
 	dstFilename := filepath.Join(dstDir, time.Now().Format("20060102150405")+"_terminal.backup")
 	f, err := os.Create(dstFilename)
 	if err != nil {
@@ -304,12 +313,20 @@ func (l *Logic) ExportData() (string, error) {
 func (l *Logic) ImportData() error {
 	runtime.EventsEmit(l.Ctx, "import_data_event", "开始导入")
 	defer runtime.EventsOff(l.Ctx, "import_data_event")
-	dstFilename, err := runtime.OpenFileDialog(l.Ctx, runtime.OpenDialogOptions{
-		Title: "读取备份文件",
-	})
+	//dstFilename, err := runtime.OpenFileDialog(l.Ctx, runtime.OpenDialogOptions{
+	//	Title: "读取备份文件",
+	//})
+	//if err != nil {
+	//	return err
+	//}
+	dstFilename, err := dialog.File().Title("读取备份文件").Load()
 	if err != nil {
-		return err
+		if errors.Is(err, dialog.ErrCancelled) {
+			return errors.New("用户取消了选择")
+		}
+		return errors.New("打开文件夹对话框出错: " + err.Error())
 	}
+
 	fBytes, err := os.ReadFile(dstFilename)
 	if err != nil {
 		return err

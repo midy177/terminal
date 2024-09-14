@@ -3,7 +3,6 @@ package utils
 import (
 	"github.com/bytedance/sonic"
 	"os"
-	"sync/atomic"
 	"time"
 )
 
@@ -22,21 +21,11 @@ type Header struct {
 }
 
 type Recorder struct {
-	File    *os.File
-	Time    time.Time
-	Enabled *atomic.Bool
-}
-
-func (recorder *Recorder) Enable() {
-	recorder.Enabled.Store(true)
-}
-func (recorder *Recorder) Disable() {
-	recorder.Enabled.Store(false)
-	recorder.Close()
+	File *os.File
+	Time time.Time
 }
 
 func (recorder *Recorder) Close() {
-	recorder.Enabled.Store(false)
 	if recorder.File != nil {
 		_ = recorder.File.Close()
 	}
@@ -80,29 +69,29 @@ func (recorder *Recorder) Write(p []byte) (n int, err error) {
 	return
 }
 
-func NewRecorder(recordingPath string) (recorder *Recorder, err error) {
-	recorder = &Recorder{
-		Enabled: &atomic.Bool{},
-	}
+func NewRecorder(recordingPath string) (*Recorder, error) {
 	parentDirectory := GetParentDirectory(recordingPath)
-	if FileExists(parentDirectory) {
-		if err := os.RemoveAll(parentDirectory); err != nil {
+	if FileExists(recordingPath) {
+		if err := os.RemoveAll(recordingPath); err != nil {
 			return nil, err
 		}
 	}
 
-	if err = os.MkdirAll(parentDirectory, 0777); err != nil {
-		return
+	if err := os.MkdirAll(parentDirectory, 0777); err != nil {
+		return nil, err
 	}
 
 	var file *os.File
-	file, err = os.Create(recordingPath)
+	file, err := os.Create(recordingPath)
 	if err != nil {
 		return nil, err
 	}
 
-	recorder.Enabled.Store(true)
+	recorder := &Recorder{}
+
 	recorder.File = file
+
+	recorder.Time = time.Now()
 
 	header := &Header{
 		Title:     "",
