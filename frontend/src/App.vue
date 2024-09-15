@@ -5,9 +5,16 @@ import Terminal from "./components/terminal/terminal.vue";
 import {nanoid} from "nanoid";
 const tabRef = ref();
 const fileBrowserRef = ref();
+const asciiPlayerRef = ref();
 const  terminalLayoutRef = ref();
 import Dropdown  from "./components/dropdown/dropdown.vue";
-import {ClosePty, CreateLocalPty, CreateSshPty, CreateSshPtyWithJumper, ResizePty} from "../wailsjs/go/logic/Logic";
+import {
+  ClosePty,
+  CreateLocalPty,
+  CreateSshPty,
+  CreateSshPtyWithJumper,
+  ResizePty
+} from "../wailsjs/go/logic/Logic";
 import Hosts from "./components/hosts/hosts.vue";
 import {termx} from "../wailsjs/go/models";
 import More from "./components/more/more.vue";
@@ -15,6 +22,7 @@ import FileBrowser from "./components/terminal/file_browser.vue";
 import zhCN from "ant-design-vue/es/locale/zh_CN";
 import {ConfigProvider, theme, Space, Spin, notification, message} from "ant-design-vue";
 import {EventsOff} from "../wailsjs/runtime";
+import AsciiPlayer from "./components/terminal/AsciiPlayer.vue";
 
 const state = reactive({
   tabs: <Array<Tab>>[],
@@ -170,6 +178,12 @@ function recordingCurrentTab() {
   }
 }
 
+function recordingReview() {
+  if (asciiPlayerRef.value) {
+    asciiPlayerRef.value.openModel()
+  }
+}
+
 onMounted(()=>{
   nextTick(()=>{
     message.config({top: '40%'});
@@ -187,6 +201,7 @@ watch(
       focusHandle(newVal);
     }
 );
+
 
 const shouldShowTerminal = (key: string) => {
   return key === state.tab
@@ -216,7 +231,10 @@ const shouldShowTerminal = (key: string) => {
               :open-ssh-terminal="handleOpenSshTerminal"
               :open-ssh-terminal-with-jumper="handleOpenSshTerminalWithJumper"
           />
-          <more :file-browser="openFileBrowser" :start-recording="recordingCurrentTab"/>
+          <more
+              :file-browser="openFileBrowser"
+              :start-recording="recordingCurrentTab"
+              :record-review="recordingReview"/>
         </Space>
     </template>
   </terminal-tabs>
@@ -236,7 +254,8 @@ const shouldShowTerminal = (key: string) => {
               :height="state.height"
           />
       </div>
-  <FileBrowser ref="fileBrowserRef" :tid="state.tab"></FileBrowser>
+    <FileBrowser ref="fileBrowserRef" :tid="state.tab"/>
+    <AsciiPlayer ref="asciiPlayerRef" />
   </ConfigProvider>
 </template>
 

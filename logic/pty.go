@@ -6,6 +6,7 @@ import (
 	"github.com/sqweek/dialog"
 	wailsrt "github.com/wailsapp/wails/v2/pkg/runtime"
 	"log"
+	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -285,4 +286,58 @@ func (l *Logic) RunAsAdmin() error {
 
 func (l *Logic) OsGoos() string {
 	return runtime.GOOS
+}
+
+// OpenPlayerWindow opens a new window with the Asciinema player
+func (l *Logic) OpenPlayerWindow() error {
+	html := `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asciinema Player</title>
+    <script src="https://cdn.jsdelivr.net/npm/asciinema-player@3.0.1/dist/bundle/asciinema-player.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/asciinema-player@3.0.1/dist/bundle/asciinema-player.min.css">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .file-input { margin-bottom: 20px; }
+        #player-container { width: 100%; max-width: 800px; }
+    </style>
+</head>
+<body>
+    <div class="file-input">
+        <label for="file-upload">选择 .cast 文件：</label>
+        <input id="file-upload" type="file" accept=".cast">
+    </div>
+    <div id="player-container"></div>
+
+    <script>
+        let player = null;
+
+        document.getElementById('file-upload').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const content = e.target.result;
+                    if (player) {
+                        player.dispose();
+                    }
+                    player = AsciinemaPlayer.create(JSON.parse(content), document.getElementById('player-container'), {
+                        fit: 'width',
+                    });
+                };
+                reader.readAsText(file);
+            }
+        });
+    </script>
+</body>
+</html>`
+
+	// 使用 data URL 编码 HTML 内容
+	dataURL := "data:text/html," + url.PathEscape(html)
+
+	// 使用 BrowserOpenURL 打开新的浏览器窗口
+	wailsrt.BrowserOpenURL(l.Ctx, dataURL)
+	return nil
 }

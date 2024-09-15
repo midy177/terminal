@@ -20,6 +20,10 @@ const props = defineProps({
   startRecording: {
     type: Function,
     required: true,
+  },
+  recordReview: {
+    type: Function,
+    required: true,
   }
 })
 const state = reactive({
@@ -126,6 +130,12 @@ function RecordCurrentTab() {
   }
 }
 
+function RecordReview() {
+  if (props.recordReview) {
+    props.recordReview()
+  }
+}
+
 onMounted(()=>{
   IsRunAsAdmin().then(resp=>{
     state.isRunAsAdmin = resp
@@ -149,80 +159,75 @@ onMounted(()=>{
     </Button>
     <template #overlay>
       <Menu>
-        <MenuItem :key="-2" @click="RecordCurrentTab">
+        <MenuItem :key="0" @click="RecordReview">
           <template #icon>
-            <Icon name="icon-group-submit" color="#f2f3f5" size="1rem">
-            </Icon>
+            <Icon name="icon-preview" color="#f2f3f5" size="1rem"/>
+          </template>
+          录像回放
+        </MenuItem>
+        <MenuItem :key="1" @click="RecordCurrentTab">
+          <template #icon>
+            <Icon name="icon-clean-record" color="#f2f3f5" size="1rem"/>
           </template>
           录制当前tab
         </MenuItem>
-        <MenuItem :key="-1" @click="SetAlwaysOnTop">
+        <MenuItem :key="2" @click="SetAlwaysOnTop">
           <template #icon>
-            <Icon name="icon-group-submit" color="#f2f3f5" size="1rem">
-            </Icon>
+            <Icon name="icon-group-submit" color="#f2f3f5" size="1rem"/>
           </template>
          {{ state.alwaysOnTop ? '取消置顶':'窗口置顶' }}
         </MenuItem>
-        <MenuItem v-if="!state.isRunAsAdmin" :key="0" @click="RunAsAdmin">
+        <MenuItem v-if="!state.isRunAsAdmin" :key="3" @click="RunAsAdmin">
           <template #icon>
-            <Icon name="icon-op-mine" color="#f2f3f5" size="1rem">
-            </Icon>
+            <Icon name="icon-op-mine" color="#f2f3f5" size="1rem"/>
           </template>
           管理员运行
         </MenuItem>
-        <MenuItem :key="1" @click="openFileBrowser">
+        <MenuItem :key="4" @click="openFileBrowser">
           <template #icon>
-            <Icon name="icon-folder-2" color="#f2f3f5" size="1rem">
-            </Icon>
+            <Icon name="icon-folder-2" color="#f2f3f5" size="1rem"/>
           </template>
           管理文件
         </MenuItem>
-        <MenuItem :key="2" @click="toggleMax">
+        <MenuItem :key="5" @click="toggleMax">
           <template #icon>
-            <Icon :name="state.isMax ? 'icon-minimize':'icon-maxmize'" color="#f2f3f5" size="1rem">
-            </Icon>
+            <Icon :name="state.isMax ? 'icon-minimize':'icon-maxmize'" color="#f2f3f5" size="1rem"/>
           </template>
           {{ state.isMax ? '取消最大化':'窗口最大化' }}
         </MenuItem>
-        <MenuItem :key="3" @click="WindowCenter">
+        <MenuItem :key="6" @click="WindowCenter">
           <template #icon>
-            <Icon name="icon-location" color="#f2f3f5" size="1rem">
-            </Icon>
+            <Icon name="icon-location" color="#f2f3f5" size="1rem"/>
           </template>
           窗口居中
         </MenuItem>
-        <MenuItem :key="4" @click="toggleMin">
+        <MenuItem :key="7" @click="toggleMin">
           <template #icon>
-            <Icon name="icon-minimize" color="#f2f3f5" size="1rem">
-            </Icon>
+            <Icon name="icon-minimize" color="#f2f3f5" size="1rem"/>
           </template>
           最小化
         </MenuItem>
-        <MenuItem :key="5" @click="toggleFull" v-if="state.goos != 'darwin'">
+        <MenuItem :key="8" @click="toggleFull" v-if="state.goos != 'darwin'">
           <template #icon>
-            <Icon name="icon-ue-expand" color="#f2f3f5" size="1rem">
-            </Icon>
+            <Icon name="icon-ue-expand" color="#f2f3f5" size="1rem"/>
           </template>
           {{ state.isFull ? '全屏':'取消全屏' }}
         </MenuItem>
-        <MenuItem :key="6" @click="ExportConfig">
+        <MenuItem :key="9" @click="ExportConfig">
           <template #icon>
-            <Icon name="icon-export" color="#f2f3f5" size="1rem">
-            </Icon>
+            <Icon name="icon-export" color="#f2f3f5" size="1rem"/>
           </template>
           导出ssh配置
         </MenuItem>
-        <MenuItem :key="7" @click="ImportConfig">
+        <MenuItem :key="10" @click="ImportConfig">
           <template #icon>
-            <Icon name="icon-import" color="#f2f3f5" size="1rem">
-            </Icon>
+            <Icon name="icon-import" color="#f2f3f5" size="1rem"/>
           </template>
           导入ssh配置
         </MenuItem>
-        <MenuItem :key="8" @click="Quit()">
+        <MenuItem :key="11" @click="Quit()">
           <template #icon>
-            <Icon name="icon-op-exit-2" color="#f2f3f5" size="1rem">
-            </Icon>
+            <Icon name="icon-op-exit-2" color="#f2f3f5" size="1rem"/>
           </template>
           退出
         </MenuItem>

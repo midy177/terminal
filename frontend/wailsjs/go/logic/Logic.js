@@ -74,6 +74,10 @@ export function OpenLink(arg1) {
   return window['go']['logic']['Logic']['OpenLink'](arg1);
 }
 
+export function OpenPlayerWindow() {
+  return window['go']['logic']['Logic']['OpenPlayerWindow']();
+}
+
 export function OsGoos() {
   return window['go']['logic']['Logic']['OsGoos']();
 }

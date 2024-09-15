@@ -7,8 +7,6 @@ import (
 	"os"
 	"regexp"
 	"strings"
-
-	"github.com/acarl005/stripansi"
 )
 
 type LogFilter struct {
@@ -41,19 +39,17 @@ func (lf *LogFilter) ProcessOutput(r io.Reader) {
 }
 
 func (lf *LogFilter) processLine(line string) {
-	cleanLine := stripansi.Strip(line)
-
 	// 检测 trzsz 或 lrzsz 传输开始
-	if strings.Contains(cleanLine, "rz waiting to receive.") ||
-		strings.Contains(cleanLine, "Starting zmodem transfer") {
+	if strings.Contains(line, "rz waiting to receive.") ||
+		strings.Contains(line, "Starting zmodem transfer") {
 		lf.inTransfer = true
 		lf.buffer.Reset()
 		return
 	}
 
 	// 检测传输结束
-	if lf.inTransfer && (strings.Contains(cleanLine, "Transfer complete") ||
-		strings.Contains(cleanLine, "rz transfer complete")) {
+	if lf.inTransfer && (strings.Contains(line, "Transfer complete") ||
+		strings.Contains(line, "rz transfer complete")) {
 		lf.inTransfer = false
 		lf.writeLog("文件传输完成\n")
 		return
@@ -61,11 +57,11 @@ func (lf *LogFilter) processLine(line string) {
 
 	// 如果不在传输中，写入日志
 	if !lf.inTransfer {
-		lf.writeLog(cleanLine + "\n")
+		lf.writeLog(line + "\n")
 	} else {
 		// 在传输中，但可能包含进度信息
-		if match, _ := regexp.MatchString(`\d+%`, cleanLine); match {
-			lf.buffer.WriteString(cleanLine + "\n")
+		if match, _ := regexp.MatchString(`\d+%`, line); match {
+			lf.buffer.WriteString(line + "\n")
 		}
 	}
 }
