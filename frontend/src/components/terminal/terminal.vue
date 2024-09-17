@@ -5,7 +5,7 @@ import {ComponentPublicInstance, nextTick, onMounted, onUnmounted, reactive, ref
 import {ClosePty, ResizePty, StartRec, WriteToPty} from "../../../wailsjs/go/logic/Logic";
 import {EventsOff, EventsOn} from "../../../wailsjs/runtime";
 import {IRenderDimensions} from "@xterm/xterm/src/browser/renderer/shared/Types";
-import {message} from "ant-design-vue";
+import {message, notification} from "ant-design-vue";
 import Recording from "./recording.vue";
 
 const props = defineProps({
@@ -211,7 +211,11 @@ function startRecording(){
   StartRec(props.id).then(res => {
     state.recording = true;
     state.recordingFile = res;
-    message.success('开始录制');
+    notification.warning({
+      message: '录屏开始',
+      description: '录制中...',
+      duration: 3
+    })
   }).catch(err=>{
     message.error(err);
   });

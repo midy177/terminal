@@ -39,8 +39,6 @@ export function IsRunAsAdmin():Promise<boolean>;
 
 export function OpenLink(arg1:string):Promise<void>;
 
-export function OpenPlayerWindow():Promise<void>;
-
 export function OsGoos():Promise<string>;
 
 export function ResizePty(arg1:string,arg2:number,arg3:number):Promise<void>;

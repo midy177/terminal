@@ -45,7 +45,7 @@
 import {nextTick, onUnmounted, reactive, ref} from 'vue';
 import * as AsciinemaPlayer from 'asciinema-player';
 import 'asciinema-player/dist/bundle/asciinema-player.css';
-import {Button, Col, message, Modal, Row, Upload} from "ant-design-vue";
+import {Button, Col, message, Modal, notification, Row, Upload} from "ant-design-vue";
 import { UploadOutlined } from '@ant-design/icons-vue';
 
 const playerContainer = ref(null);
@@ -90,13 +90,21 @@ defineExpose({
 
 const customRequest = ({ file, onSuccess, onError }) => {
   if (!file.name.endsWith('.cast')) {
-    message.error('只能上传 .cast 文件!');
+    notification.error({
+      message: '文件类型不正确',
+      description: '只能播放 .cast 文件!',
+      duration: null
+    })
     onError(new Error('文件类型不正确'));
     return;
   }
 
-  if (file.size / 1024 / 1024 > 2) {
-    message.error('文件必须小于 2MB!');
+  if (file.size / 1024 / 1024 > 200) {
+    notification.error({
+      message: '文件太大了',
+      description: '文件必须小于 200MB!',
+      duration: null
+    })
     onError(new Error('文件太大'));
     return;
   }

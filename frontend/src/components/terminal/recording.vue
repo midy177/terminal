@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import {message, Tooltip} from "ant-design-vue";
+import {message, notification, Tooltip} from "ant-design-vue";
 import { StopRec } from "../../../wailsjs/go/logic/Logic";
 
 const props = defineProps({
@@ -20,8 +20,11 @@ const props = defineProps({
 
 function stopRecording(){
   StopRec(props.id).then(()=>{
-    message.success('录屏已停止');
-    message.success('录屏已保存到:'+ props.filename);
+    notification.success({
+      message: '录屏已停止',
+      description: '录屏已保存到:'+ props.filename,
+      duration: null
+    })
     props.stopRecording();
   }).catch(err=>{
     message.error(err);

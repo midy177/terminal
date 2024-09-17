@@ -175,6 +175,11 @@ function recordingCurrentTab() {
     if (currTermRef) {
       (currTermRef as InstanceType<typeof Terminal>).startRecording();
     }
+  } else {
+    notification.error({
+      message: '当前没有打开的终端',
+      duration: null
+    })
   }
 }
 

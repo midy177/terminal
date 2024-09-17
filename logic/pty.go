@@ -1,12 +1,8 @@
 package logic
 
 import (
-	"context"
 	"errors"
-	"github.com/sqweek/dialog"
-	wailsrt "github.com/wailsapp/wails/v2/pkg/runtime"
 	"log"
-	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -15,6 +11,9 @@ import (
 	termx2 "terminal/lib/termx"
 	"terminal/lib/utils"
 	"time"
+
+	"github.com/sqweek/dialog"
+	wailsrt "github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // GetLocalPtyList 获取本机支持的shell列表
@@ -138,7 +137,7 @@ func (l *Logic) ClosePty(id string) error {
 	l.Sessions.Delete(id)
 	t, ok := l.Sessions.LoadAndDelete(id)
 	if !ok {
-		return errors.New("连接已经被释放")
+		return errors.New("连接已释放")
 	}
 	return t.Pty.Close()
 }
@@ -147,7 +146,7 @@ func (l *Logic) ClosePty(id string) error {
 func (l *Logic) ResizePty(id string, rows, cols int) error {
 	t, ok := l.Sessions.Load(id)
 	if !ok {
-		return errors.New("连接已经被释放")
+		return errors.New("连接已释放")
 	}
 	return t.Pty.Resize(rows, cols)
 }
@@ -156,7 +155,7 @@ func (l *Logic) ResizePty(id string, rows, cols int) error {
 func (l *Logic) WriteToPty(id string, data []byte) error {
 	t, ok := l.Sessions.Load(id)
 	if !ok {
-		return errors.New("连接已经被释放")
+		return errors.New("连接已释放")
 	}
 	_, err := t.Pty.Write(data)
 	return err
@@ -166,30 +165,37 @@ func (l *Logic) WriteToPty(id string, data []byte) error {
 func (l *Logic) eventEmitLoop(id string) error {
 	t, ok := l.Sessions.Load(id)
 	if !ok {
-		return errors.New("连接已经被释放")
+		return errors.New("连接已释放")
 	}
-	clearFun := func() {
-		_ = t.Pty.Close()
-		l.Sessions.Delete(id)
-	}
-	go func(sess *Session, ctx context.Context, f func()) {
-		defer f()
-		var buf = make([]byte, 32*1024)
+
+	go func() {
+		defer func() {
+			_ = t.Pty.Close()
+			l.Sessions.Delete(id)
+			wailsrt.EventsOff(l.Ctx, id)
+			if t.Rec != nil {
+				t.Rec.Close()
+				t.Rec = nil
+			}
+		}()
+
+		buf := make([]byte, 32*1024)
 		for {
-			read, err := sess.Pty.Read(buf)
+			read, err := t.Pty.Read(buf)
 			if err != nil {
 				log.Printf("从pty读取数据失败: %v\n", err)
-				break
+				return
 			}
 			if read > 0 {
-				wailsrt.EventsEmit(ctx, id, string(buf[:read]))
-				if sess.EnabledRec.Load() {
-					_, _ = sess.Rec.Write(buf[:read])
+				data := buf[:read]
+				wailsrt.EventsEmit(l.Ctx, id, string(data))
+				if t.EnabledRec.Load() {
+					_, _ = t.Rec.Write(data)
 				}
 			}
 		}
-		wailsrt.EventsOff(ctx, id)
-	}(t, l.Ctx, clearFun)
+	}()
+
 	return nil
 }
 
@@ -205,10 +211,6 @@ func (l *Logic) StartRec(id string) (string, error) {
 		return "", errors.New("已经开启录屏")
 	}
 
-	//srcDir, err := os.UserHomeDir()
-	//if err != nil {
-	//	return "", err
-	//}
 	// 打开文件夹选择对话框
 	folderPath, err := dialog.Directory().Title("选择录屏文件存档文件夹").Browse()
 	if err != nil {
@@ -232,7 +234,7 @@ func (l *Logic) StartRec(id string) (string, error) {
 func (l *Logic) StopRec(id string) error {
 	sess, ok := l.Sessions.Load(id)
 	if !ok {
-		return errors.New("连接已经被关闭")
+		return errors.New("连接已关闭")
 	}
 	if sess.EnabledRec.Load() {
 		sess.EnabledRec.Store(false)
@@ -286,58 +288,4 @@ func (l *Logic) RunAsAdmin() error {
 
 func (l *Logic) OsGoos() string {
 	return runtime.GOOS
-}
-
-// OpenPlayerWindow opens a new window with the Asciinema player
-func (l *Logic) OpenPlayerWindow() error {
-	html := `<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asciinema Player</title>
-    <script src="https://cdn.jsdelivr.net/npm/asciinema-player@3.0.1/dist/bundle/asciinema-player.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/asciinema-player@3.0.1/dist/bundle/asciinema-player.min.css">
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .file-input { margin-bottom: 20px; }
-        #player-container { width: 100%; max-width: 800px; }
-    </style>
-</head>
-<body>
-    <div class="file-input">
-        <label for="file-upload">选择 .cast 文件：</label>
-        <input id="file-upload" type="file" accept=".cast">
-    </div>
-    <div id="player-container"></div>
-
-    <script>
-        let player = null;
-
-        document.getElementById('file-upload').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const content = e.target.result;
-                    if (player) {
-                        player.dispose();
-                    }
-                    player = AsciinemaPlayer.create(JSON.parse(content), document.getElementById('player-container'), {
-                        fit: 'width',
-                    });
-                };
-                reader.readAsText(file);
-            }
-        });
-    </script>
-</body>
-</html>`
-
-	// 使用 data URL 编码 HTML 内容
-	dataURL := "data:text/html," + url.PathEscape(html)
-
-	// 使用 BrowserOpenURL 打开新的浏览器窗口
-	wailsrt.BrowserOpenURL(l.Ctx, dataURL)
-	return nil
 }
