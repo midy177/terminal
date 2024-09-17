@@ -163,7 +163,7 @@ function getList(id:number) {
 <template>
   <Button type="text" size="small" @click="openModel">
     <template #icon>
-      <Tooltip placement="bottom" title="SSH配置">
+      <Tooltip placement="bottom" title="SSH主机列表">
         <Icon name="icon-go-tree" color="#f2f3f5"/>
       </Tooltip>
     </template>
