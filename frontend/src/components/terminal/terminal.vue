@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Terminal } from '@xterm/xterm';
+import { WebglAddon } from '@xterm/addon-webgl';
 import "./xterm.css";
 import {ComponentPublicInstance, nextTick, onMounted, onUnmounted, reactive, ref, VNodeRef} from 'vue';
 import {ClosePty, ResizePty, StartRec, WriteToPty} from "../../../wailsjs/go/logic/Logic";
@@ -7,6 +8,11 @@ import {EventsOff, EventsOn} from "../../../wailsjs/runtime";
 import {IRenderDimensions} from "@xterm/xterm/src/browser/renderer/shared/Types";
 import {message, notification} from "ant-design-vue";
 import Recording from "./recording.vue";
+const webgl_addon = new WebglAddon();
+webgl_addon.onContextLoss(e=>{
+  webgl_addon.dispose();
+  message.error('Webgl 上下文丢失: '+ e);
+});
 
 const props = defineProps({
   id: {
@@ -23,7 +29,6 @@ const props = defineProps({
   }
 });
 
-// const fitAddon = new FitAddon();
 const state = reactive({
   term: null as unknown as Terminal,
   cols: 0,
@@ -60,6 +65,7 @@ function NewTerminal(){
     logLevel: 'off',
   });
   state.term.open(currentRef.value);
+  state.term.loadAddon(webgl_addon);
   state.term.onTitleChange((title)=>{
     emit('update:title', title);
   })
