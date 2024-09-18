@@ -56,42 +56,30 @@ func (r *Recorder) setHeader(header *Header) (err error) {
 
 func (r *Recorder) Resize(rows, cols int) (n int, err error) {
 	delta := time.Since(r.t).Seconds()
-	row := make([]interface{}, 0)
-	row = append(row, delta)
-	row = append(row, "r")
-	row = append(row, fmt.Sprintf("%dx%d", cols, rows))
-
-	var s []byte
-	if s, err = sonic.Marshal(row); err != nil {
-		return
-	}
+	jsonStr := fmt.Sprintf(`[%.6f, "r", "%dx%d"]\n`, delta, cols, rows)
 	r.mux.Lock()
 	defer r.mux.Unlock()
-	if n, err = r.f.Write(s); err != nil {
+	if n, err = r.f.Write([]byte(jsonStr)); err != nil {
 		return
 	}
-	_, err = r.f.Write([]byte("\n"))
 	return
 }
 
 func (r *Recorder) Write(p []byte) (n int, err error) {
 	delta := time.Since(r.t).Seconds()
-
-	row := make([]interface{}, 0)
-	row = append(row, delta)
-	row = append(row, "o")
-	row = append(row, string(p))
-
+	if len(p) == 0 {
+		return 0, nil
+	}
 	var s []byte
-	if s, err = sonic.Marshal(row); err != nil {
+	if s, err = sonic.Marshal(string(p)); err != nil {
 		return
 	}
+	jsonStr := fmt.Sprintf(`[%.6f, "o", %s]\n`, delta, s)
 	r.mux.Lock()
 	defer r.mux.Unlock()
-	if n, err = r.f.Write(s); err != nil {
+	if n, err = r.f.Write([]byte(jsonStr)); err != nil {
 		return
 	}
-	_, err = r.f.Write([]byte("\n"))
 	return
 }
 
