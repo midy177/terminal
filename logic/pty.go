@@ -2,10 +2,12 @@ package logic
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"sync/atomic"
 	"terminal/lib/privilege"
 	termx2 "terminal/lib/termx"
@@ -148,6 +150,9 @@ func (l *Logic) ResizePty(id string, rows, cols int) error {
 	if !ok {
 		return errors.New("连接已释放")
 	}
+	if t.Rec != nil {
+		_, _ = t.Rec.Resize(rows, cols)
+	}
 	return t.Pty.Resize(rows, cols)
 }
 
@@ -159,6 +164,31 @@ func (l *Logic) WriteToPty(id string, data []byte) error {
 	}
 	_, err := t.Pty.Write(data)
 	return err
+}
+
+// WriteClipboardToPty 数据写入pty
+func (l *Logic) WriteClipboardToPty(id string) error {
+	clipText, err := wailsrt.ClipboardGetText(l.Ctx)
+	if err != nil {
+		return err
+	}
+	clipText = strings.ReplaceAll(clipText, "\r\n", "\r")
+	if len(clipText) == 0 {
+		return fmt.Errorf("剪贴板里面没有内容")
+	}
+	t, ok := l.Sessions.Load(id)
+	if !ok {
+		return errors.New("连接已释放")
+	}
+	_, err = t.Pty.Write([]byte(clipText))
+	return err
+}
+
+func (l *Logic) SetClipTextToClipboard(clipText string) error {
+	if len(clipText) == 0 {
+		return fmt.Errorf("没有选中内容")
+	}
+	return wailsrt.ClipboardSetText(l.Ctx, clipText)
 }
 
 // 推送终端信息到前端
@@ -199,7 +229,7 @@ func (l *Logic) eventEmitLoop(id string) error {
 	return nil
 }
 
-func (l *Logic) StartRec(id string) (string, error) {
+func (l *Logic) StartRec(id string, rows, cols int) (string, error) {
 	sess, ok := l.Sessions.Load(id)
 	if !ok {
 		return "", errors.New("没有创建录屏或连接已经释放")
@@ -223,7 +253,7 @@ func (l *Logic) StartRec(id string) (string, error) {
 	// terminal_recording
 	filename := filepath.Join(folderPath, id+"_"+time.Now().Format("20060102150405")+".cast")
 
-	sess.Rec, err = utils.NewRecorder(filename)
+	sess.Rec, err = utils.NewRecorder(filename, rows, cols)
 	if err != nil {
 		return "", err
 	}

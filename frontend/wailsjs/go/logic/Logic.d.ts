@@ -45,6 +45,8 @@ export function ResizePty(arg1:string,arg2:number,arg3:number):Promise<void>;
 
 export function RunAsAdmin():Promise<void>;
 
+export function SetClipTextToClipboard(arg1:string):Promise<void>;
+
 export function SftpDelete(arg1:string,arg2:string):Promise<void>;
 
 export function SftpDir(arg1:string,arg2:string):Promise<Array<logic.FileInfo>>;
@@ -57,12 +59,14 @@ export function SftpUploadDirectory(arg1:string,arg2:string):Promise<void>;
 
 export function SftpUploadMultipleFiles(arg1:string,arg2:string):Promise<void>;
 
-export function StartRec(arg1:string):Promise<string>;
+export function StartRec(arg1:string,arg2:number,arg3:number):Promise<string>;
 
 export function StopRec(arg1:string):Promise<void>;
 
 export function UpdFoldOrHost(arg1:logic.HostEntry):Promise<void>;
 
 export function UpdKey(arg1:logic.KeyEntry):Promise<void>;
+
+export function WriteClipboardToPty(arg1:string):Promise<void>;
 
 export function WriteToPty(arg1:string,arg2:Array<number>):Promise<void>;

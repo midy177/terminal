@@ -3,7 +3,14 @@ import { Terminal } from '@xterm/xterm';
 import { WebglAddon } from '@xterm/addon-webgl';
 import "./xterm.css";
 import {ComponentPublicInstance, nextTick, onMounted, onUnmounted, reactive, ref, VNodeRef} from 'vue';
-import {ClosePty, ResizePty, StartRec, WriteToPty} from "../../../wailsjs/go/logic/Logic";
+import {
+  ClosePty,
+  ResizePty,
+  SetClipTextToClipboard,
+  StartRec,
+  WriteClipboardToPty,
+  WriteToPty
+} from "../../../wailsjs/go/logic/Logic";
 import {EventsOff, EventsOn} from "../../../wailsjs/runtime";
 import {IRenderDimensions} from "@xterm/xterm/src/browser/renderer/shared/Types";
 import {message, notification} from "ant-design-vue";
@@ -75,17 +82,27 @@ function NewTerminal(){
     });
   })
   state.term.attachCustomKeyEventHandler(event => {
-    if (event.ctrlKey && event.key === 'v') {
-      return false; // 阻止默认行为
-    } else if (event.ctrlKey && event.key === 'c') {
+    // 处理粘贴操作
+    if (event.type === 'keydown' && event.ctrlKey && event.key === 'v') {
+      event.preventDefault(); // 阻止默认的粘贴行为
+      WriteClipboardToPty(props.id);
+      return false; // 阻止 xterm.js 进一步处理这个事件
+    }
+
+    // 处理复制操作
+    if (event.type === 'keydown' && event.ctrlKey && event.key === 'c') {
       const copiedText = state.term.getSelection();
       if (copiedText.length > 0) {
-        navigator.clipboard.writeText(copiedText).then(() => {
+        SetClipTextToClipboard(copiedText).then(()=>{
           state.term.clearSelection();
-        });
-        return false; // 阻止默认行为
+        }).catch( e => {
+          message.error(e)
+        })
+        return false; // 阻止 xterm.js 进一步处理这个事件
       }
     }
+
+    // 对于其他按键事件，让 xterm.js 正常处理
     return true;
   })
 }
@@ -122,7 +139,6 @@ function fitWithHeightWidth(width:number = props.width,height:number = props.hei
 // Write data from pty into the terminal
 function writeToTerminal(data: string | Uint8Array | ArrayBuffer | Blob) {
   toUint8Array(data).then(res=>{
-    // Todo 从后端读取数据，通过调用写入xterm
     state.term.write(res);
   })
 }
@@ -130,7 +146,6 @@ function writeToTerminal(data: string | Uint8Array | ArrayBuffer | Blob) {
 // Write data from the terminal to the pty
 function writeToPty(data: string | Uint8Array | ArrayBuffer | Blob) {
   toUint8Array(data).then(resp=>{
-    // Todo 通过调用func写入后端
     WriteToPty(props.id,Array.from(resp)).catch(e=>{
       message.error(e);
     });
@@ -139,7 +154,6 @@ function writeToPty(data: string | Uint8Array | ArrayBuffer | Blob) {
 
 function ptyStdoutListener(){
   EventsOn(props.id,(resp: string)=>{
-    console.log(resp);
     writeToTerminal(resp);
   })
 }
@@ -170,25 +184,20 @@ async function toUint8Array(input: string | Uint8Array | ArrayBuffer | Blob): Pr
 
 function rightMouseDown(event: any) {
   if (event.button === 2) {
-    handleSelectToClipboardOrClipboardToTerm();
-  }
-}
-
-function handleSelectToClipboardOrClipboardToTerm() {
-  try {
     if (state.term.hasSelection()) {
-      navigator.clipboard.writeText(state.term.getSelection()).then(()=>{
-        state.term.clearSelection();
-      });
+      const copiedText = state.term.getSelection();
+      if (copiedText.length > 0) {
+        SetClipTextToClipboard(copiedText).then(()=>{
+          state.term.clearSelection();
+        }).catch( e => {
+          message.error(e)
+        })
+      }
     } else {
-      navigator.clipboard.readText().then(clipText => {
-        if (clipText.length>0){
-          writeToPty(clipText.replace(/\r\n/g, "\r"));
-        }
-      })
+      WriteClipboardToPty(props.id).catch(e => {
+        message.error(e)
+      });
     }
-  } catch (e) {
-
   }
 }
 
@@ -215,7 +224,7 @@ function onDrop(event: DragEvent){
 }
 
 function startRecording(){
-  StartRec(props.id).then(res => {
+  StartRec(props.id, state.term.rows, state.term.cols).then(res => {
     state.recording = true;
     state.recordingFile = res;
     notification.warning({
@@ -251,6 +260,7 @@ onUnmounted( () => {
 </script>
 
 <template>
+  <div class="terminal-item">
     <div
         :ref="setItemRef"
         class="xterm-layout"
@@ -258,10 +268,18 @@ onUnmounted( () => {
         @dragover="onDragover"
         @drop="onDrop"
     />
-  <recording v-if="state.recording" :id="props.id" :filename="state.recordingFile" :stop-recording="stopRecording"/>
+    <recording v-if="state.recording" :id="props.id" :filename="state.recordingFile" :stop-recording="stopRecording"/>
+  </div>
 </template>
 
 <style scoped lang="less">
+.terminal-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
 .xterm-layout {
   background-color: #1d1e21;
   height: 100%;

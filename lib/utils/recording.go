@@ -1,8 +1,10 @@
 package utils
 
 import (
+	"fmt"
 	"github.com/bytedance/sonic"
 	"os"
+	"sync"
 	"time"
 )
 
@@ -21,37 +23,59 @@ type Header struct {
 }
 
 type Recorder struct {
-	File *os.File
-	Time time.Time
+	f   *os.File
+	t   time.Time
+	mux sync.Mutex
 }
 
-func (recorder *Recorder) Close() {
-	if recorder.File != nil {
-		_ = recorder.File.Close()
+func (r *Recorder) Close() {
+	if r.f != nil {
+		_ = r.f.Close()
 	}
 }
 
-func (recorder *Recorder) setHeader(header *Header) (err error) {
+func (r *Recorder) setHeader(header *Header) (err error) {
 	var p []byte
 
 	if p, err = sonic.Marshal(header); err != nil {
 		return
 	}
-
-	if _, err := recorder.File.Write(p); err != nil {
+	r.mux.Lock()
+	defer r.mux.Unlock()
+	if _, err := r.f.Write(p); err != nil {
 		return err
 	}
-	if _, err := recorder.File.Write([]byte("\n")); err != nil {
+	if _, err := r.f.Write([]byte("\n")); err != nil {
 		return err
 	}
 
-	recorder.Time = time.Unix(int64(header.Timestamp), 0)
+	r.t = time.Unix(int64(header.Timestamp), 0)
 
 	return
 }
 
-func (recorder *Recorder) Write(p []byte) (n int, err error) {
-	delta := time.Since(recorder.Time).Seconds()
+func (r *Recorder) Resize(rows, cols int) (n int, err error) {
+	delta := time.Since(r.t).Seconds()
+	row := make([]interface{}, 0)
+	row = append(row, delta)
+	row = append(row, "r")
+	row = append(row, fmt.Sprintf("%dx%d", cols, rows))
+
+	var s []byte
+	if s, err = sonic.Marshal(row); err != nil {
+		return
+	}
+	r.mux.Lock()
+	defer r.mux.Unlock()
+	if n, err = r.f.Write(s); err != nil {
+		return
+	}
+	_, err = r.f.Write([]byte("\n"))
+	return
+}
+
+func (r *Recorder) Write(p []byte) (n int, err error) {
+	delta := time.Since(r.t).Seconds()
 
 	row := make([]interface{}, 0)
 	row = append(row, delta)
@@ -62,19 +86,19 @@ func (recorder *Recorder) Write(p []byte) (n int, err error) {
 	if s, err = sonic.Marshal(row); err != nil {
 		return
 	}
-	if n, err = recorder.File.Write(s); err != nil {
+	r.mux.Lock()
+	defer r.mux.Unlock()
+	if n, err = r.f.Write(s); err != nil {
 		return
 	}
-	_, err = recorder.File.Write([]byte("\n"))
+	_, err = r.f.Write([]byte("\n"))
 	return
 }
 
-func NewRecorder(recordingPath string) (*Recorder, error) {
+func NewRecorder(recordingPath string, rows, cols int) (*Recorder, error) {
 	if FileExists(recordingPath) {
 		return nil, os.ErrExist
 	}
-
-	var file *os.File
 	file, err := os.Create(recordingPath)
 	if err != nil {
 		return nil, err
@@ -82,15 +106,15 @@ func NewRecorder(recordingPath string) (*Recorder, error) {
 
 	recorder := &Recorder{}
 
-	recorder.File = file
+	recorder.f = file
 
-	recorder.Time = time.Now()
+	recorder.t = time.Now()
 
 	header := &Header{
 		Title:     "",
 		Version:   2,
-		Height:    10,
-		Width:     80,
+		Height:    rows,
+		Width:     cols,
 		Env:       Env{Shell: "/bin/bash", Term: "xterm-256color"},
 		Timestamp: int(time.Now().Unix()),
 	}

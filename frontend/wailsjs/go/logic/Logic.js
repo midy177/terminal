@@ -86,6 +86,10 @@ export function RunAsAdmin() {
   return window['go']['logic']['Logic']['RunAsAdmin']();
 }
 
+export function SetClipTextToClipboard(arg1) {
+  return window['go']['logic']['Logic']['SetClipTextToClipboard'](arg1);
+}
+
 export function SftpDelete(arg1, arg2) {
   return window['go']['logic']['Logic']['SftpDelete'](arg1, arg2);
 }
@@ -110,8 +114,8 @@ export function SftpUploadMultipleFiles(arg1, arg2) {
   return window['go']['logic']['Logic']['SftpUploadMultipleFiles'](arg1, arg2);
 }
 
-export function StartRec(arg1) {
-  return window['go']['logic']['Logic']['StartRec'](arg1);
+export function StartRec(arg1, arg2, arg3) {
+  return window['go']['logic']['Logic']['StartRec'](arg1, arg2, arg3);
 }
 
 export function StopRec(arg1) {
@@ -124,6 +128,10 @@ export function UpdFoldOrHost(arg1) {
 
 export function UpdKey(arg1) {
   return window['go']['logic']['Logic']['UpdKey'](arg1);
+}
+
+export function WriteClipboardToPty(arg1) {
+  return window['go']['logic']['Logic']['WriteClipboardToPty'](arg1);
 }
 
 export function WriteToPty(arg1, arg2) {

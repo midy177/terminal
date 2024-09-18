@@ -437,7 +437,7 @@ func checkDuplicateNames(sourceFiles []*sourceFile) error {
 func getNewName(path, name string) (string, error) {
 	const maxNameLen = 255
 	if len(name) > maxNameLen {
-		return "", simpleTrzszError("File name too long: %s", name)
+		return "", simpleTrzszError("f name too long: %s", name)
 	}
 
 	if _, err := os.Stat(filepath.Join(path, name)); os.IsNotExist(err) {

@@ -243,22 +243,24 @@ const shouldShowTerminal = (key: string) => {
         </Space>
     </template>
   </terminal-tabs>
-      <div
-          ref="terminalLayoutRef"
-          :style="{backgroundColor: state.tabs.length>0 ? 'rgb(26, 27, 30)': 'transparent'}"
-          class="terminal-layout"
-      >
-          <terminal
-              v-for="item in state.tabs"
-              :key="item.key"
-              :id="item.key"
-              v-show="shouldShowTerminal(item.key)"
-              v-model:title="item.title"
-              :ref="(el: Element | ComponentPublicInstance | null)=> setTerminalRef(item.key,el)"
-              :width="state.width"
-              :height="state.height"
-          />
+    <div
+        ref="terminalLayoutRef"
+        :style="{backgroundColor: state.tabs.length>0 ? 'rgb(26, 27, 30)': 'transparent'}"
+        class="terminal-layout"
+    >
+      <div class="terminal-stack">
+        <terminal
+            v-for="item in state.tabs"
+            :key="item.key"
+            :id="item.key"
+            v-show="shouldShowTerminal(item.key)"
+            v-model:title="item.title"
+            :ref="(el: Element | ComponentPublicInstance | null)=> setTerminalRef(item.key,el)"
+            :width="state.width"
+            :height="state.height"
+        />
       </div>
+    </div>
     <FileBrowser ref="fileBrowserRef" :tid="state.tab"/>
     <AsciiPlayer ref="asciiPlayerRef" />
   </ConfigProvider>
@@ -269,33 +271,22 @@ input[type=search]::-webkit-search-cancel-button{
   -webkit-appearance: none;
 }
 
-.header-btn-bar {
-  width: 34px;
-  border-radius: 5px;
-  padding: 0;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: background 300ms;
-  height: 34px;
-  line-height: 34px;
-  &:hover {
-    background-color: rgba(0, 0, 0, .1);
-  }
-}
 .terminal-layout {
-  //background-color: transparent;
   height: 100%;
   width: 100%;
   max-height: 100%;
   max-width: 100%;
   display: flex;
   flex: 1;
-  overflow: hidden; /* 防止子元素内容撑开 */
-  justify-content: center; /* 水平居中对齐内容 */
-  align-items: center; /* 垂直居中对齐内容 */
+  overflow: hidden;
+  justify-content: center;
+  align-items: center;
   padding: 8px;
-  //background-color: rgb(26, 27, 30);
+}
+
+.terminal-stack {
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 </style>

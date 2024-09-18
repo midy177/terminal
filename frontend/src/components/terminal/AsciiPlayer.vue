@@ -37,7 +37,9 @@
         </Col>
       </Row>
     </template>
-      <div ref="playerContainer"></div>
+    <div class="player-wrapper">
+      <div ref="playerContainer" class="player-container"></div>
+    </div>
   </Modal>
 </template>
 
@@ -54,8 +56,10 @@ const initState = () => ({
   player: null,
   objectUrl: null,
   playerOptions: {
-    cols: 80,
-    rows: 20,
+    cols: 100,
+    rows: 40,
+    terminalFontSize: '14px',
+    fit: 'width',
   },
 });
 
@@ -143,10 +147,31 @@ onUnmounted(
 </script>
 
 <style scoped>
-.ascii-player {
+.player-wrapper {
   width: 100%;
-  max-width: 80vw;
-  max-height: 70vh;
-  margin: 0 auto;
+  height: 70vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.player-container {
+  width: 100%;
+  height: 100%;
+}
+
+:deep(.ap-player) {
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  height: 100%;
+}
+
+:deep(.ap-terminal) {
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
 }
 </style>

@@ -44,9 +44,10 @@ function stopRecording(){
 
 <style scoped lang="less">
 .rec-indicator {
+  z-index: 1000;
   position: absolute;
-  top: 50px;
-  right: 10px;
+  top: 5px;
+  right: 5px;
   display: flex;
   align-items: center;
   font-family: Arial, sans-serif;
