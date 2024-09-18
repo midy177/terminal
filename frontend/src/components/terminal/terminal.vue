@@ -68,7 +68,7 @@ function NewTerminal(){
     allowTransparency: true,
     allowProposedApi: true,
     overviewRulerWidth: 8,
-    scrollback: 1000,
+    scrollback: 3000,
     logLevel: 'off',
   });
   state.term.open(currentRef.value);

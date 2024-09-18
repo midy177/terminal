@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/inhies/go-bytesize"
 	"github.com/pkg/sftp"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"github.com/sqweek/dialog"
 	"io"
 	"os"
 	"path"
@@ -91,16 +91,14 @@ func (l *Logic) SftpUploadDirectory(id string, dstDir string) error {
 	if !dstDirStat.IsDir() {
 		return errors.New("dst dir is not l directory")
 	}
-	srcDir, err := runtime.OpenDirectoryDialog(l.Ctx, runtime.OpenDialogOptions{
-		Title:                      "选择需要上传的文件夹",
-		DefaultDirectory:           "",
-		DefaultFilename:            "",
-		Filters:                    nil,
-		ShowHiddenFiles:            true,
-		CanCreateDirectories:       true,
-		ResolvesAliases:            false,
-		TreatPackagesAsDirectories: false,
-	})
+	// 打开文件夹选择对话框
+	srcDir, err := dialog.Directory().Title("选择要上传的文件夹").Browse()
+	if err != nil {
+		if errors.Is(err, dialog.ErrCancelled) {
+			return errors.New("用户取消了选择")
+		}
+		return errors.New("打开文件夹对话框出错: " + err.Error())
+	}
 	if err != nil {
 		return err
 	}
@@ -123,26 +121,19 @@ func (l *Logic) SftpUploadMultipleFiles(id string, dstDir string) error {
 	if !dstDirStat.IsDir() {
 		return errors.New("dst dir is not l directory")
 	}
-	files, err := runtime.OpenMultipleFilesDialog(l.Ctx, runtime.OpenDialogOptions{
-		Title: "选择",
-	})
+	// 打开文件夹选择对话框
+	file, err := dialog.File().Title("选择上传文件").Load()
+	if err != nil {
+		if errors.Is(err, dialog.ErrCancelled) {
+			return errors.New("用户取消了选择")
+		}
+		return errors.New("打开文件夹对话框出错: " + err.Error())
+	}
+	fname := filepath.Base(file)
+	remoteFilePath := path.Join(dstDir, fname)
+	err = uploadFile(sftpCli, file, remoteFilePath)
 	if err != nil {
 		return err
-	}
-	if len(files) == 0 {
-		return errors.New("没有选择文件")
-	}
-	for _, f := range files {
-		fname := filepath.Base(f)
-		remoteFilePath := path.Join(dstDir, fname)
-		err := uploadFile(sftpCli, f, remoteFilePath)
-		if err != nil {
-			return err
-			//_, _ = runtime.MessageDialog(l.Ctx, runtime.MessageDialogOptions{
-			//	Title:   "It's your turn!",
-			//	Message: fmt.Sprintf("上传文件失败: %s", err.Error()),
-			//})
-		}
 	}
 	return nil
 }
@@ -157,11 +148,13 @@ func (l *Logic) SftpDownload(id string, dst string) error {
 	if err != nil {
 		return err
 	}
-	localDir, err := runtime.OpenDirectoryDialog(l.Ctx, runtime.OpenDialogOptions{
-		Title: "选择",
-	})
+	// 打开文件夹选择对话框
+	localDir, err := dialog.Directory().Title("选择保存文件夹").Browse()
 	if err != nil {
-		return err
+		if errors.Is(err, dialog.ErrCancelled) {
+			return errors.New("用户取消了选择")
+		}
+		return errors.New("打开文件夹对话框出错: " + err.Error())
 	}
 	if localDir == "" {
 		return errors.New("没有选择本地保存的文件夹")
