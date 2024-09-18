@@ -66,10 +66,10 @@ func (r *Recorder) Resize(rows, cols int) (n int, err error) {
 }
 
 func (r *Recorder) Write(p []byte) (n int, err error) {
-	delta := time.Since(r.t).Seconds()
 	if len(p) == 0 {
 		return 0, nil
 	}
+	delta := time.Since(r.t).Seconds()
 	var s []byte
 	if s, err = sonic.Marshal(string(p)); err != nil {
 		return
