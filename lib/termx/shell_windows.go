@@ -5,6 +5,9 @@ package termx
 import (
 	"fmt"
 	"golang.org/x/sys/windows/registry"
+	"os"
+	"os/exec"
+	"strings"
 )
 
 func getShellsOld() {
