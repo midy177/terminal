@@ -2,7 +2,7 @@
     /*这里只需要设置高度100%就行，宽度不知道为啥自适应了*/
     width: 100vw;
     height: 100vh;
-    box-shadow: 0 0 20px rgba(184, 184, 184, 0.01);
+    /*box-shadow: 0 0 20px rgba(184, 184, 184, 0.01);*/
     background: #303335;
     display: flex;
     flex-direction: column;

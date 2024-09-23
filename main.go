@@ -44,7 +44,7 @@ func main() {
 			logicApp,
 		},
 		Windows: &windows.Options{
-			WebviewIsTransparent:              true,
+			WebviewIsTransparent:              false,
 			WindowIsTranslucent:               false,
 			BackdropType:                      windows.Mica,
 			DisableWindowIcon:                 false,
