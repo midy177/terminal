@@ -18,16 +18,16 @@
     "devui-theme": "^0.0.7",
     "draggabilly": "^3.0.0",
     "install": "^0.13.0",
-    "less": "^4.2.0",
+    "less": "^4.2.1",
     "mkdirp": "^3.0.1",
     "nanoid": "^5.0.8",
     "vue": "^3.5.13",
-    "vue-devui": "^1.6.24"
+    "vue-devui": "^1.6.25"
   },
   "devDependencies": {
     "@babel/types": "^7.26.0",
     "@types/draggabilly": "^2.1.6",
-    "@types/node": "^20.17.7",
+    "@types/node": "^20.17.8",
     "@vitejs/plugin-vue": "^5.2.0",
     "asciinema-player": "3.6.3",
     "typescript": "^4.9.5",
