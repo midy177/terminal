@@ -26,7 +26,7 @@ func main() {
 	// Create an instance of the app structure
 	logicApp := logic.NewApp()
 	app := application.NewWithOptions(&options.App{
-		Title:     "terminal",
+		Title:     "WuTerm",
 		Width:     924,
 		Height:    520,
 		MinWidth:  800,
@@ -68,8 +68,8 @@ func main() {
 			WebviewIsTransparent: true,
 			WindowIsTranslucent:  false,
 			About: &mac.AboutInfo{
-				Title:   "Terminal Console",
-				Message: "© 2024 Wuly",
+				Title:   "WuTerm",
+				Message: "© 2025 Wuly",
 				//Icon:    icon,
 			},
 		},
@@ -77,7 +77,7 @@ func main() {
 			//Icon: icon,
 			WindowIsTranslucent: true,
 			WebviewGpuPolicy:    linux.WebviewGpuPolicyAlways,
-			ProgramName:         "terminal-console",
+			ProgramName:         "WuTerm",
 		},
 	})
 	//startPprof()
