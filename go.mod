@@ -1,65 +1,65 @@
 module terminal
 
-go 1.23.0
-
-toolchain go1.23.3
+go 1.23.4
 
 require (
 	entgo.io/ent v0.14.1
 	github.com/UserExistsError/conpty v0.1.4
 	github.com/atotto/clipboard v0.1.4
-	github.com/bytedance/sonic v1.12.5
-	github.com/charmbracelet/lipgloss v0.13.0
-	github.com/creack/pty v1.1.23
+	github.com/bytedance/sonic v1.12.6
+	github.com/charmbracelet/lipgloss v1.0.0
+	github.com/creack/pty v1.1.24
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
 	github.com/google/uuid v1.6.0
 	github.com/inhies/go-bytesize v0.0.0-20220417184213-4913239db9cf
 	github.com/json-iterator/go v1.1.12
-	github.com/klauspost/compress v1.17.9
+	github.com/klauspost/compress v1.17.11
 	github.com/lucasb-eyer/go-colorful v1.2.0
 	github.com/mattn/go-runewidth v0.0.16
-	github.com/mattn/go-sqlite3 v1.14.23
+	github.com/mattn/go-sqlite3 v1.14.24
 	github.com/ncruces/zenity v0.10.14
 	github.com/pkg/sftp v1.13.7
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 	github.com/sqweek/dialog v0.0.0-20240226140203-065105509627
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	github.com/trzsz/go-arg v1.5.4
 	github.com/trzsz/promptui v0.10.8
 	github.com/wailsapp/wails/v2 v2.9.2
-	golang.org/x/crypto v0.27.0
-	golang.org/x/sync v0.8.0
-	golang.org/x/sys v0.25.0
-	golang.org/x/term v0.24.0
-	golang.org/x/text v0.18.0
+	golang.org/x/crypto v0.31.0
+	golang.org/x/sync v0.10.0
+	golang.org/x/sys v0.28.0
+	golang.org/x/term v0.27.0
+	golang.org/x/text v0.21.0
 )
 
+require github.com/bmatcuk/doublestar v1.3.4 // indirect
+
 require (
-	ariga.io/atlas v0.27.0 // indirect
-	github.com/TheTitanrain/w32 v0.0.0-20180517000239-4f5cfb03fabf // indirect
+	ariga.io/atlas v0.29.1 // indirect
+	github.com/TheTitanrain/w32 v0.0.0-20200114052255-2654d97dbd3d // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/akavel/rsrc v0.10.2 // indirect
 	github.com/alexflint/go-scalar v1.2.0 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/bep/debounce v1.2.1 // indirect
-	github.com/bytedance/sonic/loader v0.2.0 // indirect
-	github.com/charmbracelet/x/ansi v0.3.1 // indirect
+	github.com/bytedance/sonic/loader v0.2.1 // indirect
+	github.com/charmbracelet/x/ansi v0.6.0 // indirect
 	github.com/chzyer/readline v1.5.1 // indirect; indirectt
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/dchest/jsmin v0.0.0-20220218165748-59f39799265f // indirect
+	github.com/dchest/jsmin v1.0.0 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/go-openapi/inflect v0.21.0 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
-	github.com/hashicorp/hcl/v2 v2.22.0 // indirect
+	github.com/hashicorp/hcl/v2 v2.23.0 // indirect
 	github.com/jchv/go-winloader v0.0.0-20210711035445-715c2860da7e // indirect
 	github.com/josephspurrier/goversioninfo v1.4.1 // indirect
-	github.com/klauspost/cpuid/v2 v2.2.8 // indirect
+	github.com/klauspost/cpuid/v2 v2.2.9 // indirect
 	github.com/kr/fs v0.1.0 // indirect
-	github.com/labstack/echo/v4 v4.12.0 // indirect
+	github.com/labstack/echo/v4 v4.13.3 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/leaanthony/go-ansi-parser v1.6.1 // indirect
 	github.com/leaanthony/gosod v1.0.4 // indirect
@@ -81,13 +81,13 @@ require (
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
-	github.com/wailsapp/go-webview2 v1.0.16 // indirect
+	github.com/wailsapp/go-webview2 v1.0.18 // indirect
 	github.com/wailsapp/mimetype v1.4.1 // indirect
-	github.com/zclconf/go-cty v1.15.0 // indirect
-	golang.org/x/arch v0.10.0 // indirect
-	golang.org/x/image v0.20.0 // indirect
-	golang.org/x/mod v0.21.0 // indirect
-	golang.org/x/net v0.29.0 // indirect
-	golang.org/x/tools v0.25.0 // indirect
+	github.com/zclconf/go-cty v1.15.1 // indirect
+	golang.org/x/arch v0.12.0 // indirect
+	golang.org/x/image v0.23.0 // indirect
+	golang.org/x/mod v0.22.0 // indirect
+	golang.org/x/net v0.33.0 // indirect
+	golang.org/x/tools v0.28.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
