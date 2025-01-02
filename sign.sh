@@ -1,6 +1,6 @@
 #!/bin/sh
 rm -rf build/bin/*.app
-wails build clearn -tags=sonic
+wails build -clean -tags=sonic
 #  Script.sh
 #  sign
 #path=$(cd "$(dirname "$0")";pwd)
@@ -27,4 +27,4 @@ create-dmg --volname terminal \
            terminal_setup.dmg \
            terminal.app
 
-# wails build clearn -nsis -tags=jsoniter
+# wails build -clean -tags=sonic -nsis
