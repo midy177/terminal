@@ -5,19 +5,19 @@
 !include "FileFunc.nsh"
 
 !ifndef INFO_PROJECTNAME
-    !define INFO_PROJECTNAME "terminal"
+    !define INFO_PROJECTNAME "WuTerm"
 !endif
 !ifndef INFO_COMPANYNAME
     !define INFO_COMPANYNAME "Wly"
 !endif
 !ifndef INFO_PRODUCTNAME
-    !define INFO_PRODUCTNAME "Terminal Console"
+    !define INFO_PRODUCTNAME "WuTerm"
 !endif
 !ifndef INFO_PRODUCTVERSION
-    !define INFO_PRODUCTVERSION "1.0.0"
+    !define INFO_PRODUCTVERSION "1.5.0"
 !endif
 !ifndef INFO_COPYRIGHT
-    !define INFO_COPYRIGHT "Copyright(c) 2024"
+    !define INFO_COPYRIGHT "Copyright(c) 2025"
 !endif
 !ifndef PRODUCT_EXECUTABLE
     !define PRODUCT_EXECUTABLE "${INFO_PROJECTNAME}.exe"
