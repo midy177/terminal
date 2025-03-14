@@ -6,8 +6,8 @@ require (
 	entgo.io/ent v0.14.3
 	github.com/UserExistsError/conpty v0.1.4
 	github.com/atotto/clipboard v0.1.4
-	github.com/bytedance/sonic v1.12.10
-	github.com/charmbracelet/lipgloss v1.0.0
+	github.com/bytedance/sonic v1.13.1
+	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/creack/pty v1.1.24
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
 	github.com/google/uuid v1.6.0
@@ -18,18 +18,25 @@ require (
 	github.com/mattn/go-runewidth v0.0.16
 	github.com/mattn/go-sqlite3 v1.14.24
 	github.com/ncruces/zenity v0.10.14
-	github.com/pkg/sftp v1.13.7
+	github.com/pkg/sftp v1.13.8
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 	github.com/sqweek/dialog v0.0.0-20240226140203-065105509627
 	github.com/stretchr/testify v1.10.0
 	github.com/trzsz/go-arg v1.5.4
 	github.com/trzsz/promptui v0.10.8
 	github.com/wailsapp/wails/v2 v2.10.1
-	golang.org/x/crypto v0.35.0
-	golang.org/x/sync v0.11.0
-	golang.org/x/sys v0.30.0
-	golang.org/x/term v0.29.0
-	golang.org/x/text v0.22.0
+	golang.org/x/crypto v0.36.0
+	golang.org/x/sync v0.12.0
+	golang.org/x/sys v0.31.0
+	golang.org/x/term v0.30.0
+	golang.org/x/text v0.23.0
+)
+
+require (
+	github.com/charmbracelet/colorprofile v0.2.3-0.20250311203215-f60798e515dc // indirect
+	github.com/charmbracelet/x/cellbuf v0.0.13-0.20250311204145-2c3ea96c31dd // indirect
+	github.com/charmbracelet/x/term v0.2.1 // indirect
+	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 )
 
 require (
@@ -42,7 +49,7 @@ require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/bep/debounce v1.2.1 // indirect
 	github.com/bmatcuk/doublestar v1.3.4 // indirect
-	github.com/bytedance/sonic/loader v0.2.3 // indirect
+	github.com/bytedance/sonic/loader v0.2.4 // indirect
 	github.com/charmbracelet/x/ansi v0.8.0 // indirect
 	github.com/chzyer/readline v1.5.1 // indirect; indirectt
 	github.com/cloudwego/base64x v0.1.5 // indirect
