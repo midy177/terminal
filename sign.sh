@@ -1,6 +1,7 @@
 #!/bin/sh
 rm -rf build/bin/*.app
-wails build -clean -tags=sonic
+wails build -clean
+#-tags=sonic
 #  Script.sh
 #  sign
 #path=$(cd "$(dirname "$0")";pwd)

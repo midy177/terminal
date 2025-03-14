@@ -451,11 +451,7 @@ export default defineComponent({
         return true
       }
 
-      if (autoHiddenCloseIconWidth > tabWidth.value) {
-        return false
-      }
-
-      return true
+      return autoHiddenCloseIconWidth <= tabWidth.value;
     }
 
     /**
