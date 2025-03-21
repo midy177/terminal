@@ -2,7 +2,7 @@
 import { Terminal } from '@xterm/xterm';
 import { WebglAddon } from '@xterm/addon-webgl';
 import "./xterm.css";
-import {ComponentPublicInstance, nextTick, onMounted, onUnmounted, reactive, ref, VNodeRef} from 'vue';
+import { ComponentPublicInstance, nextTick, onMounted, onUnmounted, reactive, ref, VNodeRef } from 'vue';
 import {
   ClosePty,
   ResizePty,
@@ -11,14 +11,14 @@ import {
   WriteClipboardToPty,
   WriteToPty
 } from "../../../wailsjs/go/logic/Logic";
-import {EventsOff, EventsOn} from "../../../wailsjs/runtime";
-import {IRenderDimensions} from "@xterm/xterm/src/browser/renderer/shared/Types";
-import {message, notification} from "ant-design-vue";
+import { EventsOff, EventsOn } from "../../../wailsjs/runtime";
+import { IRenderDimensions } from "@xterm/xterm/src/browser/renderer/shared/Types";
+import { message, notification } from "ant-design-vue";
 import Recording from "./recording.vue";
 const webgl_addon = new WebglAddon();
-webgl_addon.onContextLoss(e=>{
+webgl_addon.onContextLoss(e => {
   webgl_addon.dispose();
-  message.error('Webgl 上下文丢失: '+ e);
+  message.error('Webgl 上下文丢失: ' + e);
 });
 
 const props = defineProps({
@@ -51,14 +51,14 @@ function setItemRef(vn: Element | ComponentPublicInstance | VNodeRef | undefined
   }
 }
 
-function NewTerminal(){
+function NewTerminal() {
   state.term = new Terminal({
     theme: {
       background: '#1A1B1E',
       cursor: '#90f64c',
       cursorAccent: '#10B98100',
     },
-    fontFamily: 'JetBrainsMono, monaco, Consolas, Lucida Console, monospace',
+    fontFamily: 'DejaVuSansMono, JetBrainsMono, monaco, Consolas, Lucida Console, monospace',
     fontWeight: 'bold',
     fontSize: 18,
     cursorBlink: true,
@@ -68,16 +68,16 @@ function NewTerminal(){
     allowTransparency: true,
     allowProposedApi: true,
     overviewRulerWidth: 8,
-    scrollback: 3000,
+    scrollback: 10000,
     logLevel: 'off',
   });
   state.term.open(currentRef.value);
   state.term.loadAddon(webgl_addon);
-  state.term.onTitleChange((title)=>{
+  state.term.onTitleChange((title) => {
     emit('update:title', title);
   })
-  state.term.onResize(size=>{
-    ResizePty(props.id,size.rows,size.cols).catch(err=>{
+  state.term.onResize(size => {
+    ResizePty(props.id, size.rows, size.cols).catch(err => {
       message.error(err);
     });
   })
@@ -93,9 +93,9 @@ function NewTerminal(){
     if (event.type === 'keydown' && event.ctrlKey && event.key === 'c') {
       const copiedText = state.term.getSelection();
       if (copiedText.length > 0) {
-        SetClipTextToClipboard(copiedText).then(()=>{
+        SetClipTextToClipboard(copiedText).then(() => {
           state.term.clearSelection();
-        }).catch( e => {
+        }).catch(e => {
           message.error(e)
         })
         return false; // 阻止 xterm.js 进一步处理这个事件
@@ -117,13 +117,13 @@ interface ColsRows {
 function getColsRows() {
   return <ColsRows>{
     cols: state.term.cols,
-    rows :state.term.rows
+    rows: state.term.rows
   }
 }
 
-function fitWithHeightWidth(width:number = props.width,height:number = props.height) {
+function fitWithHeightWidth(width: number = props.width, height: number = props.height) {
   if (width == 0 || height == 0) return;
-  const core =  (state.term as any)._core;
+  const core = (state.term as any)._core;
   const dims: IRenderDimensions = core._renderService.dimensions;
   if (dims.css.cell.width === 0 || dims.css.cell.height === 0) return;
   const cols = Math.floor(width / dims.css.cell.width);
@@ -131,29 +131,29 @@ function fitWithHeightWidth(width:number = props.width,height:number = props.hei
   if (state.cols == cols && state.rows == rows) return;
   state.cols = cols;
   state.rows = rows;
-  if (Number.isFinite(rows) && Number.isFinite(cols)){
+  if (Number.isFinite(rows) && Number.isFinite(cols)) {
     state.term.resize(cols, rows);
   }
 }
 
 // Write data from pty into the terminal
 function writeToTerminal(data: string | Uint8Array | ArrayBuffer | Blob) {
-  toUint8Array(data).then(res=>{
+  toUint8Array(data).then(res => {
     state.term.write(res);
   })
 }
 
 // Write data from the terminal to the pty
 function writeToPty(data: string | Uint8Array | ArrayBuffer | Blob) {
-  toUint8Array(data).then(resp=>{
-    WriteToPty(props.id,Array.from(resp)).catch(e=>{
+  toUint8Array(data).then(resp => {
+    WriteToPty(props.id, Array.from(resp)).catch(e => {
       message.error(e);
     });
   })
 }
 
-function ptyStdoutListener(){
-  EventsOn(props.id,(resp: string)=>{
+function ptyStdoutListener() {
+  EventsOn(props.id, (resp: string) => {
     writeToTerminal(resp);
   })
 }
@@ -187,9 +187,9 @@ function rightMouseDown(event: any) {
     if (state.term.hasSelection()) {
       const copiedText = state.term.getSelection();
       if (copiedText.length > 0) {
-        SetClipTextToClipboard(copiedText).then(()=>{
+        SetClipTextToClipboard(copiedText).then(() => {
           state.term.clearSelection();
-        }).catch( e => {
+        }).catch(e => {
           message.error(e)
         })
       }
@@ -201,7 +201,7 @@ function rightMouseDown(event: any) {
   }
 }
 
-function focusTerminal(){
+function focusTerminal() {
   state.term.focus()
 }
 
@@ -212,18 +212,18 @@ defineExpose({
   startRecording
 })
 
-function onDragover(event: DragEvent){
+function onDragover(event: DragEvent) {
   event.preventDefault();
 }
 
-function onDrop(event: DragEvent){
+function onDrop(event: DragEvent) {
   event.preventDefault();
   if (event?.dataTransfer?.items && event?.dataTransfer?.items?.length > 0) {
     writeToPty('trz\r');
   }
 }
 
-function startRecording(){
+function startRecording() {
   StartRec(props.id, state.term.rows, state.term.cols).then(res => {
     state.recording = true;
     state.recordingFile = res;
@@ -232,17 +232,17 @@ function startRecording(){
       description: '录制中...',
       duration: 3
     })
-  }).catch(err=>{
+  }).catch(err => {
     message.error(err);
   });
 }
 
-function stopRecording(){
+function stopRecording() {
   state.recording = false;
   state.recordingFile = '';
 }
 
-onMounted(()=>{
+onMounted(() => {
   nextTick(() => {
     initShell();
     state.term.onData(writeToPty);
@@ -251,8 +251,8 @@ onMounted(()=>{
   });
 })
 
-onUnmounted( () => {
-  ClosePty(props.id).catch(err=>{
+onUnmounted(() => {
+  ClosePty(props.id).catch(err => {
     message.error(err);
   });
   EventsOff(props.id);
@@ -261,14 +261,9 @@ onUnmounted( () => {
 
 <template>
   <div class="terminal-item">
-    <div
-        :ref="setItemRef"
-        class="xterm-layout"
-        @contextmenu.prevent="rightMouseDown"
-        @dragover="onDragover"
-        @drop="onDrop"
-    />
-    <recording v-if="state.recording" :id="props.id" :filename="state.recordingFile" :stop-recording="stopRecording"/>
+    <div :ref="setItemRef" class="xterm-layout" @contextmenu.prevent="rightMouseDown" @dragover="onDragover"
+      @drop="onDrop" />
+    <recording v-if="state.recording" :id="props.id" :filename="state.recordingFile" :stop-recording="stopRecording" />
   </div>
 </template>
 
@@ -280,6 +275,7 @@ onUnmounted( () => {
   width: 100%;
   height: 100%;
 }
+
 .xterm-layout {
   background-color: #1d1e21;
   height: 100%;
@@ -287,13 +283,16 @@ onUnmounted( () => {
   max-height: 100%;
   max-width: 100%;
 }
+
 /deep/ .terminal {
   height: 100%;
   width: 100%;
   max-height: 100%;
   max-width: 100%;
-  justify-content: center; /* 水平居中对齐内容 */
-  align-items: center; /* 垂直居中对齐内容 */
+  justify-content: center;
+  /* 水平居中对齐内容 */
+  align-items: center;
+  /* 垂直居中对齐内容 */
   background-color: rgb(26, 27, 30);
 }
 </style>

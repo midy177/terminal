@@ -5,10 +5,11 @@ package termx
 import (
 	"bufio"
 	"fmt"
-	"github.com/creack/pty"
 	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/creack/pty"
 )
 
 func supportLogin() bool {
@@ -17,6 +18,7 @@ func supportLogin() bool {
 		return false
 	}
 	bash := exec.Command(
+		"sudo",
 		"login",
 		"-f",
 		user,
@@ -72,8 +74,8 @@ func getShells() {
 		shells = append(shells, SystemShell{
 			//ID:      "login",
 			Name:    title,
-			Command: "login",
-			Args:    []string{"-f", user},
+			Command: "sudo",
+			Args:    []string{"login", "-f", user},
 			Env:     []string{"TERM=" + term},
 			Cwd:     home,
 			Icon:    "/assets/icons/linux.svg",
