@@ -15,6 +15,8 @@ wails build -clean
 #fi
 
 # wails dev -tags=sonic
+# linux 
+# wails build -tags=sonic,webkit2_41
 
 cd build/bin
 rm *.dmg
